@@ -1,11 +1,9 @@
-import {
-  type ISearchInput,
-  type ISiteMetadata,
-  type IUserInfo,
-  type ITorrent,
-  type ITorrentTag,
+import { 
+  ISiteMetadata,
+  ITorrent,
+  ITorrentTag
 } from "../types";
-import AvistazTracker, { SchemaMetadata, IAvzTRawTorrent} from "../schemas/AvistazTracker.ts";
+import AvistazTracker, { SchemaMetadata, IAvzTRawTorrent } from "../schemas/AvistazTracker.ts";
 
 const categoryMap: Record<number, string> = {
   1: "Video Clips",
@@ -92,21 +90,22 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "append", key: "" },
     },
-  ],
+
   search: {
     ...SchemaMetadata.search!,
     advanceKeywordParams: {
       imdb: { enabled: false },
+      tvdb: { enabled: false },
       tmdb: { enabled: false },
     },
     selectors: {
       ...SchemaMetadata.search!.selectors!,
-    },
   },
 
   searchEntry: {
     area_all: { name: "成人", enabled: false },
   },
+
 
   levelRequirements: [
     {
@@ -151,72 +150,105 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export interface IExoRawTorrent extends IAvzTRawTorrent {
-    asian: boolean;
+  data: {
+  	asian: boolean;
     softcore: boolean;
     censored: boolean;
     gay: boolean;
     transexual: boolean;
-    studios: { id: number; name: string }[];
-    performers: { id: number; name: string }[];
-    tags?: Record<string, string>[];
+    studios: string[];
+    performers: string[];
+  }
 }
 
 export default class Exoticaz extends AvistazTracker {
-  static siteMetadata = siteMetadata;
-  
+
+  /*
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let flushUserInfo: IUserInfo = {
+      status: EResultParseStatus.unknownError,
+      updateAt: +new Date(),
+      site: this.metadata.id,
+    };
+
+    if (!this.allowQueryUserInfo) {
+      flushUserInfo.status = EResultParseStatus.passParse;
+      return flushUserInfo;
+    }
+
+    try {
+      
+      // 获取主页中的用户基础信息
+      const baseInfo = await this.getUserBaseInfoFromSite();
+      flushUserInfo = { ...flushUserInfo, ...baseInfo };
+
+      const username = this.userConfig.inputSetting?.username ?? "";
+      if (username) {
+        const extendInfo = await this.getUserExtendInfoFromProfile(username);
+        flushUserInfo = { ...flushUserInfo, ...extendInfo };
+      }
+      flushUserInfo.id = username;
+      flushUserInfo.name = baseInfo.name || username;
+
+      if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
+        flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
+      }
+      
+      // 获取主页中的用户基础信息
+      const tokenInfo = await this.getValidToken();
+      flushUserInfo = { ...flushUserInfo, ...tokenInfo };
+    
+      flushUserInfo.status = EResultParseStatus.success;
+    } catch (error) {
+      flushUserInfo.status = EResultParseStatus.parseError;
+    }
+
+    return flushUserInfo;
+  }
+
+  protected async getUserBaseInfoFromSite(): Promise<Partial<IUserInfo>> {
+    const { data: dataDocument } = await this.request<Document>({
+      url: "/",
+      responseType: "document",
+    });
+
+    return this.getFieldsData(
+      dataDocument,
+      this.metadata.userInfo?.process?.selectors!,
+      ["name", "uploaded", "downloaded", "ratio", "levelName", "bonus"]
+    ) as Partial<IUserInfo>;
+  }
+
+  protected async getUserExtendInfoFromProfile(username: string): Promise<Partial<IUserInfo>> {
+    const { data: dataDocument } = await this.request<Document>({
+      url: `/profile/${username}`,
+      responseType: "document",
+    });
+
+    return this.getFieldsData(
+      dataDocument,
+      this.metadata.userInfo?.process?.selectors!,
+      ["joinTime", "uploads", "snatches", "hnrUnsatisfied"]
+    ) as Partial<IUserInfo>;
+  }
+  */
+
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: IExoRawTorrent,
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
-    // 先调用父类方法，获取基础的促销标签处理
-    const baseTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
-
-    // 直接使用row，不需要类型转换
-    const exoData = row;
+  	const torrent = await super.parseTorrentRowForTag(torrent, row, searchConfi)
 
     // 生成副标题（演员名与标签）
-    const tagsArray = Array.isArray(exoData.tags) ? exoData.tags : [];
-    const performersArray = Array.isArray(exoData.performers) ? exoData.performers : [];
-    
-    // 提取tags的值（忽略键）
-    const tagNames = tagsArray.flatMap((tagObj: Record<string, string>) => Object.values(tagObj)).filter(Boolean);
-    
-    // 提取performers的值（忽略键）
-    const performerNames = performersArray.flatMap((performerObj: Record<string, string>) => Object.values(performerObj)).filter(Boolean);
-    
-    const performersStr = performerNames.join(" / ");
-    const tagStr = tagNames.join(", ");
+    const tagsArray = Array.isArray(row.tags) ? row.tags : [];
+    const performersArray = Array.isArray(row.performers) ? row.performers : [];
+    const performersNames = performersArray.map((a: any) => a.name).filter(Boolean);
+    const tagList = tagsArray.filter(Boolean);
+    const performersStr = performersNames.join(" / ");
+    const tagStr = tagList.join(", ");
     const subTitle = [performersStr, tagStr].filter(Boolean).join(" | ");
 
-    // 设置副标题
-    if (subTitle) {
-      baseTorrent.subTitle = subTitle;
-    }
-
-    // 可以在这里添加ExoticaZ特有的标签逻辑
-    const existingTags = baseTorrent.tags || [];
-    const newTags: ITorrentTag[] = [...existingTags];
-
-    // 添加内容类型标签
-    if (exoData.asian) {
-      newTags.push({ name: "Asian", color: "pink" });
-    }
-    if (exoData.softcore) {
-      newTags.push({ name: "Softcore", color: "light-blue" });
-    }
-    if (exoData.censored) {
-      newTags.push({ name: "Censored", color: "grey" });
-    }
-    if (exoData.gay) {
-      newTags.push({ name: "Gay", color: "rainbow" });
-    }
-    if (exoData.transexual) {
-      newTags.push({ name: "Trans", color: "purple" });
-    }
-
-    updatedTorrent.tags = newTags;
-
-    return updatedTorrent;
+    return torrent;
   }
 }
