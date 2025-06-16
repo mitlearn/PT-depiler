@@ -61,7 +61,7 @@ export interface IAvzTRawTorrent {
 
 export const SchemaMetadata: Pick<
   ISiteMetadata,
-  "version" | "schema" | "type" | "timezoneOffset" | "search" | "userInfo" // 【修改6】添加userInfo到Pick类型中
+  "version" | "schema" | "type" | "timezoneOffset" | "search" | "userInfo"
 > = {
 
   version: 0,
@@ -74,7 +74,27 @@ export const SchemaMetadata: Pick<
     requestConfig: {
       url: "/api/v1/jackett/torrents",
       responseType: "json",
-      params: { in: 1, limit: 100 },
+      params: { in: 1, limit: 50 }, //最大值50，更改无效
+    },
+  advanceKeywordParams: {
+      imdb: {
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          if (config?.data?.search) {
+            config.data.imdb_id = config.data.search;
+            delete config!.data.search;
+          }
+          return config!;
+        }
+      },
+      tmdb: {
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          if (config?.data?.search) {
+            config.data.tmdb_id = config.data.search;
+            delete config!.data.search;
+          }
+          return config!;
+        }
+      },
     },
     selectors: {
       rows: { selector: "data" },
@@ -89,10 +109,10 @@ export const SchemaMetadata: Pick<
       },
       time: { 
         selector: "created_at",
-        filters: [(value: any) => parseTimeWithZone(value, this.metadata.timezoneOffset)], // 【修改7】保持原有的时区处理逻辑
+        filters: [(value: any) => parseTimeWithZone(value, this.metadata.timezoneOffset)],
       },
       size: { selector: "file_size" },
-      author: { text: "" }, // 【修改8】修复语法错误，删除多余的冒号
+      author: { text: "" },
       seeders: { selector: "seed" },
       leechers: { selector: "leech" },
       completed: { selector: "completed" },
