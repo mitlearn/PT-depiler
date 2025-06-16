@@ -1,30 +1,14 @@
-import type { AxiosRequestConfig, AxiosResponse } from "axios"; // 用于request方法
+import type { AxiosRequestConfig, AxiosResponse } from "axios"; // ??request????
 
 import PrivateSite from "./AbstractPrivateSite";
-import { parseTimeWithZone } from "../utils"; // 仅保留使用的parseTimeWithZone
-import { ETorrentStatus, type ISiteMetadata, type ITorrent, type ISearchInput, type ITorrentTag } from "../types"; // 删除未使用的EResultParseStatus和IUserInfo
-import { sendMessage } from "@/messages.ts"; // 用于getValidToken
-import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts"; // 用于getValidToken
+import { parseTimeWithZone } from "../utils"; // ??????????arseTimeWithZone
+import { ETorrentStatus, type ISiteMetadata, type ITorrent, type ISearchInput, type ITorrentTag } from "../types"; // ɾ??δʹ???ResultParseStatus??UserInfo
+import { sendMessage } from "@/messages.ts"; // ??getValidToken
+import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts"; // ??getValidToken
 
-export interface AvzTRawResponse {
-  status: "success" | "failure" | "error";
-  data: any;
-  message?: string;
-}
-
-export interface AvzTSearchResponse {
-  current_page: number;
-  data: D;
-  first_page_url?: string;
-  from: number | null;
-  last_page: number;
-  last_page_url?: string;
-  next_page_url: string | null;
-  path: string;
-  per_page: number | string; // API可能返回字符串或数字
-  prev_page_url: string | null;
-  to: number | null;
-  total: number;
+export interface AvzTAuthResponse {
+  token?: string;
+  expiry?: number;
 }
 
 export interface IAvzTRawTorrent {
@@ -58,7 +42,7 @@ export interface IAvzTRawTorrent {
     images: string[];
     description: string;
     [key: string]: any;
-  };
+}
 
 export const SchemaMetadata: Pick<
   ISiteMetadata,
@@ -68,16 +52,16 @@ export const SchemaMetadata: Pick<
   version: 0,
   schema: "AvistazTracker",
   type: "private",
-  timezoneOffset: "+0100", // 参考Jackett，时区设置+0100
+  timezoneOffset: "+0100", // ?ο?Jackett??ʱ???+0100
 
   search: {
     keywordPath: "params.search",
     requestConfig: {
       url: "/api/v1/jackett/torrents",
       responseType: "json",
-      params: { in: 1, limit: 50 }, //最大值50，更改无效
+      params: { in: 1, limit: 50 }, // ????50????????
     },
-  advanceKeywordParams: {
+	advanceKeywordParams: {
       imdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
           if (config?.params?.search) {
@@ -101,7 +85,7 @@ export const SchemaMetadata: Pick<
       rows: { selector: "data" },
       id: { selector: "id" },
       title: { selector: "file_name" },
-      subTitle: { text: "" }, // Avz未提供subTitle
+      subTitle: { text: "" }, // Avzδ???subTitle
       url: { selector: "url" },
       link: { selector: "download" },
       category: { 
@@ -109,29 +93,28 @@ export const SchemaMetadata: Pick<
         filters: [(value: any) => Object.values(value).join(" / ")],
       },
       time: { 
-        selector: "created_at",
-        filters: [(value: any) => parseTimeWithZone(value, this.metadata.timezoneOffset)],
+        selector: "created_at", filters: [{ name: "parseTime" }]
+        // filters: [(value: any) => parseTimeWithZone(value, this.metadata.timezoneOffset) ?? "Unknown"],
       },
-      size: { selector: "file_size" },
+      size: { selector: "file_size", filters: [{ name: "parseSize" }] },
       author: { text: "" },
       seeders: { selector: "seed" },
       leechers: { selector: "leech" },
       completed: { selector: "completed" },
-      //  Avz未提供progress, status
+      // Avzδ???progress, status
       progress: { text: 0 },
       status: { text: ETorrentStatus.unknown },
     },
   },
 
   /*
-    预留userinfo获取，不启用
+    Ԥ??serinfo?????????
     > User information will never be available in any form or API, as we respect the privacy and confidentiality of user information.
     @refs: https://github.com/pt-plugins/PT-Plugin-Plus/issues/996#issuecomment-1057856310
   */
   /*
-  // 【新增1】参考zhuque.ts，添加userInfo配置
   userInfo: {
-    pickLast: ["name"], // 保留name字段用于后续详情页获取
+    pickLast: ["name"], // ????ame????ں????ҳ???
     process: [
       {
         requestConfig: { url: "/", responseType: "document" },
@@ -147,7 +130,7 @@ export const SchemaMetadata: Pick<
       {
         requestConfig: { url: "/profile/${params.name}", responseType: "document" },
         selectors: {
-          joinTime: { selector: ["table.table-striped tr:contains('Joined') td:last-child"], filters: [{ name: "parseTime", args: ["dd MMMM yyyy hh:mm a"] }] },
+          joinTime: { selector: ["table.table-striped tr:contains('Joined') td:last-child"], filters: [{ name: "parseTime", args: ["dd MMMM yyyy hh:mm a"] }] },  // "20 May 1900 05:20 pm (X years ago)"
           uploads: { selector: [".tag-green:contains('Uploads:')"], filters: [{ name: "parseNumber" }] },
           snatches: { selector: [".tag-green:contains('Downloads:')"], filters: [{ name: "parseNumber" }] },
           hnrUnsatisfied: { selector: [".tag-green:contains('Hit & Run:')"], filters: [{ name: "parseNumber" }] },
@@ -157,96 +140,17 @@ export const SchemaMetadata: Pick<
   },
   */
 
-  /*
-    预留userinfo获取，不启用
-    > User information will never be available in any form or API, as we respect the privacy and confidentiality of user information.
-    @refs: https://github.com/pt-plugins/PT-Plugin-Plus/issues/996#issuecomment-1057856310
-  */
-  /*
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: "/", responseType: "document" },
-        fields: [
-          "name",
-          "uploaded",
-          "downloaded",
-          "ratio",
-          "levelName",
-          "bonus",
-        ],
-      },
-      {
-        requestConfig: {
-          url: "/profile/${flushUserInfo.name}",
-          // url: "/profile/${params.name}",
-          responseType: "document",
-        },
-        fields: [
-          "uploads",
-          "snatches"
-          "joinTime",
-          "hnrUnsatisfied",
-        ],
-      },
-    ],
-    selectors: {
-      // "page": "/",
-      name: {
-        selector: [".ratio-bar .user-group.group-member"],
-      },
-      uploaded: {
-        selector: [".ratio-bar [data-original-title='Upload']"],
-        filters: [{ name: "parseSize" }]
-      },
-      downloaded: {
-        selector: [".ratio-bar [data-original-title='Download']"],
-        filters: [{ name: "parseSize" }]
-      },
-      ratio: {
-        selector: [".ratio-bar [data-original-title='Ratio']"],
-        filters: [{ name: "parseNumber" }]
-      },
-      levelName: {
-        selector: [".ratio-bar .fa-users + .user-group.group-member"],
-      },
-      bonus: {
-        selector: [".ratio-bar .fa-star + a[title='My Bonus Points'] + text()"],
-        filters: [{ name: "parseNumber" }]
-      },
-
-      // "page": "/profile/$user.name$",
-      joinTime: {
-        selector: ["table.table-striped tr:contains('Joined') td:last-child"],
-        filters:  [{ name: "parseTime", args: [ "dd MMMM yyyy hh:mm a" ] }] // "20 May 1900 05:20 pm (X years ago)"
-      },
-      uploads: {
-        selector: [".tag-green:contains('Uploads:')"],
-        filters: [{ name: "parseNumber" }]
-      },
-      snatches: {
-        selector: [".tag-green:contains('Downloads:')"],
-        filters: [{ name: "parseNumber" }]
-      },
-      hnrUnsatisfied: {
-        selector: [".tag-green:contains('Hit & Run:')"],
-        filters: [{ name: "parseNumber" }]
-      },
-    },
-  },
-*/
-
   userInputSettingMeta: [
     {
       name: "username",
       label: "Username",
-      hint: "Fill with your username" + "Only Member Rank and above can use search", 
+      hint: "Fill with your username", 
       required: true,
     },
     {
       name: "password",
       label: "Password",
-      hint: "Fill with your password" + "Must enable RSS for search", 
+      hint: "Fill with your password", 
       required: true,
     },
     {
@@ -256,6 +160,13 @@ export const SchemaMetadata: Pick<
       "PID is like your password, you must keep it safe!",
       required: true,
     },
+	/*{
+	  name: "confirm",
+      label: "Confirm",
+	  hint: "Only Member Rank and above can use search and must enable RSS for search" +
+		"If u confirm above, please enter confirm",
+	  required: true,
+	}*/
   ],
 };
 
@@ -264,13 +175,12 @@ export default class AvistazTracker extends PrivateSite {
 
   constructor() {
     super();
-    // 从子类的静态属性 siteMetadata 读取 name
+    // 动态获取 siteMetadata 中定义的站点名称
     const ctor = this.constructor as typeof AvistazTracker & { siteMetadata?: { name: string } };
     this.site = ctor.siteMetadata?.name ?? "AvistazTracker";
   }
 
   /*
-  // 【新增2】重写getUserInfoResult方法，统一处理token获取和用户信息
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo: IUserInfo = {
       status: EResultParseStatus.unknownError,
@@ -284,35 +194,27 @@ export default class AvistazTracker extends PrivateSite {
     }
 
     try {
-      // 确保有有效的token并存储在userInfo中
-      const token = await this.getValidToken();
       
-      // 获取基础用户信息
+      // 获取主页中的用户基础信息
       const baseInfo = await this.getUserBaseInfoFromSite();
       flushUserInfo = { ...flushUserInfo, ...baseInfo };
 
-      // 获取用户名用于详情页查询
       const username = this.userConfig.inputSetting?.username ?? "";
       if (username) {
         const extendInfo = await this.getUserExtendInfoFromProfile(username);
         flushUserInfo = { ...flushUserInfo, ...extendInfo };
       }
-
-      // 设置用户id和name
       flushUserInfo.id = username;
       flushUserInfo.name = baseInfo.name || username;
-
-      // 【新增5】将authToken信息存储在userInfo的自定义字段中
-      // 这样可以通过IUserInfo的[key: string]: any 来存储
-      (flushUserInfo as any).authToken = {
-        token,
-        expiresAt: this.getTokenExpiresAt(),
-      };
 
       if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
         flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
       }
       
+      // 获取主页中的用户基础信息
+      const tokenInfo = await this.getValidToken();
+      flushUserInfo = { ...flushUserInfo, ...tokenInfo };
+	  
       flushUserInfo.status = EResultParseStatus.success;
     } catch (error) {
       flushUserInfo.status = EResultParseStatus.parseError;
@@ -321,15 +223,6 @@ export default class AvistazTracker extends PrivateSite {
     return flushUserInfo;
   }
 
-  // 【新增6】获取当前token的过期时间
-  private getTokenExpiresAt(): number {
-    // 从存储中获取当前token的过期时间
-    return this._tokenExpiresAt || 0;
-  }
-
-  private _tokenExpiresAt: number = 0; // 【新增7】临时存储token过期时间
-
-  // 【新增3】获取首页基础用户信息
   protected async getUserBaseInfoFromSite(): Promise<Partial<IUserInfo>> {
     const { data: dataDocument } = await this.request<Document>({
       url: "/",
@@ -338,12 +231,11 @@ export default class AvistazTracker extends PrivateSite {
 
     return this.getFieldsData(
       dataDocument,
-      this.metadata.userInfo?.process?.[0]?.selectors!,
+      this.metadata.userInfo?.process?.selectors!,
       ["name", "uploaded", "downloaded", "ratio", "levelName", "bonus"]
     ) as Partial<IUserInfo>;
   }
 
-  // 【新增4】从用户详情页获取扩展信息
   protected async getUserExtendInfoFromProfile(username: string): Promise<Partial<IUserInfo>> {
     const { data: dataDocument } = await this.request<Document>({
       url: `/profile/${username}`,
@@ -352,7 +244,7 @@ export default class AvistazTracker extends PrivateSite {
 
     return this.getFieldsData(
       dataDocument,
-      this.metadata.userInfo?.process?.[1]?.selectors!,
+      this.metadata.userInfo?.process?.selectors!,
       ["joinTime", "uploads", "snatches", "hnrUnsatisfied"]
     ) as Partial<IUserInfo>;
   }
@@ -385,7 +277,7 @@ export default class AvistazTracker extends PrivateSite {
     return super.request<T>(axiosConfig, checkLogin);
   }
 
-private async getValidToken(): Promise<string> {
+private async getValidToken(): Promise<Partial<IUserInfo>> {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
   const userList: any[] = Array.isArray(metadataStore?.lastUserInfo) ? metadataStore.lastUserInfo : [];
   const now = Math.floor(Date.now() / 1000);
@@ -394,9 +286,9 @@ private async getValidToken(): Promise<string> {
   const userInfo = userIndex !== -1 ? userList[userIndex] : undefined;
   
   const authToken = userInfo?.authToken;
-  const expiresAt = userInfo?.authTokenExpiresAt;
+  const authExpiresAt = userInfo?.authExpiresAt;
 
-  if (authToken && expiresAt && now < expiresAt) {
+  if (authToken && authExpiresAt && now < authExpiresAt) {
     return authToken;
   }
 
@@ -408,36 +300,32 @@ private async getValidToken(): Promise<string> {
   const { token, expiry, message } = response.data;
 
   if (!token || !expiry) {
-    throw new Error(message || `请求 ${this.metadata?.name} 失败`);
+    throw new Error(message || `获取站点 ${this.metadata?.name} token失败` );
   }
 
-  const newExpiresAt = now + expiry;
+  const authToken = token;
+  const authExpiresAt = now + expiry;
 
-  // 使用类型断言或确保类型匹配
-  const updatedUser: any = {
-    ...(userInfo ?? {}),
-    site: this.metadata.id,
-    authToken: token,
-    authTokenExpiresAt: newExpiresAt,
-    updateAt: +new Date(),
-  };
-
-  if (userIndex !== -1) {
-    userList[userIndex] = updatedUser;
-  } else {
-    userList.push(updatedUser);
-  }
-
-  const newMetadata = {
-    ...metadataStore,
-    lastUserInfo: userList,
-  };
-
-  // 使用正确的存储方式
-  await sendMessage("setExtStorage", { key: "metadata", value: newMetadata });
-
-  return token;
+// 更新 userList 中对应用户的 token 信息
+const newUserInfo = { ...userInfo, site, authToken, authExpiresAt };
+if (userIndex !== -1) {
+  userList[userIndex] = newUserInfo;
+} else {
+  userList.push(newUserInfo);
 }
+
+// 写回 metadata
+const newMetadata = { ...metadataStore, lastUserInfo: userList };
+await sendMessage("setExtStorage", { key: "metadata", value: newMetadata });
+
+// 返回 token 字符串
+return authToken;
+}
+
+  protected override loggedCheck(raw: AxiosResponse): boolean {
+	 return raw.status >= 200 && raw.status < 300;
+  }
+
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: IAvzTRawTorrent,
@@ -445,7 +333,6 @@ private async getValidToken(): Promise<string> {
   ): Partial<ITorrent> {
     const tags: ITorrentTag[] = [];
 
-    // 处理基本的促销情况
     const { upload_multiply, download_multiply } = row as { upload_multiply?: number; download_multiply?: number };
     if (upload_multiply === 2) {
       tags.push({ name: `${upload_multiply}xUp`, color: "lime" });
