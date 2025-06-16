@@ -102,10 +102,10 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.search!.selectors!,
     },
+  },
 
-    searchEntry: {
+  searchEntry: {
       area_all: { name: "成人", enabled: false },
-    },
   },
 
   levelRequirements: [
