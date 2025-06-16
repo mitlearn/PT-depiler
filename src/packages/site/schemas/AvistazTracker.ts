@@ -8,13 +8,26 @@ import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metada
 
 export interface AvzTRawResponse {
   status: "success" | "failure" | "error";
-  response: any;
-  error?: string;
+  data: any;
+  message?: string;
+}
+
+export interface AvzTSearchResponse {
+  current_page: number;
+  data: D;
+  first_page_url?: string;
+  from: number | null;
+  last_page: number;
+  last_page_url?: string;
+  next_page_url: string | null;
+  path: string;
+  per_page: number | string; // API可能返回字符串或数字
+  prev_page_url: string | null;
+  to: number | null;
+  total: number;
 }
 
 export interface IAvzTRawTorrent {
-  current_page: number;
-  data: {
     id: number;
     file_name: string;
     file_size: number;
@@ -45,19 +58,7 @@ export interface IAvzTRawTorrent {
     images: string[];
     description: string;
     [key: string]: any;
-  }[];
-
-  first_page_url?: string;
-  from: number | null;
-  last_page: number;
-  last_page_url?: string;
-  next_page_url: string | null;
-  path: string;
-  per_page: number | string; // API可能返回字符串或数字
-  prev_page_url: string | null;
-  to: number | null;
-  total: number;
-}
+  };
 
 export const SchemaMetadata: Pick<
   ISiteMetadata,
@@ -239,13 +240,13 @@ export const SchemaMetadata: Pick<
     {
       name: "username",
       label: "Username",
-      hint: "Fill with your username",
+      hint: "Fill with your username" + "Only Member Rank and above can use search", 
       required: true,
     },
     {
       name: "password",
       label: "Password",
-      hint: "Fill with your password",
+      hint: "Fill with your password" + "Must enable RSS for search", 
       required: true,
     },
     {
@@ -364,11 +365,11 @@ export default class AvistazTracker extends PrivateSite {
     const url = axiosConfig.url ?? "";
 
     if (url.includes("/api/v1/jackett/auth")) {
-      const { username, password, pid } = this.userConfig.inputSetting!; // 【修改9】修正字段名username而非user
+      const { username, password, pid } = this.userConfig.inputSetting!;
       axiosConfig.method = "POST"
       axiosConfig.headers = {
         ...(axiosConfig.headers ?? {}),
-        username, // 【修改10】对应修正
+        username,
         password,
         pid,
       };
