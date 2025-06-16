@@ -190,7 +190,9 @@ export default class AvistazTracker extends PrivateSite {
   public site: string;
 
   constructor() {
+    super(); // 必须先调用 super()
     // 自动使用子类类名作为默认 site 名
+    // 这样 Exo 继承时，this.constructor.name 就是 "Exo"
     this.site = this.constructor.name;
   }
 
@@ -244,14 +246,14 @@ private async getValidToken(): Promise<string> {
   const { token, expiry, message } = response.data;
 
   if (!token || !expiry) {
-    throw new Error(message || `获取站点 ${this.metadata?.name} token失败` );
+    throw new Error(message || `获取站点 ${this.site} token失败` );
   }
 
   const authToken = token;
   const authExpiresAt = now + expiry;
 
 // 更新 userList 中对应用户的 token 信息
-const newUserInfo = { ...userInfo, site, authToken, authExpiresAt };
+const newUserInfo = { ...userInfo, site: this.site, authToken, authExpiresAt };
 if (userIndex !== -1) {
   userList[userIndex] = newUserInfo;
 } else {
