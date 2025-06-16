@@ -1,3 +1,10 @@
+import {
+  type ISearchInput,
+  type ISiteMetadata,
+  type IUserInfo,
+  type ITorrent,
+  type ITorrentTag,
+} from "../types";
 import AvistazTracker, { SchemaMetadata, IAvzTRawTorrent} from "../schemas/AvistazTracker.ts";
 
 const categoryMap: Record<number, string> = {
@@ -156,22 +163,61 @@ export interface IExoRawTorrent extends IAvzTRawTorrent {
 }
 
 export default class Exoticaz extends AvistazTracker {
+  static siteMetadata = siteMetadata;
+  
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
-    row: IExoRawTorrent,
+    row: IExoRawTorrent['data'][0],
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
-  	const torrent = await super.parseTorrentRowForTag(torrent, row, searchConfi)
+    // 先调用父类方法，获取基础的促销标签处理
+    const updatedTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
+
+    // 直接使用row，不需要类型转换
+    const exoData = row;
 
     // 生成副标题（演员名与标签）
-    const tagsArray = Array.isArray(row.tags) ? row.tags : [];
-    const performersArray = Array.isArray(row.performers) ? row.performers : [];
-    const performersNames = performersArray.map((a: any) => a.name).filter(Boolean);
-    const tagList = tagsArray.filter(Boolean);
-    const performersStr = performersNames.join(" / ");
-    const tagStr = tagList.join(", ");
+    const tagsArray = Array.isArray(exoData.tags) ? exoData.tags : [];
+    const performersArray = Array.isArray(exoData.performers) ? exoData.performers : [];
+    
+    // 提取tags的值（忽略键）
+    const tagNames = tagsArray.flatMap(tagObj => Object.values(tagObj)).filter(Boolean);
+    
+    // 提取performers的值（忽略键）
+    const performerNames = performersArray.flatMap(performerObj => Object.values(performerObj)).filter(Boolean);
+    
+    const performersStr = performerNames.join(" / ");
+    const tagStr = tagNames.join(", ");
     const subTitle = [performersStr, tagStr].filter(Boolean).join(" | ");
 
-    return torrent;
+    // 设置副标题
+    if (subTitle) {
+      updatedTorrent.subTitle = subTitle;
+    }
+
+    // 可以在这里添加ExoticaZ特有的标签逻辑
+    const existingTags = updatedTorrent.tags || [];
+    const newTags: ITorrentTag[] = [...existingTags];
+
+    // 添加内容类型标签
+    if (exoData.asian) {
+      newTags.push({ name: "Asian", color: "pink" });
+    }
+    if (exoData.softcore) {
+      newTags.push({ name: "Softcore", color: "light-blue" });
+    }
+    if (exoData.censored) {
+      newTags.push({ name: "Censored", color: "grey" });
+    }
+    if (exoData.gay) {
+      newTags.push({ name: "Gay", color: "rainbow" });
+    }
+    if (exoData.transexual) {
+      newTags.push({ name: "Trans", color: "purple" });
+    }
+
+    updatedTorrent.tags = newTags;
+
+    return updatedTorrent;
   }
 }
