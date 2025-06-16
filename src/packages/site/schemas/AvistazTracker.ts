@@ -447,7 +447,7 @@ export default class AvistazTracker extends PrivateSite {
 
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
-    row: Element | Document | object,
+    row: IAvzTRawTorrent,
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
     const tags: ITorrentTag[] = [];
