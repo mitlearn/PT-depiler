@@ -1,10 +1,16 @@
-import type { AxiosRequestConfig, AxiosResponse } from "axios"; // ??request????
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
 import PrivateSite from "./AbstractPrivateSite";
-import { parseTimeWithZone } from "../utils"; // ??????????arseTimeWithZone
-import { ETorrentStatus, type ISiteMetadata, type ITorrent, type ISearchInput, type ITorrentTag } from "../types"; // ɾ??δʹ???ResultParseStatus??UserInfo
+import {
+  ETorrentStatus,
+  type ISiteMetadata,
+  type IUserInfo,
+  type ITorrent,
+  type ITorrentTag,
+  type ISearchInput
+} from "../types"; 
 import { sendMessage } from "@/messages.ts"; // ??getValidToken
-import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts"; // ??getValidToken
+import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts";
 
 export interface AvzTAuthResponse {
   token?: string;
@@ -62,7 +68,7 @@ export const SchemaMetadata: Pick<
       params: { in: 1, limit: 50 }, // ????50????????
     },
 	advanceKeywordParams: {
-      imdb: {
+    imdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
           if (config?.params?.search) {
             config.params.imdb = config.params.search;
@@ -71,10 +77,19 @@ export const SchemaMetadata: Pick<
           return config!;
         }
       },
-      tvdb: {
+    tvdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
           if (config?.params?.search) {
             config.params.tvdb = config.params.search;
+            delete config!.params.search;
+          }
+          return config!;
+        }
+      },
+    tmdb: {
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          if (config?.params?.search) {
+            config.params.tmdb = config.params.search;
             delete config!.params.search;
           }
           return config!;
@@ -85,7 +100,7 @@ export const SchemaMetadata: Pick<
       rows: { selector: "data" },
       id: { selector: "id" },
       title: { selector: "file_name" },
-      subTitle: { text: "" }, // Avzδ???subTitle
+      subTitle: { text: "" }, // Avz不提供subTitle
       url: { selector: "url" },
       link: { selector: "download" },
       category: { 
@@ -101,7 +116,7 @@ export const SchemaMetadata: Pick<
       seeders: { selector: "seed" },
       leechers: { selector: "leech" },
       completed: { selector: "completed" },
-      // Avzδ???progress, status
+      // Avz不提供progress, status
       progress: { text: 0 },
       status: { text: ETorrentStatus.unknown },
     },
@@ -128,7 +143,8 @@ export const SchemaMetadata: Pick<
         },
       },
       {
-        requestConfig: { url: "/profile/${params.name}", responseType: "document" },
+        requestConfig: { url: "/profile/$name$", responseType: "document" },
+        assertion: { name: "url" }
         selectors: {
           joinTime: { selector: ["table.table-striped tr:contains('Joined') td:last-child"], filters: [{ name: "parseTime", args: ["dd MMMM yyyy hh:mm a"] }] },  // "20 May 1900 05:20 pm (X years ago)"
           uploads: { selector: [".tag-green:contains('Uploads:')"], filters: [{ name: "parseNumber" }] },
@@ -171,84 +187,12 @@ export const SchemaMetadata: Pick<
 };
 
 export default class AvistazTracker extends PrivateSite {
-  protected site: string;
+  public site: string;
 
   constructor() {
-    super();
-    // 动态获取 siteMetadata 中定义的站点名称
-    const ctor = this.constructor as typeof AvistazTracker & { siteMetadata?: { name: string } };
-    this.site = ctor.siteMetadata?.name ?? "AvistazTracker";
+    // 自动使用子类类名作为默认 site 名
+    this.site = this.constructor.name;
   }
-
-  /*
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let flushUserInfo: IUserInfo = {
-      status: EResultParseStatus.unknownError,
-      updateAt: +new Date(),
-      site: this.metadata.id,
-    };
-
-    if (!this.allowQueryUserInfo) {
-      flushUserInfo.status = EResultParseStatus.passParse;
-      return flushUserInfo;
-    }
-
-    try {
-      
-      // 获取主页中的用户基础信息
-      const baseInfo = await this.getUserBaseInfoFromSite();
-      flushUserInfo = { ...flushUserInfo, ...baseInfo };
-
-      const username = this.userConfig.inputSetting?.username ?? "";
-      if (username) {
-        const extendInfo = await this.getUserExtendInfoFromProfile(username);
-        flushUserInfo = { ...flushUserInfo, ...extendInfo };
-      }
-      flushUserInfo.id = username;
-      flushUserInfo.name = baseInfo.name || username;
-
-      if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
-        flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
-      }
-      
-      // 获取主页中的用户基础信息
-      const tokenInfo = await this.getValidToken();
-      flushUserInfo = { ...flushUserInfo, ...tokenInfo };
-	  
-      flushUserInfo.status = EResultParseStatus.success;
-    } catch (error) {
-      flushUserInfo.status = EResultParseStatus.parseError;
-    }
-
-    return flushUserInfo;
-  }
-
-  protected async getUserBaseInfoFromSite(): Promise<Partial<IUserInfo>> {
-    const { data: dataDocument } = await this.request<Document>({
-      url: "/",
-      responseType: "document",
-    });
-
-    return this.getFieldsData(
-      dataDocument,
-      this.metadata.userInfo?.process?.selectors!,
-      ["name", "uploaded", "downloaded", "ratio", "levelName", "bonus"]
-    ) as Partial<IUserInfo>;
-  }
-
-  protected async getUserExtendInfoFromProfile(username: string): Promise<Partial<IUserInfo>> {
-    const { data: dataDocument } = await this.request<Document>({
-      url: `/profile/${username}`,
-      responseType: "document",
-    });
-
-    return this.getFieldsData(
-      dataDocument,
-      this.metadata.userInfo?.process?.selectors!,
-      ["joinTime", "uploads", "snatches", "hnrUnsatisfied"]
-    ) as Partial<IUserInfo>;
-  }
-  */
 
   public override async request<T>(
     axiosConfig: AxiosRequestConfig,
@@ -277,7 +221,7 @@ export default class AvistazTracker extends PrivateSite {
     return super.request<T>(axiosConfig, checkLogin);
   }
 
-private async getValidToken(): Promise<Partial<IUserInfo>> {
+private async getValidToken(): Promise<Partial<string> {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
   const userList: any[] = Array.isArray(metadataStore?.lastUserInfo) ? metadataStore.lastUserInfo : [];
   const now = Math.floor(Date.now() / 1000);
