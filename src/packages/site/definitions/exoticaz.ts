@@ -85,13 +85,17 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "append", key: "" },
     },
-
+  ],
   search: {
     ...SchemaMetadata.search!,
     selectors: {
       ...SchemaMetadata.search!.selectors!,
+    },
   },
-
+  advanceKeywordParams: {
+      imdb: { enable: false },
+      tmdb: { enable: false },
+  },
   searchEntry: {
     area_all: { name: "成人", enabled: false },
   },
