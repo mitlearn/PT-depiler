@@ -104,9 +104,9 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
-  searchEntry: {
+    searchEntry: {
       area_all: { name: "成人", enabled: false },
-  },
+    },
 
   levelRequirements: [
     {
@@ -237,9 +237,8 @@ export default class Exoticaz extends AvistazTracker {
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: IExoRawTorrent,
-    searchConfig: ISearchInput,
   ): Partial<ITorrent> {
-  	const torrent = await super.parseTorrentRowForTag(torrent, row, searchConfi)
+  	const basegroupTorrent = await super.parseTorrentRowForTags(torrent, row)
 
     // 生成副标题（演员名与标签）
     const tagsArray = Array.isArray(row.tags) ? row.tags : [];
@@ -250,6 +249,8 @@ export default class Exoticaz extends AvistazTracker {
     const tagStr = tagList.join(", ");
     const subTitle = [performersStr, tagStr].filter(Boolean).join(" | ");
 
-    return torrent;
+    basegroupTorrent.subTitle = subTitle;
+
+    return basegroupTorrent;
   }
 }
