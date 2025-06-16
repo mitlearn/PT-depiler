@@ -221,7 +221,7 @@ export default class AvistazTracker extends PrivateSite {
     return super.request<T>(axiosConfig, checkLogin);
   }
 
-private async getValidToken(): Promise<Partial<string> {
+private async getValidToken(): Promise<string> {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
   const userList: any[] = Array.isArray(metadataStore?.lastUserInfo) ? metadataStore.lastUserInfo : [];
   const now = Math.floor(Date.now() / 1000);
