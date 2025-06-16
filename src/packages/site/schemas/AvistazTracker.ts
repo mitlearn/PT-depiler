@@ -385,67 +385,59 @@ export default class AvistazTracker extends PrivateSite {
     return super.request<T>(axiosConfig, checkLogin);
   }
 
-  private async getValidToken(): Promise<string> {
-    const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
-    const userList = metadataStore?.lastUserInfo ?? [];
-    const now = Math.floor(Date.now() / 1000);
+private async getValidToken(): Promise<string> {
+  const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+  const userList: any[] = Array.isArray(metadataStore?.lastUserInfo) ? metadataStore.lastUserInfo : [];
+  const now = Math.floor(Date.now() / 1000);
 
-    // 使用站点id来查找用户信息，添加类型注解
-    const userIndex = userList.findIndex((u: any) => u.site === this.metadata.id);
-    const userInfo = userIndex !== -1 ? userList[userIndex] : undefined;
-    
-    // authToken应该直接作为userInfo的属性，而不是嵌套对象
-    const authToken = userInfo?.authToken;
-    const expiresAt = userInfo?.authTokenExpiresAt;
+  const userIndex = userList.findIndex((u: any) => u?.site === this.metadata?.id);
+  const userInfo = userIndex !== -1 ? userList[userIndex] : undefined;
+  
+  const authToken = userInfo?.authToken;
+  const expiresAt = userInfo?.authTokenExpiresAt;
 
-    if (
-      authToken &&
-      expiresAt &&
-      now < expiresAt
-    ) {
-      return authToken;
-    }
-
-    const response = await this.request<{ token?: string; expiry?: number; message?: string }>(
-      {
-        url: "/api/v1/jackett/auth",
-      },
-      false, // 添加缺失的第二个参数
-    );
-
-    const { token, expiry, message } = response.data;
-
-    if (!token || !expiry) {
-      throw new Error(message || `请求 ${this.metadata.name} 失败`);
-    }
-
-    const newExpiresAt = now + expiry;
-
-    // 将token和过期时间作为userInfo的直接属性存储
-    const updatedUser = {
-      ...(userInfo ?? {}),
-      site: this.metadata.id,
-      authToken: token,
-      authTokenExpiresAt: newExpiresAt,
-      updateAt: +new Date(),
-    };
-
-    if (userIndex !== -1) {
-      userList[userIndex] = updatedUser;
-    } else {
-      userList.push(updatedUser);
-    }
-
-    const newMetadata = {
-      ...metadataStore,
-      lastUserInfo: userList,
-    };
-
-    await sendMessage("setExtStorage", { metadata: newMetadata });
-
-    return token;
+  if (authToken && expiresAt && now < expiresAt) {
+    return authToken;
   }
 
+  const response = await this.request<{ token?: string; expiry?: number; message?: string }>(
+    { url: "/api/v1/jackett/auth" },
+    false
+  );
+
+  const { token, expiry, message } = response.data;
+
+  if (!token || !expiry) {
+    throw new Error(message || `请求 ${this.metadata?.name} 失败`);
+  }
+
+  const newExpiresAt = now + expiry;
+
+  // 使用类型断言或确保类型匹配
+  const updatedUser: any = {
+    ...(userInfo ?? {}),
+    site: this.metadata.id,
+    authToken: token,
+    authTokenExpiresAt: newExpiresAt,
+    updateAt: +new Date(),
+  };
+
+  if (userIndex !== -1) {
+    userList[userIndex] = updatedUser;
+  } else {
+    userList.push(updatedUser);
+  }
+
+  const newMetadata = {
+    ...metadataStore,
+    lastUserInfo: userList,
+  };
+
+  // 使用正确的存储方式
+  await sendMessage("setExtStorage", { key: "metadata", value: newMetadata });
+
+  return token;
+}
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: IAvzTRawTorrent,
