@@ -151,7 +151,6 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export interface IExoRawTorrent extends IAvzTRawTorrent {
-  data: {
     asian: boolean;
     softcore: boolean;
     censored: boolean;
@@ -160,7 +159,6 @@ export interface IExoRawTorrent extends IAvzTRawTorrent {
     studios: { id: number; name: string }[];
     performers: { id: number; name: string }[];
     tags?: Record<string, string>[];
-  }
 }
 
 export default class Exoticaz extends AvistazTracker {
