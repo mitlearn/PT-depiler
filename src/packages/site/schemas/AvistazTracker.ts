@@ -61,7 +61,7 @@ export interface IAvzTRawTorrent {
 
 export const SchemaMetadata: Pick<
   ISiteMetadata,
-  "version" | "schema" | "type" | "timezoneOffset" | "search" | "userInfo"
+  "version" | "schema" | "type" | "timezoneOffset" | "search" | "userInfo" | "userInputSettingMeta"
 > = {
 
   version: 0,
@@ -389,8 +389,8 @@ export default class AvistazTracker extends PrivateSite {
     const userList = metadataStore?.lastUserInfo ?? [];
     const now = Math.floor(Date.now() / 1000);
 
-    // 使用站点id来查找用户信息
-    const userIndex = userList.findIndex(u => u.site === this.metadata.id);
+    // 使用站点id来查找用户信息，添加类型注解
+    const userIndex = userList.findIndex((u: any) => u.site === this.metadata.id);
     const userInfo = userIndex !== -1 ? userList[userIndex] : undefined;
     
     // authToken应该直接作为userInfo的属性，而不是嵌套对象
@@ -409,7 +409,7 @@ export default class AvistazTracker extends PrivateSite {
       {
         url: "/api/v1/jackett/auth",
       },
-      false,
+      false, // 添加缺失的第二个参数
     );
 
     const { token, expiry, message } = response.data;
