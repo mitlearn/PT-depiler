@@ -96,8 +96,8 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search!,
     advanceKeywordParams: {
-      imdb: { enable: false },
-      tmdb: { enable: false },
+      imdb: { enabled: false },
+      tmdb: { enabled: false },
     },
     selectors: {
       ...SchemaMetadata.search!.selectors!,
