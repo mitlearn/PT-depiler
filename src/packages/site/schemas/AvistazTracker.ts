@@ -80,18 +80,18 @@ export const SchemaMetadata: Pick<
   advanceKeywordParams: {
       imdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          if (config?.data?.search) {
-            config.data.imdb_id = config.data.search;
-            delete config!.data.search;
+          if (config?.params?.search) {
+            config.params.imdb = config.params.search;
+            delete config!.params.search;
           }
           return config!;
         }
       },
-      tmdb: {
+      tvdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          if (config?.data?.search) {
-            config.data.tmdb_id = config.data.search;
-            delete config!.data.search;
+          if (config?.params?.search) {
+            config.params.tvdb = config.params.search;
+            delete config!.params.search;
           }
           return config!;
         }
