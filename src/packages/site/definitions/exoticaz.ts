@@ -150,15 +150,17 @@ export const siteMetadata: ISiteMetadata = {
   ],
 };
 
-export interface IExoRawTorrent extends IAvzTRawTorrent['data'][0] {
-  asian: boolean;
-  softcore: boolean;
-  censored: boolean;
-  gay: boolean;
-  transexual: boolean;
-  studios: string[];
-  performers: Record<string, string>[];  // 修正：对象数组，键是ID，值是名称
-  tags?: Record<string, string>[];       // 修正：对象数组，键是ID，值是名称
+export interface IExoRawTorrent extends IAvzTRawTorrent {
+  data: {
+    asian: boolean;
+    softcore: boolean;
+    censored: boolean;
+    gay: boolean;
+    transexual: boolean;
+    studios: { id: number; name: string }[];
+    performers: { id: number; name: string }[];
+    tags?: Record<string, string>[];
+  }
 }
 
 export default class Exoticaz extends AvistazTracker {
@@ -166,11 +168,11 @@ export default class Exoticaz extends AvistazTracker {
   
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
-    row: IExoRawTorrent['data'][0],
+    row: IExoRawTorrent,
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
     // 先调用父类方法，获取基础的促销标签处理
-    const updatedTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
+    const baseTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
 
     // 直接使用row，不需要类型转换
     const exoData = row;
@@ -191,11 +193,11 @@ export default class Exoticaz extends AvistazTracker {
 
     // 设置副标题
     if (subTitle) {
-      updatedTorrent.subTitle = subTitle;
+      baseTorrent.subTitle = subTitle;
     }
 
     // 可以在这里添加ExoticaZ特有的标签逻辑
-    const existingTags = updatedTorrent.tags || [];
+    const existingTags = baseTorrent.tags || [];
     const newTags: ITorrentTag[] = [...existingTags];
 
     // 添加内容类型标签
