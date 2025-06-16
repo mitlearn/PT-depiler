@@ -90,6 +90,7 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "append", key: "" },
     },
+  ],
 
   search: {
     ...SchemaMetadata.search!,
@@ -100,12 +101,12 @@ export const siteMetadata: ISiteMetadata = {
     },
     selectors: {
       ...SchemaMetadata.search!.selectors!,
-  },
+    },
 
-  searchEntry: {
-    area_all: { name: "成人", enabled: false },
+    searchEntry: {
+      area_all: { name: "成人", enabled: false },
+    },
   },
-
 
   levelRequirements: [
     {
