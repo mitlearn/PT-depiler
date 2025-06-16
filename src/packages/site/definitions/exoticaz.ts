@@ -95,18 +95,18 @@ export const siteMetadata: ISiteMetadata = {
   ],
   search: {
     ...SchemaMetadata.search!,
+    advanceKeywordParams: {
+      imdb: { enable: false },
+      tmdb: { enable: false },
+    },
     selectors: {
       ...SchemaMetadata.search!.selectors!,
     },
   },
-  advanceKeywordParams: {
-      imdb: { enable: false },
-      tmdb: { enable: false },
-  },
+
   searchEntry: {
     area_all: { name: "成人", enabled: false },
   },
-
 
   levelRequirements: [
     {
@@ -150,16 +150,15 @@ export const siteMetadata: ISiteMetadata = {
   ],
 };
 
-export interface IExoRawTorrent extends IAvzTRawTorrent {
-  data: {
-  	asian: boolean;
-    softcore: boolean;
-    censored: boolean;
-    gay: boolean;
-    transexual: boolean;
-    studios: string[];
-    performers: string[];
-  }
+export interface IExoRawTorrent extends IAvzTRawTorrent['data'][0] {
+  asian: boolean;
+  softcore: boolean;
+  censored: boolean;
+  gay: boolean;
+  transexual: boolean;
+  studios: string[];
+  performers: Record<string, string>[];  // 修正：对象数组，键是ID，值是名称
+  tags?: Record<string, string>[];       // 修正：对象数组，键是ID，值是名称
 }
 
 export default class Exoticaz extends AvistazTracker {
@@ -181,10 +180,10 @@ export default class Exoticaz extends AvistazTracker {
     const performersArray = Array.isArray(exoData.performers) ? exoData.performers : [];
     
     // 提取tags的值（忽略键）
-    const tagNames = tagsArray.flatMap(tagObj => Object.values(tagObj)).filter(Boolean);
+    const tagNames = tagsArray.flatMap((tagObj: Record<string, string>) => Object.values(tagObj)).filter(Boolean);
     
     // 提取performers的值（忽略键）
-    const performerNames = performersArray.flatMap(performerObj => Object.values(performerObj)).filter(Boolean);
+    const performerNames = performersArray.flatMap((performerObj: Record<string, string>) => Object.values(performerObj)).filter(Boolean);
     
     const performersStr = performerNames.join(" / ");
     const tagStr = tagNames.join(", ");
