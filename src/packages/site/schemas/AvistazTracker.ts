@@ -189,83 +189,44 @@ export const SchemaMetadata: Pick<
 export default class AvistazTracker extends PrivateSite {
   public site: string;
 
-  constructor() {
-    super(); // 必须先调用 super()
-    // 自动使用子类类名作为默认 site 名
-    // 这样 Exo 继承时，this.constructor.name 就是 "Exo"
-    this.site = this.constructor.name;
+  protected site: string = ""; // 子类中赋值
+
+  // 获取有效 token
+  protected async getValidToken(
+    username: string,
+    password: string,
+    pid: string
+  ): Promise<{ token: string; expiryAt: number }> {
+    const now = Math.floor(Date.now() / 1000);
+
+    const response = await axios.request<{
+      token: string;
+      expiry: number;
+    }>({
+      url: "/api/v1/jackett/auth",
+      method: "GET",
+      headers: { username, password, pid },
+      validateStatus: (status) => status === 200
+    });
+
+    const { token, expiry } = response.data;
+    const expiryAt = now + expiry;
+
+    return { token, expiryAt };
   }
 
-  public override async request<T>(
-    axiosConfig: AxiosRequestConfig,
-    checkLogin: boolean = true,
-  ): Promise<AxiosResponse<T>> {
-    const url = axiosConfig.url ?? "";
-
-    if (url.includes("/api/v1/jackett/auth")) {
-      const { username, password, pid } = this.userConfig.inputSetting!;
-      axiosConfig.method = "POST"
-      axiosConfig.headers = {
-        ...(axiosConfig.headers ?? {}),
-        username,
-        password,
-        pid,
-      };
-    } else if (url.includes("/api/v1/jackett/torrent")) {
-      const token = await this.getValidToken();
-      axiosConfig.method = "GET"
-      axiosConfig.headers = {
-        ...(axiosConfig.headers ?? {}),
+  // 请求搜索结果
+  protected async fetchSearchResult(token: string): Promise<ISearchResult> {
+    const response = await axios.request<ISearchResult>({
+      url: "/api/v1/search",
+      method: "POST",
+      headers: {
         Authorization: `Bearer ${token}`,
-      };
-    }
+      },
+    });
 
-    return super.request<T>(axiosConfig, checkLogin);
+    return response.data;
   }
-
-private async getValidToken(): Promise<string> {
-  const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
-  const userList: any[] = Array.isArray(metadataStore?.lastUserInfo) ? metadataStore.lastUserInfo : [];
-  const now = Math.floor(Date.now() / 1000);
-
-  const userIndex = userList.findIndex((u: any) => u?.site === this.metadata?.id);
-  const userInfo = userIndex !== -1 ? userList[userIndex] : undefined;
-  
-  const authToken = userInfo?.authToken;
-  const authExpiresAt = userInfo?.authExpiresAt;
-
-  if (authToken && authExpiresAt && now < authExpiresAt) {
-    return authToken;
-  }
-
-  const response = await this.request<{ token?: string; expiry?: number; message?: string }>(
-    { url: "/api/v1/jackett/auth" },
-    false
-  );
-
-  const { token, expiry, message } = response.data;
-
-  if (!token || !expiry) {
-    throw new Error(message || `获取站点 ${this.site} token失败` );
-  }
-
-  const authToken = token;
-  const authExpiresAt = now + expiry;
-
-// 更新 userList 中对应用户的 token 信息
-const newUserInfo = { ...userInfo, site: this.site, authToken, authExpiresAt };
-if (userIndex !== -1) {
-  userList[userIndex] = newUserInfo;
-} else {
-  userList.push(newUserInfo);
-}
-
-// 写回 metadata
-const newMetadata = { ...metadataStore, lastUserInfo: userList };
-await sendMessage("setExtStorage", { key: "metadata", value: newMetadata });
-
-// 返回 token 字符串
-return authToken;
 }
 
   protected override loggedCheck(raw: AxiosResponse): boolean {
