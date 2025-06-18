@@ -233,6 +233,57 @@ export default class Exoticaz extends AvistazTracker {
     ) as Partial<IUserInfo>;
   }
   */
+  private userSettings: { username: string; password: string; pid: string };
+
+  constructor(userSettings: { username: string; password: string; pid: string }) {
+    super();
+    this.site = "example-site";
+    this.userSettings = userSettings;
+  }
+
+  public async storeToken(site: string): Promise<void> {
+    const now = Math.floor(Date.now() / 1000);
+    const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+    const userList: any[] = Array.isArray(metadataStore?.lastUserInfo) ? metadataStore.lastUserInfo : [];
+
+    const index = userList.findIndex(
+      u => u.site === site && u.username === this.userSettings.username
+    );
+    const userInfo = index !== -1 ? userList[index] : {};
+
+    if (!userInfo.authToken || !userInfo.authExpiryAt || now >= userInfo.authExpiryAt) {
+      const { username, password, pid } = this.userSettings;
+      const { token, expiryAt } = await this.getValidToken(username, password, pid);
+
+      const updatedInfo = {
+        site,
+        username,
+        authToken: token,
+        authExpiryAt: expiryAt,
+      };
+
+      if (index !== -1) {
+        userList[index] = updatedInfo;
+      } else {
+        userList.push(updatedInfo);
+      }
+
+      await sendMessage("setExtStorage", {
+        key: "metadata",
+        value: { ...metadataStore, lastUserInfo: userList }
+      });
+    }
+  }
+
+  public async getTokenForSite(site: string): Promise<string | undefined> {
+    const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+    const userList: any[] = Array.isArray(metadataStore?.lastUserInfo) ? metadataStore.lastUserInfo : [];
+    const userInfo = userList.find(
+      u => u.site === site && u.username === this.userSettings.username
+    );
+    return userInfo?.authToken;
+  }
+} 
 
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
