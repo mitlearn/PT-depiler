@@ -4,9 +4,9 @@ name: Build Action Release
 
 on:
   push:
-    branches: ["master"]
+    branches: ["master", "site"]
   pull_request:
-    branches: ["master"]
+    branches: ["master", "site"]
 
 jobs:
   build:
