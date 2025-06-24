@@ -13,11 +13,6 @@ import {
   parseTimeWithZone,
 } from "../utils";
 
-export interface AvzNetAuthResp {
-  token?: string;
-  expiry?: number;
-}
-
 export interface IAvzNetRawTorrent {
   id: number;
   file_name: string;
