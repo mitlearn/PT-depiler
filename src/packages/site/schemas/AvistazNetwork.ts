@@ -13,6 +13,11 @@ import {
   parseTimeWithZone,
 } from "../utils";
 
+export interface AvzNetAuthResp {
+  token?: string;
+  expiry?: number;
+}
+
 export interface IAvzNetRawTorrent {
   id: number;
   file_name: string;
@@ -101,7 +106,9 @@ export const SchemaMetadata: Pick<
       time: { 
         selector: "created_at", 
         // filters: [{ name: "parseTime" }]
-        filters: [{ name: "parseTime" },(value: string => parseTimeWithZone(value, this.metadata.timezoneOffset) ?? "Unknown"],
+        filters: [
+          { name: "parseTime" }, (value: string) => parseTimeWithZone(value, this.metadata.timezoneOffset) ?? "Unknown"
+        ],
       },
       size: { selector: "file_size", filters: [{ name: "parseSize" }] },
       author: { text: "" },
