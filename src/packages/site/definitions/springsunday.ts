@@ -312,7 +312,7 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       bonusPerHour: {
-        selector: ["tbody:contains('我的数据') > tr:first > td:last"],
+        selector: ["tbody tr.nowrap:first td:last"],
         filters: [{ name: "parseNumber" }],
       },
       messageCount: {
@@ -386,10 +386,6 @@ export default class SpringSunday extends NexusPHP {
       flushUserInfo.seedingSize = this.getFieldData(userSeedingDocument, {
         selector: "b:eq(1)",
         filters: [{ name: "parseSize" }],
-      });
-      flushUserInfo.bonusPerHour = this.getFieldData(userSeedingDocument, {
-        selector: "b:eq(4)",
-        filters: [{ name: "parseNumber" }],
       });
     } else {
       return super.parseUserInfoForSeedingStatus(flushUserInfo); // 回落到默认的处理

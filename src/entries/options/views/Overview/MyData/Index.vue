@@ -35,7 +35,7 @@ const fullTableHeader = reactive([
     width: 90,
     props: { disabled: true },
   },
-  { title: t("MyData.table.username"), key: "name", align: "center", width: 90, props: { disabled: true } },
+  { title: t("MyData.table.username"), key: "name", align: "center", width: 90 },
   { title: t("MyData.table.levelName"), key: "levelName", align: "start", width: 90 },
   // NOTE: 这里将key设为 uploaded, trueUploaded 而不是虚拟的 userData，可以让 v-data-table 使用 uploaded 的进行排序
   { title: t("MyData.table.userData"), key: "uploaded", align: "end" },
@@ -48,7 +48,7 @@ const fullTableHeader = reactive([
   { title: t("levelRequirement.bonus"), key: "bonus", align: "end" },
   { title: t("levelRequirement.bonusPerHour"), key: "bonusPerHour", align: "end" },
   { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
-  { title: t("MyData.table.updateAt"), key: "updateAt", align: "center", props: { disabled: true } },
+  { title: t("MyData.table.updateAt"), key: "updateAt", align: "center" },
   { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false, props: { disabled: true } },
 ] as (DataTableHeader & { props?: any })[]);
 
@@ -229,7 +229,14 @@ function viewStatistic() {
               <template v-slot:prepend>
                 <v-list-item-action start class="ml-2">
                   <v-icon icon="mdi-format-font-size-increase" class="mr-2" />
-                  <span class="text-subtitle-2">{{ t("MyData.index.tableFontSize") }}</span>
+                  <v-btn
+                    class="text-subtitle-2 pa-0"
+                    variant="text"
+                    :title="t('common.dialog.reset')"
+                    @click.stop="configStore.myDataTableControl.tableFontSize = 100"
+                  >
+                    {{ t("MyData.index.tableFontSize") }}
+                  </v-btn>
                 </v-list-item-action>
               </template>
               <v-slider
@@ -239,9 +246,12 @@ function viewStatistic() {
                 :step="1"
                 density="compact"
                 hide-details
+                :ticks="[100]"
+                show-ticks="always"
                 @click.stop
                 @update:model-value="() => configStore.$save()"
               >
+                <template #tick-label></template>
                 <template v-slot:thumb-label="{ modelValue }"> {{ modelValue }}% </template>
               </v-slider>
             </v-list-item>
@@ -415,11 +425,11 @@ function viewStatistic() {
       :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.MyData.sortBy"
       :style="tableStyle"
-      class="table-stripe table-header-no-wrap"
+      class="table-stripe table-header-no-wrap table-no-ext-padding"
       hover
       item-selectable="selectable"
       item-value="site"
-      multi-sort
+      :multi-sort="false"
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('MyData', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('MyData', 'sortBy', v)"
@@ -601,7 +611,7 @@ function viewStatistic() {
       <!-- 更新时间 -->
       <template #item.updateAt="{ item }">
         <template v-if="item.status === EResultParseStatus.success">
-          <span class="text-no-wrap" :title="item.updateAt ? (formatDate(item.updateAt) as string) : '-'">
+          <span class="text-wrap" :title="item.updateAt ? (formatDate(item.updateAt) as string) : '-'">
             {{
               item.updateAt
                 ? configStore.myDataTableControl.updateAtFormatAsAlive
