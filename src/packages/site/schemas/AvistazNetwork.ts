@@ -114,10 +114,10 @@ export const SchemaMetadata: Pick<
       },
       time: { 
         selector: "created_at", 
-        filters: [
-          (value: string) => parseTimeWithZone(value, "-0400")
-          // (value: string) => parseTimeWithZone(value, this.timezoneOffset ?? "+0000") ?? value
-        ],
+        // filters: [
+        //   (value: string) => parseTimeWithZone(value, "-0400")
+        //   // (value: string) => parseTimeWithZone(value, this.timezoneOffset ?? "+0000") ?? value
+        // ],
       },
       size: { selector: "file_size", filters: [{ name: "parseSize" }] },
       author: { text: "" },
@@ -142,8 +142,8 @@ export const SchemaMetadata: Pick<
       {
         requestConfig: { url: "/", responseType: "document" },
         selectors: {
-          name: { selector: ["span.user-group.group-member"] },
-          /*name: {
+          // name: { selector: ["span.user-group.group-member"] },
+          name: {
             selector: ["a[href*='/users/']:first"],
             attr: "href",
             filters: [
@@ -152,11 +152,10 @@ export const SchemaMetadata: Pick<
                 return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
               },
             ],
-          },*/
+          },
           uploaded: { selector: ["div.ratio-bar .container > div:has( > i.fa-arrow-up.text-green)"], filters: [{ name: "parseSize" }] },
           downloaded: { selector: ["div.ratio-bar .container > div:has( > i.fa-arrow-down.text-red)"], filters: [{ name: "parseSize" }] },
           ratio: { selector: ["div.ratio-bar .container > div:has( > i.fa-signal.text-blue)"], filters: [{ name: "parseNumber" }] },
-
           bonus: { selector: ["div.ratio-bar .container > div:has( > i.fa-star.text-pink)"], filters: [{ name: "parseNumber" }] },
         },
       },
