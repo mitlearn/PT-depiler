@@ -28,6 +28,9 @@ export interface IAvzNetRawTorrent {
   info_hash: string;
   url: string;
   download: string;
+  category?: {
+    [key: string]: string;
+  };
   type?: string;
   video_quality?: string;
   created_at: string;
@@ -44,9 +47,9 @@ export interface IAvzNetRawTorrent {
     language: string;
 }>;
   movie_tv?: {
-      imdb?: string;
-      tmdb?: string;
-      tvdb?: string;
+    imdb?: string;
+    tmdb?: string;
+    tvdb?: string;
   };
   images: string[];
   description: string;
@@ -103,7 +106,10 @@ export const SchemaMetadata: Pick<
       link: { selector: "download" },
       category: { 
         selector: "category",
-        filters: [(v: number) => categoryMap[v] ?? String(v)]
+          filters: [
+            (category: { [key: string]: string }) => 
+              Object.keys(category || {})[0] || ''
+          ]
       },
       time: { 
         selector: "created_at", 
