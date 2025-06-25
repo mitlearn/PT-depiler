@@ -103,7 +103,7 @@ export const SchemaMetadata: Pick<
       link: { selector: "download" },
       category: { 
         selector: "category",
-        filters: [(v: number) => categoryMap[v] ?? String(v)] },
+        filters: [(v: number) => categoryMap[v] ?? String(v)]
       },
       time: { 
         selector: "created_at", 
@@ -135,11 +135,11 @@ export const SchemaMetadata: Pick<
       {
         requestConfig: { url: "/", responseType: "document" },
         selectors: {
-          name: { selector: [".ratio-bar .user-group.group-member"] },
+          name: { selector: ["table tr:nth-child(1) .user-group.group-member"] },
           uploaded: { selector: ["i.fa-arrow-up.text-green"], filters: [{ name: "parseSize" }] },
           downloaded: { selector: ["i.fa-arrow-down.text-red"], filters: [{ name: "parseSize" }] },
           ratio: { selector: ["i.fa-signal.text-blue"], filters: [{ name: "parseNumber" }] },
-          levelName: { selector: ["table tr:nth-child(2) .user-group.group-membe"] },
+          levelName: { selector: ["table tr:nth-child(2) .user-group.group-member"] },
           bonus: { selector: ["i.fa-star.text-pink"], filters: [{ name: "parseNumber" }] },
         },
       },
