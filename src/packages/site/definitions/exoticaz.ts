@@ -183,11 +183,13 @@ export interface IExoRawTorrent extends IAvzNetRawTorrent {
   gay: boolean;
   transexual: boolean;
   studios: string[];
-  performers: string[];
+  performers: {
+    [key: string]: string;
+  };
 }
 
 export default class Exoticaz extends AvistazNetwork {
-
+/*
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: IExoRawTorrent,
@@ -209,5 +211,5 @@ export default class Exoticaz extends AvistazNetwork {
 
     return baseTorrent;
   }
-
+*/
 }
