@@ -205,10 +205,11 @@ export default class AvistazNetwork extends PrivateSite {
       // 获取主页中的用户基础信息
       flushUserInfo = { ...flushUserInfo, ...(await this.getBaseInfoFromSite()) };
 
-      if (this.userConfig.inputSetting?.username) {
+      if (flushUserInfo.username) {
         flushUserInfo = {
           ...flushUserInfo,
           ...(await this.getExtendInfoFromProfile(this.userConfig.inputSetting?.username as string)),
+          // ...(await this.getExtendInfoFromProfile(flushUserInfo.username as string)),
         };
       }
 
