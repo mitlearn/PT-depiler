@@ -62,16 +62,16 @@ export const siteMetadata: ISiteMetadata = {
       name: "搜索入口",
       key: "in",
       notes: "请勾选成人以开启搜索",
-      options: [{ name: "成人", value: "" }],
+      options: [{ name: "成人", value: "1" }],
       cross: false,
-      generateRequestConfig: (selectedEntry: string) => {
-        return {
-          requestConfig: {
-            url: selectedEntry,
-            params: {}, // 不包含 key 对应的字段
-          },
-        };
-      },
+      // generateRequestConfig: (selectedEntry: string) => {
+      //   return {
+      //     requestConfig: {
+      //       url: selectedEntry,
+      //       params: {}, // 不包含 key 对应的字段
+      //     },
+      //   };
+      // },
     },
     {
       name: "分类",
