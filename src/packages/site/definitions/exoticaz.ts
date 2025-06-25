@@ -153,6 +153,11 @@ export const siteMetadata: ISiteMetadata = {
     { id: 205, name: "Super Admin", groupType: "manager" },
   ],
 
+  userInfo: {
+    pickLast: ["username", "joinTime"],
+    ...SchemaMetadata.userInfo!,
+  },
+  
   userInputSettingMeta: [
     ...SchemaMetadata.userInputSettingMeta!,
     /*{
