@@ -108,8 +108,8 @@ export const SchemaMetadata: Pick<
       time: { 
         selector: "created_at", 
         filters: [
-          // (value: string) => parseTimeWithZone(value, this.metadata!.timezoneOffset) ?? value
-          (value: string) => parseTimeWithZone(value, this.metadata!.timezoneOffset ?? "+0000") ?? value
+          (value: string) => parseTimeWithZone(value, "-0400")
+          // (value: string) => parseTimeWithZone(value, this.metadata!.timezoneOffset ?? "+0000") ?? value
         ],
       },
       size: { selector: "file_size", filters: [{ name: "parseSize" }] },
