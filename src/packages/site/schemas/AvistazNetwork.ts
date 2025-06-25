@@ -208,7 +208,7 @@ export default class AvistazNetwork extends PrivateSite {
       if (this.userConfig.inputSetting?.username) {
         flushUserInfo = {
           ...flushUserInfo,
-          ...(await this.getExtendInfo(this.userConfig.inputSetting?.username as string)),
+          ...(await this.getExtendInfoFromProfile(this.userConfig.inputSetting?.username as string)),
         };
       }
 
