@@ -103,7 +103,7 @@ export const SchemaMetadata: Pick<
       link: { selector: "download" },
       category: { 
         selector: "category",
-        filters: [(value: any) => Object.values(value).join(" / ")],
+        filters: [(v: number) => categoryMap[v] ?? String(v)] },
       },
       time: { 
         selector: "created_at", 
@@ -136,11 +136,11 @@ export const SchemaMetadata: Pick<
         requestConfig: { url: "/", responseType: "document" },
         selectors: {
           name: { selector: [".ratio-bar .user-group.group-member"] },
-          uploaded: { selector: [".ratio-bar [data-original-title='Upload']"], filters: [{ name: "parseSize" }] },
-          downloaded: { selector: [".ratio-bar [data-original-title='Download']"], filters: [{ name: "parseSize" }] },
-          ratio: { selector: [".ratio-bar [data-original-title='Ratio']"], filters: [{ name: "parseNumber" }] },
-          levelName: { selector: [".ratio-bar .fa-users + .user-group.group-member"] },
-          bonus: { selector: [".ratio-bar .fa-star + a[title='My Bonus Points'] + text()"], filters: [{ name: "parseNumber" }] },
+          uploaded: { selector: ["i.fa-arrow-up.text-green"], filters: [{ name: "parseSize" }] },
+          downloaded: { selector: ["i.fa-arrow-down.text-red"], filters: [{ name: "parseSize" }] },
+          ratio: { selector: ["i.fa-signal.text-blue"], filters: [{ name: "parseNumber" }] },
+          levelName: { selector: ["table tr:nth-child(2) .user-group.group-membe"] },
+          bonus: { selector: ["i.fa-star.text-pink"], filters: [{ name: "parseNumber" }] },
         },
       },
       {
@@ -205,7 +205,7 @@ export default class AvistazNetwork extends PrivateSite {
       // 获取主页中的用户基础信息
       flushUserInfo = { ...flushUserInfo, ...(await this.getBaseInfoFromSite()) };
 
-      if (flushUserInfo.username) {
+      if (this.userConfig.inputSetting?.username) {
         flushUserInfo = {
           ...flushUserInfo,
           ...(await this.getExtendInfoFromProfile(this.userConfig.inputSetting?.username as string)),
