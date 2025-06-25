@@ -59,6 +59,12 @@ export const siteMetadata: ISiteMetadata = {
 
   category: [
     {
+      name: "搜索入口",
+      notes: "请勾选成人以开启搜索",
+      options: [{ name: "成人", value: "" }],
+      cross: false,
+    },
+    {
       name: "分类",
       key: "category",
       keyPath: "params",
@@ -153,11 +159,6 @@ export const siteMetadata: ISiteMetadata = {
     { id: 205, name: "Super Admin", groupType: "manager" },
   ],
 
-  userInfo: {
-    pickLast: ["username", "joinTime"],
-    ...SchemaMetadata.userInfo!,
-  },
-  
   userInputSettingMeta: [
     ...SchemaMetadata.userInputSettingMeta!,
     /*{
