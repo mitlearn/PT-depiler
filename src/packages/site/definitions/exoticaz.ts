@@ -1,5 +1,6 @@
 import { 
   ISiteMetadata,
+  ISearchInput,
   ITorrent,
   ITorrentTag
 } from "../types";
@@ -153,7 +154,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   userInputSettingMeta: [
-    ...SchemaMetadata.userInputSettingMeta,
+    ...SchemaMetadata.userInputSettingMeta!,
     /*{
     name: "confirm",
     label: "If u confirm hint below, please enter CONFIRM",
@@ -180,9 +181,9 @@ export default class Exoticaz extends AvistazNetwork {
     row: IExoRawTorrent,
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
-    const baseTorrentTags = await super.parseTorrentRowForTags(torrent, row, searchConfig)
+    const baseTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
 
-    // 生成副标题（演员名与标签）
+    // 处理副标题相关逻辑
     const tagsArray = Array.isArray(row.tags) ? row.tags : [];
     const performersArray = Array.isArray(row.performers) ? row.performers : [];
     const performersNames = performersArray.map((a: any) => a.name).filter(Boolean);
@@ -191,9 +192,10 @@ export default class Exoticaz extends AvistazNetwork {
     const tagStr = tagList.join(", ");
     const subTitle = [performersStr, tagStr].filter(Boolean).join(" | ");
 
-    baseTorrentTags.subTitle = subTitle;
+    // 将生成的副标题加入结果中（假设 torrent.subTitle 是合法字段）
+    baseTorrent.subTitle = subTitle;
 
-    return baseTorrentTags;
+    return baseTorrent;
   }
 
 }
