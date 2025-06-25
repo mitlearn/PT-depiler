@@ -109,7 +109,7 @@ export const SchemaMetadata: Pick<
         selector: "created_at", 
         filters: [
           // (value: string) => parseTimeWithZone(value, this.metadata!.timezoneOffset) ?? value
-          (value: string) => parseTimeWithZone(value, this.metadata?.timezoneOffset ?? "+0000") ?? value
+          (value: string) => parseTimeWithZone(value, this.metadata!.timezoneOffset ?? "+0000") ?? value
         ],
       },
       size: { selector: "file_size", filters: [{ name: "parseSize" }] },
@@ -196,7 +196,6 @@ export default class AvistazNetwork extends PrivateSite {
       site: this.metadata.id,
     };
 
-    this.allowQueryUserInfo = false;
     if (!this.allowQueryUserInfo) {
       flushUserInfo.status = EResultParseStatus.passParse;
       return flushUserInfo;
@@ -236,7 +235,7 @@ export default class AvistazNetwork extends PrivateSite {
 
     return this.getFieldsData(
       dataDocument,
-      this.metadata.userInfo?.process?.selectors!,
+      this.metadata.userInfo?.selectors!,
       ["name", "uploaded", "downloaded", "ratio", "levelName", "bonus"]
     ) as Partial<IUserInfo>;
   }
@@ -249,7 +248,7 @@ export default class AvistazNetwork extends PrivateSite {
 
     return this.getFieldsData(
       dataDocument,
-      this.metadata.userInfo?.process?.selectors!,
+      this.metadata.userInfo?.selectors!,
       ["joinTime", "uploads", "snatches", "hnrUnsatisfied"]
     ) as Partial<IUserInfo>;
   }
