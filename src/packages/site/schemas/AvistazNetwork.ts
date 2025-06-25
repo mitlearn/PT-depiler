@@ -142,22 +142,33 @@ export const SchemaMetadata: Pick<
       {
         requestConfig: { url: "/", responseType: "document" },
         selectors: {
-          name: { selector: ["table tr:nth-child(1) .user-group.group-member"] },
-          uploaded: { selector: ["i.fa-arrow-up.text-green"], filters: [{ name: "parseSize" }] },
-          downloaded: { selector: ["i.fa-arrow-down.text-red"], filters: [{ name: "parseSize" }] },
-          ratio: { selector: ["i.fa-signal.text-blue"], filters: [{ name: "parseNumber" }] },
-          levelName: { selector: ["table tr:nth-child(2) .user-group.group-member"] },
-          bonus: { selector: ["i.fa-star.text-pink"], filters: [{ name: "parseNumber" }] },
+          name: { selector: ["span.user-group.group-member"] },
+          /*name: {
+            selector: ["a[href*='/users/']:first"],
+            attr: "href",
+            filters: [
+              (query: string) => {
+                const queryMatch = query.match(/users\/(.+)\//);
+                return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
+              },
+            ],
+          },*/
+          uploaded: { selector: ["div.ratio-bar .container > div:has( > i.fa-arrow-up.text-green)"], filters: [{ name: "parseSize" }] },
+          downloaded: { selector: ["div.ratio-bar .container > div:has( > i.fa-arrow-down.text-red)"], filters: [{ name: "parseSize" }] },
+          ratio: { selector: ["div.ratio-bar .container > div:has( > i.fa-signal.text-blue)"], filters: [{ name: "parseNumber" }] },
+
+          bonus: { selector: ["div.ratio-bar .container > div:has( > i.fa-star.text-pink)"], filters: [{ name: "parseNumber" }] },
         },
       },
       {
         requestConfig: { url: "/profile/$name$", responseType: "document" },
         assertion: { name: "url" },
         selectors: {
+          levelName: { selector: ["td:contains('Ratio') + td"] },
           joinTime: { selector: ["table.table-striped tr:contains('Joined') td:last-child"], filters: [{ name: "parseTime", args: ["dd MMMM yyyy hh:mm a"] }] },  // "20 May 1900 05:20 pm (X years ago)"
           uploads: { selector: [".tag-green:contains('Uploads:')"], filters: [{ name: "parseNumber" }] },
-          snatches: { selector: [".tag-green:contains('Downloads:')"], filters: [{ name: "parseNumber" }] },
-          hnrUnsatisfied: { selector: [".tag-green:contains('Hit & Run:')"], filters: [{ name: "parseNumber" }] },
+          snatches: { selector: [".tag-yellow:contains('Downloads:')"], filters: [{ name: "parseNumber" }] },
+          hnrUnsatisfied: { selector: [".tag-red:contains('Hit & Run:')"], filters: [{ name: "parseNumber" }] },
         },
       },
     /*
@@ -241,7 +252,7 @@ export default class AvistazNetwork extends PrivateSite {
     return this.getFieldsData(
       dataDocument,
       this.metadata.userInfo?.selectors!,
-      ["name", "uploaded", "downloaded", "ratio", "levelName", "bonus"]
+      ["name", "uploaded", "downloaded", "ratio", "bonus"]
     ) as Partial<IUserInfo>;
   }
 
@@ -254,7 +265,7 @@ export default class AvistazNetwork extends PrivateSite {
     return this.getFieldsData(
       dataDocument,
       this.metadata.userInfo?.selectors!,
-      ["joinTime", "uploads", "snatches", "hnrUnsatisfied"]
+      ["levelName", "joinTime", "uploads", "snatches", "hnrUnsatisfied"]
     ) as Partial<IUserInfo>;
   }
  
