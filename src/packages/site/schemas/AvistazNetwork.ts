@@ -108,8 +108,8 @@ export const SchemaMetadata: Pick<
       time: { 
         selector: "created_at", 
         filters: [
-          // (value: string) => parseTimeWithZone(value, "-0400")
-          (value: string) => parseTimeWithZone(value, this.timezoneOffset ?? "+0000") ?? value
+          (value: string) => parseTimeWithZone(value, "-0400")
+          // (value: string) => parseTimeWithZone(value, this.timezoneOffset ?? "+0000") ?? value
         ],
       },
       size: { selector: "file_size", filters: [{ name: "parseSize" }] },
@@ -203,12 +203,12 @@ export default class AvistazNetwork extends PrivateSite {
 
     try {
       // 获取主页中的用户基础信息
-      flushUserInfo = { ...flushUserInfo, ...(await this.getUserBaseInfoFromSite()) };
+      flushUserInfo = { ...flushUserInfo, ...(await this.getBaseInfoFromSite()) };
 
       if (this.userConfig.inputSetting?.username) {
         flushUserInfo = {
           ...flushUserInfo,
-          ...(await this.getUserExtendInfo(this.userConfig.inputSetting?.username as string)),
+          ...(await this.getExtendInfo(this.userConfig.inputSetting?.username as string)),
         };
       }
 
@@ -224,7 +224,7 @@ export default class AvistazNetwork extends PrivateSite {
     return flushUserInfo;
   }
 
-  protected async getUserBaseInfoFromSite(): Promise<Partial<IUserInfo>> {
+  protected async getBaseInfoFromSite(): Promise<Partial<IUserInfo>> {
     const { data: dataDocument } = await this.request<Document>({
       url: "/",
       responseType: "document",
@@ -237,7 +237,7 @@ export default class AvistazNetwork extends PrivateSite {
     ) as Partial<IUserInfo>;
   }
 
-  protected async getUserExtendInfoFromProfile(username: string): Promise<Partial<IUserInfo>> {
+  protected async getExtendInfoFromProfile(username: string): Promise<Partial<IUserInfo>> {
     const { data: dataDocument } = await this.request<Document>({
       url: "/profile/${username}",
       responseType: "document",
