@@ -63,15 +63,12 @@ export const siteMetadata: ISiteMetadata = {
       key: "in",
       notes: "请勾选成人以开启搜索",
       options: [{ name: "成人", value: "1" }],
-      cross: false,
-      // generateRequestConfig: (selectedEntry: string) => {
-      //   return {
-      //     requestConfig: {
-      //       url: selectedEntry,
-      //       params: {}, // 不包含 key 对应的字段
-      //     },
-      //   };
-      // },
+      cross: custom,
+      generateRequestConfig: (selectedCategories) => {
+        return {
+          params: {}, // 或者返回需要保留的其他 key，排除 url
+        };
+      },
     },
     {
       name: "分类",
