@@ -106,10 +106,10 @@ export const SchemaMetadata: Pick<
       },
       time: { 
         selector: "created_at", 
-        filters: [{ name: "parseTime" }]
-        // filters: [
-        //   { name: "parseTime" }, (value: string) => parseTimeWithZone(value, this.metadata.timezoneOffset) ?? "Unknown"
-        // ],
+        // filters: [{ name: "parseTime" }]
+        filters: [
+          { name: "parseTime" }, (value: string) => parseTimeWithZone(value, this.metadata.timezoneOffset) ?? "Unknown"
+        ],
       },
       size: { selector: "file_size", filters: [{ name: "parseSize" }] },
       author: { text: "" },
@@ -127,9 +127,10 @@ export const SchemaMetadata: Pick<
     > User information will never be available in any form or API, as we respect the privacy and confidentiality of user information.
     @refs: https://github.com/pt-plugins/PT-Plugin-Plus/issues/996#issuecomment-1057856310
   */
-  /*
+  
   userInfo: {
     pickLast: ["name"],
+    /*
     process: [
       {
         requestConfig: { url: "/", responseType: "document" },
@@ -152,10 +153,15 @@ export const SchemaMetadata: Pick<
           hnrUnsatisfied: { selector: [".tag-green:contains('Hit & Run:')"], filters: [{ name: "parseNumber" }] },
         },
       },
-    ],
+      {
+        requestConfig: { url: "/profile/$name$", responseType: "document" },
+        selectors: {
+          authToken: { selector: ["token"] },
+          authExpiry: { selector: ["expiry"] },
+      },
+    */
   },
-  */
-
+ 
   userInputSettingMeta: [
     {
       name: "username",
@@ -263,8 +269,18 @@ export default class AvistazNetwork extends PrivateSite {
     // 为特定的 API 端点设置默认的 HTTP 方法
     if (requestUrl === "/api/v1/jackett/auth" && !axiosConfig.method) {
       axiosConfig.method = "GET";
+      axiosConfig.headers = {
+      ...(axiosConfig.headers ?? {}),
+      "username": this.userConfig.inputSetting!.username ?? "",
+      "password": this.userConfig.inputSetting!.password ?? "",
+      "pid": this.userConfig.inputSetting!.pid ?? "",
+      };
     } else if (requestUrl === "/api/v1/jackett/search" && !axiosConfig.method) {
       axiosConfig.method = "POST";
+      axiosConfig.headers = {
+      ...(axiosConfig.headers ?? {}),
+      "token": (await this.getAuthToken()) ?? "",
+    };
     }
     
     try {
@@ -283,6 +299,34 @@ export default class AvistazNetwork extends PrivateSite {
       // 其他错误直接重新抛出
       throw error;
     }
+  }
+
+  /*
+  public async getAuthToken(): Promise<{ token: string; expiry: number }> {
+    const { data: apiAuth } = await this.request<AvzNetAuthResp>(
+      {
+        url: "/api/v1/jackett/auth",
+        responseType: "json",
+      },
+      true,
+    );
+    return this.getFieldData(
+      apiAuth,
+      this.metadata.userInfo?.selectors!, [
+      "authToken",
+      "authExpiry",
+    ] as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
+  }
+  */
+  public async getAuthToken(): Promise<string> {
+    const { data: apiAuth } = await this.request<AvzNetAuthResp>(
+      {
+        url: "/api/v1/jackett/auth",
+        responseType: "json",
+      },
+      true,
+    );
+    return apiAuth.token ?? "";
   }
 
   protected override parseTorrentRowForTags(
