@@ -106,10 +106,11 @@ export const SchemaMetadata: Pick<
       link: { selector: "download" },
       category: { 
         selector: "category",
-          filters: [
-            (category: { [key: string]: string }) => 
-              Object.keys(category || {})[0] || ''
-          ]
+        filters: [(category: Record<string, string> | undefined) => {
+          if (!category) return '';
+          const values = Object.values(category);
+          return values.length > 0 ? values[0] : '';
+        }]
       },
       time: { 
         selector: "created_at", 
