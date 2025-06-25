@@ -1,6 +1,5 @@
 import { 
   ISiteMetadata,
-  IAdvancedSearchRequestConfig,
   ISearchInput,
   ITorrent,
   ITorrentTag
@@ -65,10 +64,10 @@ export const siteMetadata: ISiteMetadata = {
       notes: "请勾选成人以开启搜索",
       options: [{ name: "成人", value: "" }],
       cross: false,
-      generateRequestConfig: (selectedCategory: string): IAdvancedSearchRequestConfig => {
+      generateRequestConfig: (selectedEntry: string) => {
         return {
           requestConfig: {
-            url: selectedCategory,
+            url: selectedEntry,
             params: {}, // 不包含 key 对应的字段
           },
         };
