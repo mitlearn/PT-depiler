@@ -106,9 +106,9 @@ export const SchemaMetadata: Pick<
       },
       time: { 
         selector: "created_at", 
-        // filters: [{ name: "parseTime" }]
         filters: [
-          (value: string) => parseTimeWithZone(value, this.metadata?.timezoneOffset) ?? value
+          (value: string) => parseTimeWithZone(value, this.metadata!.timezoneOffset) ?? value
+          // (value: string) => parseTimeWithZone(value, this.metadata?.timezoneOffset ?? "+0000") ?? value
         ],
       },
       size: { selector: "file_size", filters: [{ name: "parseSize" }] },
@@ -130,7 +130,7 @@ export const SchemaMetadata: Pick<
   
   userInfo: {
     pickLast: ["name"],
-    /*
+    
     process: [
       {
         requestConfig: { url: "/", responseType: "document" },
@@ -153,6 +153,7 @@ export const SchemaMetadata: Pick<
           hnrUnsatisfied: { selector: [".tag-green:contains('Hit & Run:')"], filters: [{ name: "parseNumber" }] },
         },
       },
+    /*
       {
         requestConfig: { url: "/profile/$name$", responseType: "document" },
         selectors: {
@@ -186,8 +187,7 @@ export const SchemaMetadata: Pick<
 };
 
 export default class AvistazNetwork extends PrivateSite {
-//   public site: string;
-  /*
+
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo: IUserInfo = {
       status: EResultParseStatus.unknownError,
@@ -256,7 +256,6 @@ export default class AvistazNetwork extends PrivateSite {
       ["joinTime", "uploads", "snatches", "hnrUnsatisfied"]
     ) as Partial<IUserInfo>;
   }
-  */
  
   public override async request<T>(
     axiosConfig: AxiosRequestConfig, 
