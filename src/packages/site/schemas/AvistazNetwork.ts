@@ -130,7 +130,6 @@ export const SchemaMetadata: Pick<
   
   userInfo: {
     pickLast: ["name"],
-    
     process: [
       {
         requestConfig: { url: "/", responseType: "document" },
@@ -145,7 +144,7 @@ export const SchemaMetadata: Pick<
       },
       {
         requestConfig: { url: "/profile/$name$", responseType: "document" },
-        assertion: { name: "url" }
+        assertion: { name: "url" },
         selectors: {
           joinTime: { selector: ["table.table-striped tr:contains('Joined') td:last-child"], filters: [{ name: "parseTime", args: ["dd MMMM yyyy hh:mm a"] }] },  // "20 May 1900 05:20 pm (X years ago)"
           uploads: { selector: [".tag-green:contains('Uploads:')"], filters: [{ name: "parseNumber" }] },
@@ -161,6 +160,7 @@ export const SchemaMetadata: Pick<
           authExpiry: { selector: ["expiry"] },
       },
     */
+    ],
   },
  
   userInputSettingMeta: [
@@ -195,7 +195,7 @@ export default class AvistazNetwork extends PrivateSite {
       site: this.metadata.id,
     };
 
-    let this.allowQueryUserInfo = false;
+    // let this.allowQueryUserInfo = false;
     if (!this.allowQueryUserInfo) {
       flushUserInfo.status = EResultParseStatus.passParse;
       return flushUserInfo;
