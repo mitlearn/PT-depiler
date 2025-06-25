@@ -267,7 +267,7 @@ export default class AvistazNetwork extends PrivateSite {
       "password": this.userConfig.inputSetting!.password ?? "",
       "pid": this.userConfig.inputSetting!.pid ?? "",
       };
-    } else if (requestUrl === "/api/v1/jackett/torrent" && !axiosConfig.method) {
+    } else if (requestUrl === "/api/v1/jackett/torrents" && !axiosConfig.method) {
       axiosConfig.method = "POST";
       axiosConfig.headers = {
       ...(axiosConfig.headers ?? {}),
