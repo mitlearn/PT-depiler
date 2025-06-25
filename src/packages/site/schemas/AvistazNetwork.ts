@@ -108,8 +108,8 @@ export const SchemaMetadata: Pick<
       time: { 
         selector: "created_at", 
         filters: [
-          (value: string) => parseTimeWithZone(value, "-0400")
-          // (value: string) => parseTimeWithZone(value, this.metadata!.timezoneOffset ?? "+0000") ?? value
+          // (value: string) => parseTimeWithZone(value, "-0400")
+          (value: string) => parseTimeWithZone(value, this.timezoneOffset ?? "+0000") ?? value
         ],
       },
       size: { selector: "file_size", filters: [{ name: "parseSize" }] },
@@ -202,18 +202,15 @@ export default class AvistazNetwork extends PrivateSite {
     }
 
     try {
-      
       // 获取主页中的用户基础信息
-      const baseInfo = await this.getUserBaseInfoFromSite();
-      flushUserInfo = { ...flushUserInfo, ...baseInfo };
+      flushUserInfo = { ...flushUserInfo, ...(await this.getUserBaseInfoFromSite()) };
 
-      const username = this.userConfig.inputSetting?.username ?? "";
-      if (username) {
-        const extendInfo = await this.getUserExtendInfoFromProfile(username);
-        flushUserInfo = { ...flushUserInfo, ...extendInfo };
+      if (this.userConfig.inputSetting?.username) {
+        flushUserInfo = {
+          ...flushUserInfo,
+          ...(await this.getUserExtendInfo(this.userConfig.inputSetting?.username as string)),
+        };
       }
-      flushUserInfo.id = username;
-      flushUserInfo.name = baseInfo.name || username;
 
       if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
         flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
