@@ -60,6 +60,7 @@ export const siteMetadata: ISiteMetadata = {
   category: [
     {
       name: "搜索入口",
+      key: "url",
       notes: "请勾选成人以开启搜索",
       options: [{ name: "成人", value: "" }],
       cross: false,
