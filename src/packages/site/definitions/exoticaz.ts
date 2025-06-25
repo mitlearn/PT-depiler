@@ -1,5 +1,6 @@
 import { 
   ISiteMetadata,
+  IAdvancedSearchRequestConfig,
   ISearchInput,
   ITorrent,
   ITorrentTag
