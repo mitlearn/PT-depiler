@@ -261,7 +261,7 @@ export default class AvistazNetwork extends PrivateSite {
     
     // 为特定的 API 端点设置默认的 HTTP 方法
     if (requestUrl === "/api/v1/jackett/auth" && !axiosConfig.method) {
-      axiosConfig.method = "GET";
+      axiosConfig.method = "POST";
       const formData = new URLSearchParams({
         username: this.userConfig.inputSetting?.username ?? "",
         password: this.userConfig.inputSetting?.password ?? "",
@@ -273,7 +273,7 @@ export default class AvistazNetwork extends PrivateSite {
         "Content-Type": "application/x-www-form-urlencoded",
       };
     } else if (requestUrl === "/api/v1/jackett/torrents" && !axiosConfig.method) {
-      axiosConfig.method = "POST";
+      axiosConfig.method = "GET";
       axiosConfig.headers = {
       ...(axiosConfig.headers ?? {}),
       "Authorization": `Bearer ${(await this.getAuthToken()) ?? ""}`,
