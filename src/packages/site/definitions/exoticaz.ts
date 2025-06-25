@@ -3,7 +3,7 @@ import {
   ITorrent,
   ITorrentTag
 } from "../types";
-import AvistazNetwork, { SchemaMetadata, userInputSettingMeta, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
+import AvistazNetwork, { SchemaMetadata, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
 
 import { sendMessage } from "@/messages.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts";
@@ -153,7 +153,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   userInputSettingMeta: [
-    ...userInputSettingMeta,
+    ...SchemaMetadata.userInputSettingMeta,
     /*{
     name: "confirm",
     label: "If u confirm hint below, please enter CONFIRM",
@@ -178,8 +178,9 @@ export default class Exoticaz extends AvistazNetwork {
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: IExoRawTorrent,
+    searchConfig: ISearchInput,
   ): Partial<ITorrent> {
-    const baseTorrentTags = await super.parseTorrentRowForTags(torrent, row)
+    const baseTorrentTags = await super.parseTorrentRowForTags(torrent, row, searchConfig)
 
     // 生成副标题（演员名与标签）
     const tagsArray = Array.isArray(row.tags) ? row.tags : [];
@@ -194,5 +195,5 @@ export default class Exoticaz extends AvistazNetwork {
 
     return baseTorrentTags;
   }
-  
+
 }
