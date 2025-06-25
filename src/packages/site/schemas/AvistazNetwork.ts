@@ -3,6 +3,7 @@ import { set } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
 import {
+  EResultParseStatus,
   ETorrentStatus,
   type ISiteMetadata,
   type IUserInfo,
@@ -107,8 +108,8 @@ export const SchemaMetadata: Pick<
       time: { 
         selector: "created_at", 
         filters: [
-          (value: string) => parseTimeWithZone(value, this.metadata!.timezoneOffset) ?? value
-          // (value: string) => parseTimeWithZone(value, this.metadata?.timezoneOffset ?? "+0000") ?? value
+          // (value: string) => parseTimeWithZone(value, this.metadata!.timezoneOffset) ?? value
+          (value: string) => parseTimeWithZone(value, this.metadata?.timezoneOffset ?? "+0000") ?? value
         ],
       },
       size: { selector: "file_size", filters: [{ name: "parseSize" }] },
@@ -195,7 +196,7 @@ export default class AvistazNetwork extends PrivateSite {
       site: this.metadata.id,
     };
 
-    // let this.allowQueryUserInfo = false;
+    this.allowQueryUserInfo = false;
     if (!this.allowQueryUserInfo) {
       flushUserInfo.status = EResultParseStatus.passParse;
       return flushUserInfo;
@@ -218,10 +219,6 @@ export default class AvistazNetwork extends PrivateSite {
       if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
         flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
       }
-      
-      // 获取主页中的用户基础信息
-      const tokenInfo = await this.getValidToken();
-      flushUserInfo = { ...flushUserInfo, ...tokenInfo };
     
       flushUserInfo.status = EResultParseStatus.success;
     } catch (error) {
