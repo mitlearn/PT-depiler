@@ -104,20 +104,20 @@ export const SchemaMetadata: Pick<
       subTitle: { text: "" }, // Avz不提供subTitle
       url: { selector: "url" },
       link: { selector: "download" },
-      category: { 
-        selector: "category",
-        filters: [(category: Record<string, string> | undefined) => {
-          if (!category) return '';
-          const values = Object.values(category);
-          return values.length > 0 ? values[0] : '';
-        }]
-      },
+      // category: { 
+      //   selector: "category",
+      //   filters: [(category: Record<string, string> | undefined) => {
+      //     if (!category) return '';
+      //     const values = Object.values(category);
+      //     return values.length > 0 ? values[0] : '';
+      //   }]
+      // },
       time: { 
         selector: "created_at", 
-        // filters: [
-        //   (value: string) => parseTimeWithZone(value, "-0400")
+        filters: [
+          (value: string) => parseTimeWithZone(value, "-0400")
         //   // (value: string) => parseTimeWithZone(value, this.timezoneOffset ?? "+0000") ?? value
-        // ],
+        ],
       },
       size: { selector: "file_size", filters: [{ name: "parseSize" }] },
       author: { text: "" },
@@ -163,7 +163,7 @@ export const SchemaMetadata: Pick<
         requestConfig: { url: "/profile/$name$", responseType: "document" },
         assertion: { name: "url" },
         selectors: {
-          levelName: { selector: ["td:contains('Ratio') + td"] },
+          levelName: { selector: ["table.table-striped tr:contains('Rank') + td:last-child"] },
           joinTime: { selector: ["table.table-striped tr:contains('Joined') td:last-child"], filters: [{ name: "parseTime", args: ["dd MMMM yyyy hh:mm a"] }] },  // "20 May 1900 05:20 pm (X years ago)"
           uploads: { selector: [".tag-green:contains('Uploads:')"], filters: [{ name: "parseNumber" }] },
           snatches: { selector: [".tag-yellow:contains('Downloads:')"], filters: [{ name: "parseNumber" }] },
@@ -172,7 +172,7 @@ export const SchemaMetadata: Pick<
       },
     /*
       {
-        requestConfig: { url: "/profile/$name$", responseType: "document" },
+        requestConfig: { url: "/api/v1/jackett/auth", responseType: "json" },
         selectors: {
           authToken: { selector: ["token"] },
           authExpiry: { selector: ["expiry"] },
@@ -257,7 +257,7 @@ export default class AvistazNetwork extends PrivateSite {
 
   protected async getExtendInfoFromProfile(username: string): Promise<Partial<IUserInfo>> {
     const { data: dataDocument } = await this.request<Document>({
-      url: "/profile/${username}",
+      url: `/profile/${username}`,
       responseType: "document",
     });
 
