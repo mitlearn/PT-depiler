@@ -101,10 +101,10 @@ export const SchemaMetadata: Pick<
       rows: { selector: "data" },
       id: { selector: "id" },
       title: { selector: "file_name" },
-      subTitle: { text: "" }, // Avz不提供subTitle
+      // Avz不提供subTitle
       url: { selector: "url" },
       link: { selector: "download" },
-      /*category: { 
+      category: { 
         selector: "category",
         filters: [(category: Record<string, string> | undefined) => {
           if (!category) return '';
@@ -128,7 +128,8 @@ export const SchemaMetadata: Pick<
       // Avz不提供progress, status
       progress: { text: 0 },
       status: { text: ETorrentStatus.unknown },
-      */
+
+      ext_imdb: { selector: "movie_tv.imdb", filters: [{ name: "extImdbId" }] },
     },
   },
 
@@ -163,7 +164,7 @@ export const SchemaMetadata: Pick<
       },
       {
         requestConfig: { url: "/profile/$name$", responseType: "document" },
-       // assertion: { name: "url" },
+        assertion: { name: "url" },
         selectors: {
           levelName: { selector: ["table.table-striped tr:contains('Rank') + td:last-child"] },
           joinTime: { selector: ["table.table-striped tr:contains('Joined') td:last-child"], filters: [{ name: "parseTime", args: ["dd MMMM yyyy hh:mm a"] }] },  // "20 May 1900 05:20 pm (X years ago)"
