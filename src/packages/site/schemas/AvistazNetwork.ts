@@ -104,7 +104,7 @@ export const SchemaMetadata: Pick<
       subTitle: { text: "" }, // Avz不提供subTitle
       url: { selector: "url" },
       link: { selector: "download" },
-      category: { 
+      /*category: { 
         selector: "category",
         filters: [(category: Record<string, string> | undefined) => {
           if (!category) return '';
@@ -128,6 +128,7 @@ export const SchemaMetadata: Pick<
       // Avz不提供progress, status
       progress: { text: 0 },
       status: { text: ETorrentStatus.unknown },
+      */
     },
   },
 
@@ -154,10 +155,10 @@ export const SchemaMetadata: Pick<
               },
             ],
           },
-          uploaded: { selector: ["div.ratio-bar .container > div:has( > i.fa-arrow-up.text-green)"], filters: [{ name: "parseSize" }] },
-          downloaded: { selector: ["div.ratio-bar .container > div:has( > i.fa-arrow-down.text-red)"], filters: [{ name: "parseSize" }] },
-          ratio: { selector: ["div.ratio-bar .container > div:has( > i.fa-signal.text-blue)"], filters: [{ name: "parseNumber" }] },
-          bonus: { selector: ["div.ratio-bar .container > div:has( > i.fa-star.text-pink)"], filters: [{ name: "parseNumber" }] },
+          // uploaded: { selector: ["div.ratio-bar .container > div:has( > i.fa-arrow-up.text-green)"], filters: [{ name: "parseSize" }] },
+          // downloaded: { selector: ["div.ratio-bar .container > div:has( > i.fa-arrow-down.text-red)"], filters: [{ name: "parseSize" }] },
+          // ratio: { selector: ["div.ratio-bar .container > div:has( > i.fa-signal.text-blue)"], filters: [{ name: "parseNumber" }] },
+          // bonus: { selector: ["div.ratio-bar .container > div:has( > i.fa-star.text-pink)"], filters: [{ name: "parseNumber" }] },
         },
       },
       {
@@ -251,8 +252,8 @@ export default class AvistazNetwork extends PrivateSite {
 
     return this.getFieldsData(
       dataDocument,
-      this.metadata.userInfo?.selectors!,
-      ["name", "uploaded", "downloaded", "ratio", "bonus"]
+      this.metadata.userInfo?.selectors!.name,
+      // ["name", "uploaded", "downloaded", "ratio", "bonus"]
     ) as Partial<IUserInfo>;
   }
 
