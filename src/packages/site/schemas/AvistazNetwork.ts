@@ -45,7 +45,7 @@ export interface IAvzNetRawTorrent {
   }>;
   subtitle?: Array<{
     language: string;
-}>;
+  }>;
   movie_tv?: {
     imdb?: string;
     tmdb?: string;
@@ -98,7 +98,7 @@ export const SchemaMetadata: Pick<
       },
     },
     selectors: {
-      rows: { selector: "data.data" },
+      rows: { selector: "data" },
       id: { selector: "id" },
       title: { selector: "file_name" },
       subTitle: { text: "" }, // Avz不提供subTitle
@@ -124,6 +124,7 @@ export const SchemaMetadata: Pick<
       seeders: { selector: "seed" },
       leechers: { selector: "leech" },
       completed: { selector: "completed" },
+      // tags 交由 parseTorrentRowForTags 处理
       // Avz不提供progress, status
       progress: { text: 0 },
       status: { text: ETorrentStatus.unknown },
