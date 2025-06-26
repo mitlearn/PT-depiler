@@ -211,7 +211,7 @@ export default class Exoticaz extends AvistazNetwork {
       transexual: { name: "trans" },
     };
     for (const key of Object.keys(statusTags)) {
-      if (key in row && (row as Record<string, any>)[key] === 1) {
+      if (key in row && (row as Record<string, any>)[key] === true) {
         tags.push(statusTags[key as keyof typeof statusTags]);
       }
     }
