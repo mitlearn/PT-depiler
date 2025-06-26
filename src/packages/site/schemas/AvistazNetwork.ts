@@ -98,20 +98,20 @@ export const SchemaMetadata: Pick<
       },
     },
     selectors: {
-      rows: { selector: "data" },
+      rows: { selector: "data.data" },
       id: { selector: "id" },
       title: { selector: "file_name" },
       subTitle: { text: "" }, // Avz不提供subTitle
       url: { selector: "url" },
       link: { selector: "download" },
-      // category: { 
-      //   selector: "category",
-      //   filters: [(category: Record<string, string> | undefined) => {
-      //     if (!category) return '';
-      //     const values = Object.values(category);
-      //     return values.length > 0 ? values[0] : '';
-      //   }]
-      // },
+      category: { 
+        selector: "category",
+        filters: [(category: Record<string, string> | undefined) => {
+          if (!category) return '';
+          const values = Object.values(category);
+          return values.length > 0 ? values[0] : '';
+        }]
+      },
       time: { 
         selector: "created_at", 
         filters: [
@@ -225,8 +225,8 @@ export default class AvistazNetwork extends PrivateSite {
       if (this.userConfig.inputSetting?.username) {
         flushUserInfo = {
           ...flushUserInfo,
-          ...(await this.getExtendInfoFromProfile(this.userConfig.inputSetting?.username as string)),
-          // ...(await this.getExtendInfoFromProfile(flushUserInfo.username as string)),
+          // ...(await this.getExtendInfoFromProfile(this.userConfig.inputSetting?.username as string)),
+          ...(await this.getExtendInfoFromProfile(flushUserInfo.username as string)),
         };
       }
 
@@ -255,9 +255,9 @@ export default class AvistazNetwork extends PrivateSite {
     ) as Partial<IUserInfo>;
   }
 
-  protected async getExtendInfoFromProfile(username: string): Promise<Partial<IUserInfo>> {
+  protected async getExtendInfoFromProfile(userName: string): Promise<Partial<IUserInfo>> {
     const { data: dataDocument } = await this.request<Document>({
-      url: `/profile/${username}`,
+      url: `/profile/${userName}`,
       responseType: "document",
     });
 
