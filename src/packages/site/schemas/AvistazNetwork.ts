@@ -354,25 +354,25 @@ export default class AvistazNetwork extends PrivateSite {
     return apiAuth.token ?? "";
   }
 
-  protected override parseTorrentRowForTags(
-    torrent: Partial<ITorrent>,
-    row: IAvzNetRawTorrent,
-    searchConfig: ISearchInput,
-  ): Partial<ITorrent> {
-    const tags: ITorrentTag[] = [];
+  // protected override parseTorrentRowForTags(
+  //   torrent: Partial<ITorrent>,
+  //   row: IAvzNetRawTorrent,
+  //   searchConfig: ISearchInput,
+  // ): Partial<ITorrent> {
+  //   const tags: ITorrentTag[] = [];
 
-    const { upload_multiply, download_multiply } = row as { upload_multiply?: number; download_multiply?: number };
-    if (upload_multiply === 2) {
-      tags.push({ name: `${upload_multiply}xUp`, color: "lime" });
-    }
-    if (download_multiply === 0) {
-      tags.push({ name: "Free", color: "blue" });
-    }
-    if (download_multiply === 0.5) {
-      tags.push({ name: "50%", color: "deep-orange-darken-1" });
-    }
+  //   const { upload_multiply, download_multiply } = row as { upload_multiply?: number; download_multiply?: number };
+  //   if (upload_multiply === 2) {
+  //     tags.push({ name: `${upload_multiply}xUp`, color: "lime" });
+  //   }
+  //   if (download_multiply === 0) {
+  //     tags.push({ name: "Free", color: "blue" });
+  //   }
+  //   if (download_multiply === 0.5) {
+  //     tags.push({ name: "50%", color: "deep-orange-darken-1" });
+  //   }
 
-    torrent.tags = tags;
-    return torrent;
-  }
+  //   torrent.tags = tags;
+  //   return torrent;
+  // }
 }
