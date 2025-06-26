@@ -104,19 +104,20 @@ export const SchemaMetadata: Pick<
       // Avz不提供subTitle
       url: { selector: "url" },
       link: { selector: "download" },
-      category: { 
-        selector: "category",
-        filters: [(category: Record<string, string> | undefined) => {
-          if (!category) return '';
-          const values = Object.values(category);
-          return values.length > 0 ? values[0] : '';
-        }]
-      },
+      // category: { 
+      //   selector: "category",
+      //   filters: [(category: Record<string, string> | undefined) => {
+      //     if (!category) return '';
+      //     const values = Object.values(category);
+      //     return values.length > 0 ? values[0] : '';
+      //   }]
+      // },
       time: { 
         selector: "created_at", 
         filters: [
+          { name: "parseTime" },
           (value: string) => parseTimeWithZone(value, "-0400")
-        //   // (value: string) => parseTimeWithZone(value, this.timezoneOffset ?? "+0000") ?? value
+        //(value: string) => parseTimeWithZone(value, this.timezoneOffset ?? "+0000") ?? value
         ],
       },
       size: { selector: "file_size", filters: [{ name: "parseSize" }] },
@@ -156,18 +157,10 @@ export const SchemaMetadata: Pick<
               },
             ],
           },
-          uploaded: { selector: [".ratio-bar [title='Upload']"], filters: [{ name: "parseSize" }] },
-          downloaded: { selector: [".ratio-bar [title='Download']"], filters: [{ name: "parseSize" }] },
-          ratio: { selector: [".ratio-bar [title='Ratio']"], filters: [{ name: "parseNumber" }] },
-          bonus: {
-            selector: [".ratio-bar .fa-star"], 
-            filters: [
-              (text: string) => {
-                const match = text.match(/Bonus:\s*([\d.]+)/);
-                return match ? parseFloat(match[1]) : null;
-              }],  
-          },
-        },
+          uploaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(3)"], filters: [{ name: "parseSize" }] },
+          downloaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(4)"], filters: [{ name: "parseSize" }] },
+          ratio: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(5)"], filters: [{ name: "parseNumber" }] },
+          bonus: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(9)"], filters: [{ name: "parseNumber" }] },
       },
       {
         requestConfig: { url: "/profile/$name$", responseType: "document" },
