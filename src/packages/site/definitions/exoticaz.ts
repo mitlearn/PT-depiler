@@ -203,6 +203,7 @@ export default class Exoticaz extends AvistazNetwork {
     const performersStr = performersNames.join(" / ");
     extendTorrent.subTitle = performersStr
 
+    const tags: ITorrentTag[] = [];
     const statusTags: Record<string, { name: string }> = {
       asian: { name: "亚洲" },
       softcore: { name: "擦边" },
@@ -217,7 +218,7 @@ export default class Exoticaz extends AvistazNetwork {
     }
     extendTorrent.tags = tags;
     
-    return baseTorrent;
+    return extendTorrent;
   }
 
 }
