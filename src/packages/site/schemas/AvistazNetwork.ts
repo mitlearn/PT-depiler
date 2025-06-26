@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig, AxiosResponse } from "axios";
+额import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import { set } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
@@ -162,7 +162,7 @@ export const SchemaMetadata: Pick<
       },
       {
         requestConfig: { url: "/profile/$name$", responseType: "document" },
-        assertion: { name: "url" },
+       // assertion: { name: "url" },
         selectors: {
           levelName: { selector: ["table.table-striped tr:contains('Rank') + td:last-child"] },
           joinTime: { selector: ["table.table-striped tr:contains('Joined') td:last-child"], filters: [{ name: "parseTime", args: ["dd MMMM yyyy hh:mm a"] }] },  // "20 May 1900 05:20 pm (X years ago)"
