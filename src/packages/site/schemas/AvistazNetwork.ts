@@ -156,10 +156,17 @@ export const SchemaMetadata: Pick<
               },
             ],
           },
-          // uploaded: { selector: ["div.ratio-bar .container > div:has( > i.fa-arrow-up.text-green)"], filters: [{ name: "parseSize" }] },
-          // downloaded: { selector: ["div.ratio-bar .container > div:has( > i.fa-arrow-down.text-red)"], filters: [{ name: "parseSize" }] },
-          // ratio: { selector: ["div.ratio-bar .container > div:has( > i.fa-signal.text-blue)"], filters: [{ name: "parseNumber" }] },
-          // bonus: { selector: ["div.ratio-bar .container > div:has( > i.fa-star.text-pink)"], filters: [{ name: "parseNumber" }] },
+          uploaded: { selector: [".ratio-bar [title='Upload']"], filters: [{ name: "parseSize" }] },
+          downloaded: { selector: [".ratio-bar [title='Download']"], filters: [{ name: "parseSize" }] },
+          ratio: { selector: [".ratio-bar [title='Ratio']"], filters: [{ name: "parseNumber" }] },
+          bonus: {
+            selector: [".ratio-bar .fa-star"], 
+            filters: [
+              (text: string) => {
+                const match = text.match(/Bonus:\s*([\d.]+)/);
+                return match ? parseFloat(match[1]) : null;
+              }],  
+          },
         },
       },
       {
