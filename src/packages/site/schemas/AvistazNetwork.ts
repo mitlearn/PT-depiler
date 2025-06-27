@@ -1,4 +1,5 @@
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import { urlJoin } from "url-join";
 import { set } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
@@ -100,18 +101,18 @@ export const SchemaMetadata: Pick<
     selectors: {
       rows: { selector: "data" },
       id: { selector: "id" },
-      title: { selector: "file_name" },
+      // title: { selector: "file_name" },
       subTitle: { text: "" }, // Avz不提供subTitle
       url: { selector: "url" },
       link: { selector: "download" },
-      // category: { 
-      //   selector: "category",
-      //   filters: [(category: Record<string, string> | undefined) => {
-      //     if (!category) return '';
-      //     const values = Object.values(category);
-      //     return values.length > 0 ? values[0] : '';
-      //   }]
-      // },
+      category: { 
+        selector: "category",
+        filters: [(category: Record<string, string> | undefined) => {
+          if (!category) return '';
+          const values = Object.values(category);
+          return values.length > 0 ? values[0] : '';
+        }]
+      },
       // time: { 
       //   selector: "created_at", 
       //   filters: [
@@ -143,17 +144,6 @@ export const SchemaMetadata: Pick<
     pickLast: ["name"],
     selectors: {
       name: { selector: ["span.user-group.group-member"] },
-      /*
-      name: {
-        selector: ["a[href*='/profile/']:first"],
-        attr: "href",
-        filters: [
-           (query: string) => {
-             const queryMatch = query.match(/profile\/(.+)\//);
-             return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
-             },
-        ],
-      },*/
       uploaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(3)"], filters: [{ name: "parseSize" }] },
       downloaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(4)"], filters: [{ name: "parseSize" }] },
       ratio: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(5)"], filters: [{ name: "parseNumber" }] },
@@ -164,6 +154,7 @@ export const SchemaMetadata: Pick<
       snatches: { selector: [".tag-yellow:contains('Downloads:')"], filters: [{ name: "parseNumber" }] },
       hnrUnsatisfied: { selector: [".tag-red:contains('Hit & Run:')"], filters: [{ name: "parseNumber" }] },
     },
+    // TODO：为减少token获取次数，预留存储位
     /*
       authToken: { selector: ["token"] },
       authExpiry: { selector: ["expiry"] },
@@ -247,7 +238,7 @@ export default class AvistazNetwork extends PrivateSite {
 
   protected async getExtendInfoFromProfile(userName: string): Promise<Partial<IUserInfo>> {
     const { data: pageDocument } = await this.request<Document>({
-      url: "/profile/${userName}",
+      url: urlJoin("/profile", userName),
       responseType: "document",
     });
 
@@ -304,6 +295,7 @@ export default class AvistazNetwork extends PrivateSite {
     }
   }
 
+  // TODO：为减少token获取次数，预留函数
   /*
   public async getAuthToken(): Promise<{ token: string; expiry: number }> {
     const { data: apiAuth } = await this.request<AvzNetAuthResp>(
@@ -313,11 +305,13 @@ export default class AvistazNetwork extends PrivateSite {
       },
       true,
     );
+
+    apiAuth.authExpiry 
     return this.getFieldData(
       apiAuth,
       this.metadata.userInfo?.selectors!,
-      ["authToken", "authExpiry",
-    ] as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
+      ["authToken", "authExpiry"]
+      as Partial<IUserInfo>;
   }
   */
   public async getAuthToken(): Promise<string> {
