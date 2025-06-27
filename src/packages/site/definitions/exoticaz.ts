@@ -66,9 +66,7 @@ export const siteMetadata: ISiteMetadata = {
       options: [{ name: "成人", value: "1" }],
       cross: false,
       generateRequestConfig: (selectedCategories) => {
-        return {
-          params: {}, // 或者返回需要保留的其他 key，排除 url
-        };
+        return { params: {} } as IAdvancedSearchRequestConfig;
       },
     },
     {
