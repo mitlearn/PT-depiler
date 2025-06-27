@@ -59,16 +59,16 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: [""],
 
   category: [
-    {
-      name: "搜索入口",
-      key: "in",
-      notes: "请选中成人以开启搜索",
-      options: [{ name: "成人", value: "1" }],
-      cross: false,
-      generateRequestConfig: (selectedCategories) => {
-        return { params: {} } as IAdvancedSearchRequestConfig;
-      },
-    },
+    // {
+    //   name: "搜索入口",
+    //   key: "in",
+    //   notes: "请选中成人以开启搜索",
+    //   options: [{ name: "成人", value: "1" }],
+    //   cross: false,
+    //   generateRequestConfig: (selectedCategories) => {
+    //     return { params: {} } as IAdvancedSearchRequestConfig;
+    //   },
+    // },
     {
       name: "分类",
       key: "category",
@@ -119,9 +119,9 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
-  searchEntry: {
-    area_all: { name: "成人", enabled: false },
-  },
+  // searchEntry: {
+  //   area_all: { name: "成人", enabled: false },
+  // },
 
   levelRequirements: [
     {
