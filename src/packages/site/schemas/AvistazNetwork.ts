@@ -146,16 +146,16 @@ export const SchemaMetadata: Pick<
     pickLast: ["name"],
     selectors: {
       // name: { selector: ["span.user-group.group-member"] },
-      uploaded: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Upload']"], filters: [{ name: "parseSize" }] },
-      downloaded: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Download']"], filters: [{ name: "parseSize" }] },
-      ratio: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Ratio']"], filters: [{ name: "parseNumber" }] },
-      bonus: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Bonus']"], filters: [{ name: "parseNumber" }] },
-      /*levelName: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(2)"], filters: [{ name: "parseSize" }] },
+      // uploaded: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Upload']"], filters: [{ name: "parseSize" }] },
+      // downloaded: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Download']"], filters: [{ name: "parseSize" }] },
+      // ratio: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Ratio']"], filters: [{ name: "parseNumber" }] },
+      // bonus: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Bonus']"], filters: [{ name: "parseNumber" }] },
+      levelName: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(2)"], filters: [{ name: "parseSize" }] },
       uploaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(3)"], filters: [{ name: "parseSize" }] },
       downloaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(4)"], filters: [{ name: "parseSize" }] },
       ratio: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(5)"], filters: [{ name: "parseNumber" }] },
-      bonus: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(9)"], filters: [{ name: "parseNumber" }] },*/
-      levelName: { selector: ["div.ratio-bar div:has(i.fa-users) span.user-group.group-member"] },
+      bonus: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(9)"], filters: [{ name: "parseNumber" }] },
+      // levelName: { selector: ["div.ratio-bar div:has(i.fa-users) span.user-group.group-member"] },
       joinTime: {
         selector: ["table.table-striped tr:contains('Joined') td:last-child"],
         filters: [
@@ -265,9 +265,10 @@ export default class AvistazNetwork extends PrivateSite {
 
   protected async getUserSeedingTorrents(userName: string): Promise<Partial<IUserInfo>> {
     const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
+    const profile: urlJoin("/profile", userName);
 
     const { data: seedPage } = await this.request<Document>({
-      url: urlJoin("/profile", userName, "/acitve"),
+      url: urlJoin(profile, "/acitve"),
       responseType: "document",
     });
     const rows = Sizzle("table.table-striped tbody tr span[title='File Size']", seedPage);
