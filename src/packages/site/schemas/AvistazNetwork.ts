@@ -104,9 +104,9 @@ export const SchemaMetadata: Pick<
       rows: { selector: "data" },
       id: { selector: "id" },
       title: { selector: "file_hash" },
-      // subTitle: { text: "" }, // Avz不提供subTitle
-      // url: { selector: "url" },
-      // // link: { selector: "download" },
+      subTitle: { text: "" }, // Avz不提供subTitle
+      url: { selector: "url" },
+      link: { selector: "download" },
       // category: { 
       //   selector: "category",
       //   filters: [(category: Record<string, string> | undefined) => {
@@ -115,14 +115,7 @@ export const SchemaMetadata: Pick<
       //     return values.length > 0 ? values[0] : '';
       //   }]
       // },
-      // time: { 
-      //   selector: "created_at", 
-      //   filters: [
-      //     { name: "parseTime" },
-      //     (value: string) => parseTimeWithZone(value, "-0400")
-      //   //(value: string) => parseTimeWithZone(value, this.timezoneOffset ?? "+0000") ?? value
-      //   ],
-      // },
+      time: { selector: "created_at", filters: [{ name: "parseTime" }] },
       size: { selector: "file_size", filters: [{ name: "parseSize" }] },
       author: { text: "" },
       seeders: { selector: "seed" },
@@ -130,8 +123,8 @@ export const SchemaMetadata: Pick<
       completed: { selector: "completed" },
       // tags 交由 parseTorrentRowForTags 处理
       // Avz不提供progress, status
-      progress: { text: 0 },
-      status: { text: ETorrentStatus.unknown },
+      // progress: { text: 0 },
+      // status: { text: ETorrentStatus.unknown },
 
       ext_imdb: { selector: "movie_tv.imdb", filters: [{ name: "extImdbId" }] },
     },
@@ -145,7 +138,7 @@ export const SchemaMetadata: Pick<
   userInfo: {
     pickLast: ["name"],
     selectors: {
-      // name: { selector: ["span.user-group.group-member"] },
+      name: { selector: ["span.user-group.group-member"] },
       // uploaded: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Upload']"], filters: [{ name: "parseSize" }] },
       // downloaded: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Download']"], filters: [{ name: "parseSize" }] },
       // ratio: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Ratio']"], filters: [{ name: "parseNumber" }] },
@@ -213,9 +206,15 @@ export default class AvistazNetwork extends PrivateSite {
     }
 
     try {
-      // 获取主页中的用户基础信息
       flushUserInfo = { ...flushUserInfo, ...(await this.getBaseInfoFromSite()) };
-      if (this.userConfig.inputSetting?.username) {
+      if (flushUserInfo.name) {
+        flushUserInfo = {
+          ...flushUserInfo,
+          ...(await this.getExtendInfoFromProfile(flushUserInfo.name as string)),
+          ...(await this.getUserSeedingTorrents(flushUserInfo.name as string)),
+        };
+      }
+      else {
         flushUserInfo.name = this.userConfig.inputSetting?.username;
         flushUserInfo = {
           ...flushUserInfo,
@@ -245,8 +244,7 @@ export default class AvistazNetwork extends PrivateSite {
     return this.getFieldsData(
       pageDocument,
       this.metadata.userInfo?.selectors!,
-      // this.metadata.userInfo?.selectors?.name!,
-      ["name", "uploaded", "downloaded", "ratio", "bonus"]
+      ["name", "levelName", "uploaded", "downloaded", "ratio", "bonus"]
     ) as Partial<IUserInfo>;
   }
 
@@ -259,7 +257,7 @@ export default class AvistazNetwork extends PrivateSite {
     return this.getFieldsData(
       pageDocument,
       this.metadata.userInfo?.selectors!,
-      ["levelName", "joinTime", "uploads", "snatches", "hnrUnsatisfied"]
+      ["joinTime", "uploads", "snatches", "hnrUnsatisfied"]
     ) as Partial<IUserInfo>;
   }
 
@@ -267,7 +265,7 @@ export default class AvistazNetwork extends PrivateSite {
     const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
 
     const { data: seedPage } = await this.request<Document>({
-      url: `/profile/${userName}/acitve`,
+      url: urlJoin("/profile", userName) + "/active",
       responseType: "document",
     });
     const rows = Sizzle("table.table-striped tbody tr span[title='File Size']", seedPage);
