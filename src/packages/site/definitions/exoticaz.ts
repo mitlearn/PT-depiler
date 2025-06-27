@@ -1,8 +1,9 @@
 import { 
   ISiteMetadata,
   ISearchInput,
+  IAdvancedSearchRequestConfig,
   ITorrent,
-  ITorrentTag
+  ITorrentTag,
 } from "../types";
 import AvistazNetwork, { SchemaMetadata, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
 
