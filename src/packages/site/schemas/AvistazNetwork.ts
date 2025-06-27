@@ -255,8 +255,8 @@ export default class AvistazNetwork extends PrivateSite {
     return this.getFieldsData(
       dataDocument,
       this.metadata.userInfo?.selectors!,
-      ["name"]
-      // ["name", "uploaded", "downloaded", "ratio", "bonus"]
+      // ["name"]
+      ["name", "uploaded", "downloaded", "ratio", "bonus"]
     ) as Partial<IUserInfo>;
   }
 
