@@ -1,5 +1,6 @@
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
+import Sizzle from "sizzle";
 import { set } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
@@ -14,6 +15,7 @@ import {
 } from "../types"; 
 import {
   parseTimeWithZone,
+  parseSizeString
 } from "../utils";
 
 export interface AvzNetAuthResp {
@@ -218,6 +220,7 @@ export default class AvistazNetwork extends PrivateSite {
         flushUserInfo = {
           ...flushUserInfo,
           ...(await this.getExtendInfoFromProfile(flushUserInfo.name as string)),
+          ...(await this.getUserSeedingTorrents(flushUserInfo.name as string)),
         };
       }
 
@@ -336,7 +339,7 @@ export default class AvistazNetwork extends PrivateSite {
     return apiAuth.token ?? "";
   }
   
-  protected async getUserSeedingTorrents(userId?: number): Promise<Partial<IUserInfo>> {
+  protected async getUserSeedingTorrents(userName?: striing): Promise<Partial<IUserInfo>> {
     const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
 
     const { data: seedPage } = await this.request<Document>({
