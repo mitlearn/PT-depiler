@@ -139,6 +139,7 @@ export const SchemaMetadata: Pick<
     pickLast: ["name"],
     selectors: {
       name: { selector: ["span.user-group.group-member"] },
+      // levelName: { selector: ["div.ratio-bar div:has(i.fa-users) span.user-group.group-member"] },
       // uploaded: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Upload']"], filters: [{ name: "parseSize" }] },
       // downloaded: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Download']"], filters: [{ name: "parseSize" }] },
       // ratio: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Ratio']"], filters: [{ name: "parseNumber" }] },
@@ -148,12 +149,10 @@ export const SchemaMetadata: Pick<
       downloaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(4)"], filters: [{ name: "parseSize" }] },
       ratio: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(5)"], filters: [{ name: "parseNumber" }] },
       bonus: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(9)"], filters: [{ name: "parseNumber" }] },
-      // levelName: { selector: ["div.ratio-bar div:has(i.fa-users) span.user-group.group-member"] },
       joinTime: {
         selector: ["table.table-striped tr:contains('Joined') td:last-child"],
         filters: [
-          { "name": "regexReplace", "args": ["\\s*\\(.*\\)", ""] },
-          { "name": "parseTime", "args": ["dd MMMM YYYY hh:mm a"] }
+          { "name": "parseTime", "args": ["dd MMMM YYYY hh:mm a (X years ago)"] }
         ]
       },
       uploads: { selector: [".tag-green:contains('Uploads:')"], filters: [{ name: "parseNumber" }] },
@@ -281,23 +280,22 @@ export default class AvistazNetwork extends PrivateSite {
     checkLogin: boolean = true
   ): Promise<AxiosResponse<T>> {
     // 获取请求的 URL 用于判断处理逻辑
-    const requestUrl = axiosConfig.url || "/";
-    const isApiRequest = requestUrl.startsWith("/api/v1/jackett/");
+    const isApiRequest = axiosConfig.url?.startsWith("/api/v1/jackett/") ?? false;;
     
     // 为特定的 API 端点设置默认的 HTTP 方法
-    if (requestUrl === "/api/v1/jackett/auth" && !axiosConfig.method) {
+    if (axiosConfig.url === "/api/v1/jackett/auth" && !axiosConfig.method) {
       axiosConfig.method = "POST";
-      const formData = new URLSearchParams({
+      axiosConfig.data = {
+        ...axiosConfig.data,
         username: this.userConfig.inputSetting?.username ?? "",
         password: this.userConfig.inputSetting?.password ?? "",
         pid: this.userConfig.inputSetting?.pid ?? "",
-      });
-      axiosConfig.data = formData;
+      };
       axiosConfig.headers = {
         ...(axiosConfig.headers ?? {}),
         "Content-Type": "application/x-www-form-urlencoded",
       };
-    } else if (requestUrl === "/api/v1/jackett/torrents" && !axiosConfig.method) {
+    } else if (axiosConfig.urll === "/api/v1/jackett/torrents" && !axiosConfig.method) {
       axiosConfig.method = "GET";
       axiosConfig.headers = {
       ...(axiosConfig.headers ?? {}),
