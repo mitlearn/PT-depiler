@@ -71,11 +71,11 @@ export const SchemaMetadata: Pick<
   timezoneOffset: "-0400", 
 
   search: {
-    keywordPath: "params.search",
+    keywordPath: "data.search",
     requestConfig: {
       url: "/api/v1/jackett/torrents",
       responseType: "json",
-      params: { in: 1, limit: 50 }, // 最大50个结果
+      data: { in: 1, limit: 50 }, // 最大50个结果
     },
     advanceKeywordParams: {
       imdb: {
@@ -103,20 +103,20 @@ export const SchemaMetadata: Pick<
     selectors: {
       rows: { selector: "data" },
       id: { selector: "id" },
-      title: { selector: "file_hash" },
+      title: { selector: "file_name" },
       subTitle: { text: "" }, // Avz不提供subTitle
       url: { selector: "url" },
       link: { selector: "download" },
-      // category: { 
-      //   selector: "category",
-      //   filters: [(category: Record<string, string> | undefined) => {
-      //     if (!category) return '';
-      //     const values = Object.values(category);
-      //     return values.length > 0 ? values[0] : '';
-      //   }]
-      // },
-      time: { selector: "created_at", filters: [{ name: "parseTime" }] },
-      size: { selector: "file_size", filters: [{ name: "parseSize" }] },
+      category: { 
+        selector: "category",
+        filters: [(category: Record<string, string> | undefined) => {
+          if (!category) return '';
+          const values = Object.values(category);
+          return values.length > 0 ? values[0] : '';
+        }]
+      },
+      // time: { selector: "created_at", filters: [{ name: "parseTime" }] },
+      // size: { selector: "file_size", filters: [{ name: "parseSize" }] },
       author: { text: "" },
       seeders: { selector: "seed" },
       leechers: { selector: "leech" },
@@ -144,7 +144,7 @@ export const SchemaMetadata: Pick<
       // downloaded: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Download']"], filters: [{ name: "parseSize" }] },
       // ratio: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Ratio']"], filters: [{ name: "parseNumber" }] },
       // bonus: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Bonus']"], filters: [{ name: "parseNumber" }] },
-      levelName: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(2)"], filters: [{ name: "parseSize" }] },
+      levelName: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(2)"],
       uploaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(3)"], filters: [{ name: "parseSize" }] },
       downloaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(4)"], filters: [{ name: "parseSize" }] },
       ratio: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(5)"], filters: [{ name: "parseNumber" }] },
@@ -152,7 +152,7 @@ export const SchemaMetadata: Pick<
       joinTime: {
         selector: ["table.table-striped tr:contains('Joined') td:last-child"],
         filters: [
-          { "name": "parseTime", "args": ["dd MMMM YYYY hh:mm a (X years ago)"] }
+          { "name": "parseTime", "args": ["dd MMMM YYYY hh:mm a"] }
         ]
       },
       uploads: { selector: [".tag-green:contains('Uploads:')"], filters: [{ name: "parseNumber" }] },
