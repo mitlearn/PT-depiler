@@ -112,14 +112,14 @@ export const SchemaMetadata: Pick<
       //     return values.length > 0 ? values[0] : '';
       //   }]
       // },
-      time: { 
-        selector: "created_at", 
-        filters: [
-          { name: "parseTime" },
-          (value: string) => parseTimeWithZone(value, "-0400")
-        //(value: string) => parseTimeWithZone(value, this.timezoneOffset ?? "+0000") ?? value
-        ],
-      },
+      // time: { 
+      //   selector: "created_at", 
+      //   filters: [
+      //     { name: "parseTime" },
+      //     (value: string) => parseTimeWithZone(value, "-0400")
+      //   //(value: string) => parseTimeWithZone(value, this.timezoneOffset ?? "+0000") ?? value
+      //   ],
+      // },
       size: { selector: "file_size", filters: [{ name: "parseSize" }] },
       author: { text: "" },
       seeders: { selector: "seed" },
@@ -148,11 +148,11 @@ export const SchemaMetadata: Pick<
         selectors: {
           // name: { selector: ["span.user-group.group-member"] },
           name: {
-            selector: ["a[href*='/users/']:first"],
+            selector: ["a[href*='/profile/']:first"],
             attr: "href",
             filters: [
               (query: string) => {
-                const queryMatch = query.match(/users\/(.+)\//);
+                const queryMatch = query.match(/profile\/(.+)\//);
                 return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
               },
             ],
@@ -230,7 +230,7 @@ export default class AvistazNetwork extends PrivateSite {
         flushUserInfo = {
           ...flushUserInfo,
           // ...(await this.getExtendInfoFromProfile(this.userConfig.inputSetting?.username as string)),
-          ...(await this.getExtendInfoFromProfile(flushUserInfo.username as string)),
+          ...(await this.getExtendInfoFromProfile(flushUserInfo.name as string)),
         };
       }
 
