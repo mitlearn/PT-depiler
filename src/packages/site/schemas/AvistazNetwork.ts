@@ -112,7 +112,7 @@ export const SchemaMetadata: Pick<
       //     const values = Object.values(category);
       //     return values.length > 0 ? values[0] : '';
       //   }]
-      },
+      // },
       // time: { 
       //   selector: "created_at", 
       //   filters: [
@@ -157,6 +157,7 @@ export const SchemaMetadata: Pick<
       joinTime: {
         selector: ["table.table-striped tr:contains('Joined') td:last-child"],
         filters: [
+          { "name": "regexReplace", "args": ["\\s*\\(.*\\)", ""] },
           { "name": "parseTime", "args": ["dd MMMM YYYY hh:mm a"] }
         ]
       },
