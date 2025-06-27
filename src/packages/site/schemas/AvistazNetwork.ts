@@ -339,7 +339,7 @@ export default class AvistazNetwork extends PrivateSite {
     return apiAuth.token ?? "";
   }
   
-  protected async getUserSeedingTorrents(userName?: striing): Promise<Partial<IUserInfo>> {
+  protected async getUserSeedingTorrents(userName?: string): Promise<Partial<IUserInfo>> {
     const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
 
     const { data: seedPage } = await this.request<Document>({
