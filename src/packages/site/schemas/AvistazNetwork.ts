@@ -241,7 +241,7 @@ export default class AvistazNetwork extends PrivateSite {
       this.metadata.userInfo?.selectors!,
       // this.metadata.userInfo?.selectors?.name!,
       ["name", "uploaded", "downloaded", "ratio", "bonus"]
-      as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
+    ) as Partial<IUserInfo>;
   }
 
   protected async getExtendInfoFromProfile(userName: string): Promise<Partial<IUserInfo>> {
@@ -254,7 +254,7 @@ export default class AvistazNetwork extends PrivateSite {
       dataDocument,
       this.metadata.userInfo?.selectors!,
       ["levelName", "joinTime", "uploads", "snatches", "hnrUnsatisfied"]
-      as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
+    ) as Partial<IUserInfo>;
   }
  
   public override async request<T>(
