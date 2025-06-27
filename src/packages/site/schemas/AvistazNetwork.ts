@@ -265,10 +265,9 @@ export default class AvistazNetwork extends PrivateSite {
 
   protected async getUserSeedingTorrents(userName: string): Promise<Partial<IUserInfo>> {
     const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
-    const profile: urlJoin("/profile", userName);
 
     const { data: seedPage } = await this.request<Document>({
-      url: urlJoin(profile, "/acitve"),
+      url: `/profile/${userName}/acitve`
       responseType: "document",
     });
     const rows = Sizzle("table.table-striped tbody tr span[title='File Size']", seedPage);
