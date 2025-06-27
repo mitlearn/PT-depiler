@@ -123,8 +123,8 @@ export const SchemaMetadata: Pick<
       completed: { selector: "completed" },
       // tags 交由 parseTorrentRowForTags 处理
       // Avz不提供progress, status
-      // progress: { text: 0 },
-      // status: { text: ETorrentStatus.unknown },
+      progress: { text: 0 },
+      status: { text: ETorrentStatus.unknown },
 
       ext_imdb: { selector: "movie_tv.imdb", filters: [{ name: "extImdbId" }] },
     },
@@ -144,7 +144,7 @@ export const SchemaMetadata: Pick<
       // downloaded: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Download']"], filters: [{ name: "parseSize" }] },
       // ratio: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Ratio']"], filters: [{ name: "parseNumber" }] },
       // bonus: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Bonus']"], filters: [{ name: "parseNumber" }] },
-      levelName: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(2)"],
+      levelName: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(2)"] },
       uploaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(3)"], filters: [{ name: "parseSize" }] },
       downloaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(4)"], filters: [{ name: "parseSize" }] },
       ratio: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(5)"], filters: [{ name: "parseNumber" }] },
