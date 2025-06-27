@@ -1,5 +1,5 @@
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import { urlJoin } from "url-join";
+import urlJoin from "url-join";
 import { set } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
