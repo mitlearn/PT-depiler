@@ -295,7 +295,7 @@ export default class AvistazNetwork extends PrivateSite {
         ...(axiosConfig.headers ?? {}),
         "Content-Type": "application/x-www-form-urlencoded",
       };
-    } else if (axiosConfig.urll === "/api/v1/jackett/torrents" && !axiosConfig.method) {
+    } else if (axiosConfig.url === "/api/v1/jackett/torrents" && !axiosConfig.method) {
       axiosConfig.method = "GET";
       axiosConfig.headers = {
       ...(axiosConfig.headers ?? {}),
