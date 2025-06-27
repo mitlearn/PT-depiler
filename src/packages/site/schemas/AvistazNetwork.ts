@@ -139,50 +139,35 @@ export const SchemaMetadata: Pick<
     > User information will never be available in any form or API, as we respect the privacy and confidentiality of user information.
     @refs: https://github.com/pt-plugins/PT-Plugin-Plus/issues/996#issuecomment-1057856310
   */
-  
   userInfo: {
     pickLast: ["name"],
-    process: [
-      {
-        requestConfig: { url: "/", responseType: "document" },
-        selectors: {
-          // name: { selector: ["span.user-group.group-member"] },
-          name: {
-            selector: ["a[href*='/profile/']:first"],
-            attr: "href",
-            filters: [
-              (query: string) => {
-                const queryMatch = query.match(/profile\/(.+)\//);
-                return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
-              },
-            ],
-          },
-          uploaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(3)"], filters: [{ name: "parseSize" }] },
-          downloaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(4)"], filters: [{ name: "parseSize" }] },
-          ratio: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(5)"], filters: [{ name: "parseNumber" }] },
-          bonus: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(9)"], filters: [{ name: "parseNumber" }] },
-        },
-      },
-      {
-        requestConfig: { url: "/profile/$name$", responseType: "document" },
-        assertion: { name: "url" },
-        selectors: {
-          levelName: { selector: ["table.table-striped tr:contains('Rank') + td:last-child"] },
-          joinTime: { selector: ["table.table-striped tr:contains('Joined') td:last-child"], filters: [{ name: "parseTime", args: ["dd MMMM yyyy hh:mm a"] }] },  // "20 May 1900 05:20 pm (X years ago)"
-          uploads: { selector: [".tag-green:contains('Uploads:')"], filters: [{ name: "parseNumber" }] },
-          snatches: { selector: [".tag-yellow:contains('Downloads:')"], filters: [{ name: "parseNumber" }] },
-          hnrUnsatisfied: { selector: [".tag-red:contains('Hit & Run:')"], filters: [{ name: "parseNumber" }] },
-        },
-      },
+    selectors: {
+      name: { selector: ["span.user-group.group-member"] },
+      /*
+      name: {
+        selector: ["a[href*='/profile/']:first"],
+        attr: "href",
+        filters: [
+           (query: string) => {
+             const queryMatch = query.match(/profile\/(.+)\//);
+             return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
+             },
+        ],
+      },*/
+      uploaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(3)"], filters: [{ name: "parseSize" }] },
+      downloaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(4)"], filters: [{ name: "parseSize" }] },
+      ratio: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(5)"], filters: [{ name: "parseNumber" }] },
+      bonus: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(9)"], filters: [{ name: "parseNumber" }] },
+      levelName: { selector: ["table.table-striped tr:contains('Rank') + td:last-child"] },
+      joinTime: { selector: ["table.table-striped tr:contains('Joined') td:last-child"], filters: [{ name: "parseTime", args: ["dd MMMM yyyy hh:mm a"] }] },  // "20 May 1900 05:20 pm (X years ago)"
+      uploads: { selector: [".tag-green:contains('Uploads:')"], filters: [{ name: "parseNumber" }] },
+      snatches: { selector: [".tag-yellow:contains('Downloads:')"], filters: [{ name: "parseNumber" }] },
+      hnrUnsatisfied: { selector: [".tag-red:contains('Hit & Run:')"], filters: [{ name: "parseNumber" }] },
+    },
     /*
-      {
-        requestConfig: { url: "/api/v1/jackett/auth", responseType: "json" },
-        selectors: {
-          authToken: { selector: ["token"] },
-          authExpiry: { selector: ["expiry"] },
-      },
+      authToken: { selector: ["token"] },
+      authExpiry: { selector: ["expiry"] },
     */
-    ],
   },
  
   userInputSettingMeta: [
@@ -225,12 +210,11 @@ export default class AvistazNetwork extends PrivateSite {
     try {
       // 获取主页中的用户基础信息
       flushUserInfo = { ...flushUserInfo, ...(await this.getBaseInfoFromSite()) };
-
       if (this.userConfig.inputSetting?.username) {
         flushUserInfo = {
           ...flushUserInfo,
-          // ...(await this.getExtendInfoFromProfile(this.userConfig.inputSetting?.username as string)),
-          ...(await this.getExtendInfoFromProfile(flushUserInfo.name as string)),
+          ...(await this.getExtendInfoFromProfile(this.userConfig.inputSetting?.username as string)),
+          // ...(await this.getExtendInfoFromProfile(flushUserInfo.name as string)),
         };
       }
 
@@ -255,14 +239,14 @@ export default class AvistazNetwork extends PrivateSite {
     return this.getFieldsData(
       dataDocument,
       this.metadata.userInfo?.selectors!,
-      // ["name"]
+      // this.metadata.userInfo?.selectors?.name!,
       ["name", "uploaded", "downloaded", "ratio", "bonus"]
-    ) as Partial<IUserInfo>;
+      as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
   }
 
   protected async getExtendInfoFromProfile(userName: string): Promise<Partial<IUserInfo>> {
     const { data: dataDocument } = await this.request<Document>({
-      url: `/profile/${userName}`,
+      url: "/profile/${userName}",
       responseType: "document",
     });
 
@@ -270,7 +254,7 @@ export default class AvistazNetwork extends PrivateSite {
       dataDocument,
       this.metadata.userInfo?.selectors!,
       ["levelName", "joinTime", "uploads", "snatches", "hnrUnsatisfied"]
-    ) as Partial<IUserInfo>;
+      as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
   }
  
   public override async request<T>(
@@ -299,9 +283,9 @@ export default class AvistazNetwork extends PrivateSite {
       axiosConfig.headers = {
       ...(axiosConfig.headers ?? {}),
       "Authorization": `Bearer ${(await this.getAuthToken()) ?? ""}`,
-    };
+      };
     }
-    
+    /*
     try {
       // 对于 API 请求，跳过登录检查
       return await super.request<T>(axiosConfig, isApiRequest ? false : checkLogin);
@@ -315,9 +299,8 @@ export default class AvistazNetwork extends PrivateSite {
           throw new Error(`API Error ${status} ${statusText}`.trim());
         }
       }
-      // 其他错误直接重新抛出
       throw error;
-    }
+    }*/
   }
 
   /*
@@ -331,9 +314,8 @@ export default class AvistazNetwork extends PrivateSite {
     );
     return this.getFieldData(
       apiAuth,
-      this.metadata.userInfo?.selectors!, [
-      "authToken",
-      "authExpiry",
+      this.metadata.userInfo?.selectors!,
+      ["authToken", "authExpiry",
     ] as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
   }
   */
