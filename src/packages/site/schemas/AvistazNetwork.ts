@@ -157,7 +157,6 @@ export const SchemaMetadata: Pick<
       joinTime: {
         selector: ["table.table-striped tr:contains('Joined') td:last-child"],
         filters: [
-          { "name": "regexReplace", "args": ["\\s*\\(.*\\)", ""] },
           { "name": "parseTime", "args": ["dd MMMM YYYY hh:mm a"] }
         ]
       },
