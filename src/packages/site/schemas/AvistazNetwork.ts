@@ -290,8 +290,8 @@ export default class AvistazNetwork extends PrivateSite {
     try {
       // 对于 API 请求，跳过登录检查
       return await super.request<T>(axiosConfig, isApiRequest ? false : checkLogin);
-    } /*catch (error) {
-      // 如果是 API 请求且是网络错误，重新抛出 API Error
+    } catch (error) {
+      /*// 如果是 API 请求且是网络错误，重新抛出 API Error
       if (isApiRequest && error instanceof Error && error.message.startsWith('Network Error:')) {
         // 从原错误消息中提取状态码和状态文本
         const match = error.message.match(/Network Error: (\d+)\s*(.*)/);
@@ -299,10 +299,10 @@ export default class AvistazNetwork extends PrivateSite {
           const [, status, statusText] = match;
           throw new Error(`API Error ${status} ${statusText}`.trim());
         }
-      }
+      }*/
       throw error;
     }
-  }*/
+  }
 
   /*
   public async getAuthToken(): Promise<{ token: string; expiry: number }> {
