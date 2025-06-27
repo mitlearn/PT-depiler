@@ -101,7 +101,7 @@ export const SchemaMetadata: Pick<
       rows: { selector: "data" },
       id: { selector: "id" },
       title: { selector: "file_name" },
-      // Avz不提供subTitle
+      subTitle: { text: "" }, // Avz不提供subTitle
       url: { selector: "url" },
       link: { selector: "download" },
       // category: { 
@@ -211,10 +211,11 @@ export default class AvistazNetwork extends PrivateSite {
       // 获取主页中的用户基础信息
       flushUserInfo = { ...flushUserInfo, ...(await this.getBaseInfoFromSite()) };
       if (this.userConfig.inputSetting?.username) {
+        flushUserInfo.name = this.userConfig.inputSetting?.username;
         flushUserInfo = {
           ...flushUserInfo,
-          ...(await this.getExtendInfoFromProfile(this.userConfig.inputSetting?.username as string)),
-          // ...(await this.getExtendInfoFromProfile(flushUserInfo.name as string)),
+          // ...(await this.getExtendInfoFromProfile(this.userConfig.inputSetting?.username as string)),
+          ...(await this.getExtendInfoFromProfile(flushUserInfo.name as string)),
         };
       }
 
@@ -231,13 +232,13 @@ export default class AvistazNetwork extends PrivateSite {
   }
 
   protected async getBaseInfoFromSite(): Promise<Partial<IUserInfo>> {
-    const { data: dataDocument } = await this.request<Document>({
+    const { data: pageDocument } = await this.request<Document>({
       url: "/",
       responseType: "document",
     });
 
     return this.getFieldsData(
-      dataDocument,
+      pageDocument,
       this.metadata.userInfo?.selectors!,
       // this.metadata.userInfo?.selectors?.name!,
       ["name", "uploaded", "downloaded", "ratio", "bonus"]
@@ -245,13 +246,13 @@ export default class AvistazNetwork extends PrivateSite {
   }
 
   protected async getExtendInfoFromProfile(userName: string): Promise<Partial<IUserInfo>> {
-    const { data: dataDocument } = await this.request<Document>({
+    const { data: pageDocument } = await this.request<Document>({
       url: "/profile/${userName}",
       responseType: "document",
     });
 
     return this.getFieldsData(
-      dataDocument,
+      pageDocument,
       this.metadata.userInfo?.selectors!,
       ["levelName", "joinTime", "uploads", "snatches", "hnrUnsatisfied"]
     ) as Partial<IUserInfo>;
@@ -285,11 +286,11 @@ export default class AvistazNetwork extends PrivateSite {
       "Authorization": `Bearer ${(await this.getAuthToken()) ?? ""}`,
       };
     }
-    /*
+    
     try {
       // 对于 API 请求，跳过登录检查
       return await super.request<T>(axiosConfig, isApiRequest ? false : checkLogin);
-    } catch (error) {
+    } /*catch (error) {
       // 如果是 API 请求且是网络错误，重新抛出 API Error
       if (isApiRequest && error instanceof Error && error.message.startsWith('Network Error:')) {
         // 从原错误消息中提取状态码和状态文本
@@ -300,8 +301,8 @@ export default class AvistazNetwork extends PrivateSite {
         }
       }
       throw error;
-    }*/
-  }
+    }
+  }*/
 
   /*
   public async getAuthToken(): Promise<{ token: string; expiry: number }> {
