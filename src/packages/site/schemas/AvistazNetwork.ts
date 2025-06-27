@@ -155,15 +155,12 @@ export const SchemaMetadata: Pick<
       bonus: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(9)"], filters: [{ name: "parseNumber" }] },*/
       levelName: { selector: ["div.ratio-bar div:has(i.fa-users) span.user-group.group-member"] },
       joinTime: {
-        selector: ["table.table-striped tr:contains('Joined') td:last-child"], // 20 May 1900 05:20 pm (X years ago)
+        selector: ["table.table-striped tr:contains('Joined') td:last-child"],
         filters: [
-          (query: string) => {
-                const queryMatch = query.match("\\s*\\(.*\\)", "");
-                return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
-          },
-         { name: "parseTime", args: ["dd MMMM yyyy hh:mm a"] }
+          { "name": "regexReplace", "args": ["\\s*\\(.*\\)", ""] },
+          { "name": "parseTime", "args": ["dd MMMM YYYY hh:mm a"] }
         ]
-      },  
+      },
       uploads: { selector: [".tag-green:contains('Uploads:')"], filters: [{ name: "parseNumber" }] },
       snatches: { selector: [".tag-yellow:contains('Downloads:')"], filters: [{ name: "parseNumber" }] },
       seeding: { selector: [".tag-indigo:contains('Seeds:')"], filters: [{ name: "parseNumber" }] },
