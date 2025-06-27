@@ -262,7 +262,22 @@ export default class AvistazNetwork extends PrivateSite {
       ["levelName", "joinTime", "uploads", "snatches", "hnrUnsatisfied"]
     ) as Partial<IUserInfo>;
   }
- 
+
+  protected async getUserSeedingTorrents(userName: string): Promise<Partial<IUserInfo>> {
+    const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
+
+    const { data: seedPage } = await this.request<Document>({
+      url: urlJoin("/profile", userName, "/acitve"),
+      responseType: "document",
+    });
+    const rows = Sizzle("table.table-striped tbody tr span[title='File Size']", seedPage);
+    rows.forEach((element) => {
+      userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim());
+    });
+
+    return userSeedingTorrent;
+  }
+
   public override async request<T>(
     axiosConfig: AxiosRequestConfig, 
     checkLogin: boolean = true
@@ -339,20 +354,7 @@ export default class AvistazNetwork extends PrivateSite {
     return apiAuth.token ?? "";
   }
   
-  protected async getUserSeedingTorrents(userName?: string): Promise<Partial<IUserInfo>> {
-    const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
 
-    const { data: seedPage } = await this.request<Document>({
-      url: urlJoin("/profile", userName, "/acitve"),
-      responseType: "document",
-    });
-    const rows = Sizzle("table.table-striped tbody tr span[title='File Size']", seedPage);
-    rows.forEach((element) => {
-      userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim());
-    });
-
-    return userSeedingTorrent;
-  }
   // protected override parseTorrentRowForTags(
   //   torrent: Partial<ITorrent>,
   //   row: IAvzNetRawTorrent,
