@@ -101,17 +101,17 @@ export const SchemaMetadata: Pick<
     selectors: {
       rows: { selector: "data" },
       id: { selector: "id" },
-      // title: { selector: "file_name" },
-      subTitle: { text: "" }, // Avz不提供subTitle
-      url: { selector: "url" },
-      link: { selector: "download" },
-      category: { 
-        selector: "category",
-        filters: [(category: Record<string, string> | undefined) => {
-          if (!category) return '';
-          const values = Object.values(category);
-          return values.length > 0 ? values[0] : '';
-        }]
+      title: { selector: "file_hash" },
+      // subTitle: { text: "" }, // Avz不提供subTitle
+      // url: { selector: "url" },
+      // // link: { selector: "download" },
+      // category: { 
+      //   selector: "category",
+      //   filters: [(category: Record<string, string> | undefined) => {
+      //     if (!category) return '';
+      //     const values = Object.values(category);
+      //     return values.length > 0 ? values[0] : '';
+      //   }]
       },
       // time: { 
       //   selector: "created_at", 
@@ -143,15 +143,27 @@ export const SchemaMetadata: Pick<
   userInfo: {
     pickLast: ["name"],
     selectors: {
-      name: { selector: ["span.user-group.group-member"] },
+      // name: { selector: ["span.user-group.group-member"] },
+      uploaded: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Upload']"], filters: [{ name: "parseSize" }] },
+      downloaded: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Download']"], filters: [{ name: "parseSize" }] },
+      ratio: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Ratio']"], filters: [{ name: "parseNumber" }] },
+      bonus: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Bonus']"], filters: [{ name: "parseNumber" }] },
+      /*levelName: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(2)"], filters: [{ name: "parseSize" }] },
       uploaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(3)"], filters: [{ name: "parseSize" }] },
       downloaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(4)"], filters: [{ name: "parseSize" }] },
       ratio: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(5)"], filters: [{ name: "parseNumber" }] },
-      bonus: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(9)"], filters: [{ name: "parseNumber" }] },
-      levelName: { selector: ["table.table-striped tr:contains('Rank') + td:last-child"] },
-      joinTime: { selector: ["table.table-striped tr:contains('Joined') td:last-child"], filters: [{ name: "parseTime", args: ["dd MMMM yyyy hh:mm a"] }] },  // "20 May 1900 05:20 pm (X years ago)"
+      bonus: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(9)"], filters: [{ name: "parseNumber" }] },*/
+      levelName: { selector: ["div.ratio-bar div:has(i.fa-users) span.user-group.group-member"] },
+      joinTime: {
+        selector: ["table.table-striped tr:contains('Joined') td:last-child"], // "20 May 1900 05:20 pm (X years ago)"
+        filters: [
+          { name: "regexReplace", args: ["\\s*\\(.*\\)", ""] },
+          { name: "parseTime", args: ["dd MMMM yyyy hh:mm a"] }
+        ]
+      },  
       uploads: { selector: [".tag-green:contains('Uploads:')"], filters: [{ name: "parseNumber" }] },
       snatches: { selector: [".tag-yellow:contains('Downloads:')"], filters: [{ name: "parseNumber" }] },
+      seeding: { selector: [".tag-indigo:contains('Seeds:')"], filters: [{ name: "parseNumber" }] },
       hnrUnsatisfied: { selector: [".tag-red:contains('Hit & Run:')"], filters: [{ name: "parseNumber" }] },
     },
     // TODO：为减少token获取次数，预留存储位
@@ -205,7 +217,6 @@ export default class AvistazNetwork extends PrivateSite {
         flushUserInfo.name = this.userConfig.inputSetting?.username;
         flushUserInfo = {
           ...flushUserInfo,
-          // ...(await this.getExtendInfoFromProfile(this.userConfig.inputSetting?.username as string)),
           ...(await this.getExtendInfoFromProfile(flushUserInfo.name as string)),
         };
       }
@@ -324,7 +335,21 @@ export default class AvistazNetwork extends PrivateSite {
     );
     return apiAuth.token ?? "";
   }
+  
+  protected async getUserSeedingTorrents(userId?: number): Promise<Partial<IUserInfo>> {
+    const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
 
+    const { data: seedPage } = await this.request<Document>({
+      url: urlJoin("/profile", userName, "/acitve"),
+      responseType: "document",
+    });
+    const rows = Sizzle("table.table-striped tbody tr span[title='File Size']", seedPage);
+    rows.forEach((element) => {
+      userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim());
+    });
+
+    return userSeedingTorrent;
+  }
   // protected override parseTorrentRowForTags(
   //   torrent: Partial<ITorrent>,
   //   row: IAvzNetRawTorrent,
