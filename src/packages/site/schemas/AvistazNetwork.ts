@@ -294,8 +294,8 @@ export default class AvistazNetwork extends PrivateSite {
   }
 
   protected override loggedCheck(raw: AxiosResponse<any>): boolean {
-    if (this.isApiRequest(raw.config?.url) && raw.status != 200) {
-      return false;
+    if (this.isApiRequest(raw.config?.url) && raw.status == 200) {
+      return raw.success == true;
     }
     return super.loggedCheck(raw);
   }
@@ -333,7 +333,7 @@ export default class AvistazNetwork extends PrivateSite {
     
     // try {
       // 对于 API 请求，跳过登录检查
-      return await super.request<T>(axiosConfig, this.isApiRequest ? false : checkLogin);
+      return await super.request<T>(axiosConfig, this.isApiRequest, checkLogin);
     // } catch (error) {
       /*// 如果是 API 请求且是网络错误，重新抛出 API Error
       if (this.isApiRequest && error instanceof Error && error.message.startsWith('Network Error:')) {
