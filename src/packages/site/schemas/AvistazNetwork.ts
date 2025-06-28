@@ -119,31 +119,31 @@ export const SchemaMetadata: Pick<
     },
     selectors: {
       rows: { selector: "data" },
-      // id: { selector: "id" },
+      id: { selector: "id" },
       title: { selector: "file_hash" },
-      // subTitle: { text: "" }, // AvzNet不提供subTitle
-      // url: { selector: "url" },
-      // link: { selector: "download" },
-      // category: { 
-      //   selector: "category",
-      //   filters: [(category: Record<string, string> | undefined) => {
-      //     if (!category) return '';
-      //     const values = Object.values(category);
-      //     return values.length > 0 ? values[0] : '';
-      //   }]
-      // },
-      // time: { selector: "created_at", filters: [{ name: "parseTime" }] },
-      // size: { selector: "file_size", filters: [{ name: "parseSize" }] },
-      // author: { text: "" },
-      // seeders: { selector: "seed" },
-      // leechers: { selector: "leech" },
-      // completed: { selector: "completed" },
+      subTitle: { text: "" }, // AvzNet不提供subTitle
+      url: { selector: "url" },
+      link: { selector: "download" },
+      category: { 
+        selector: "category",
+        filters: [(category: Record<string, string> | undefined) => {
+          if (!category) return '';
+          const values = Object.values(category);
+          return values.length > 0 ? values[0] : '';
+        }]
+      },
+      time: { selector: "created_at", filters: [{ name: "parseTime" }] },
+      size: { selector: "file_size", filters: [{ name: "parseSize" }] },
+      author: { text: "" },
+      seeders: { selector: "seed" },
+      leechers: { selector: "leech" },
+      completed: { selector: "completed" },
       // tags 交由 parseTorrentRowForTags 处理
       // AvzNet不提供progress, status
-      // progress: { text: 0 },
-      // status: { text: ETorrentStatus.unknown },
+      progress: { text: 0 },
+      status: { text: ETorrentStatus.unknown },
 
-      // ext_imdb: { selector: "movie_tv.imdb", filters: [{ name: "extImdbId" }] },
+      ext_imdb: { selector: "movie_tv.imdb", filters: [{ name: "extImdbId" }] },
     },
   },
 
