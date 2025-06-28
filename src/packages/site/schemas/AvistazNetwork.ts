@@ -294,6 +294,7 @@ export default class AvistazNetwork extends PrivateSite {
   }
 
   protected override loggedCheck(raw: AxiosResponse<any>): boolean {
+    let isApiRequest = axiosConfig.url?.startsWith("/api/") ?? false;
     if (this.isApiRequest(raw.config?.url) && raw.status == 200) {
       return true;
     }
@@ -305,7 +306,7 @@ export default class AvistazNetwork extends PrivateSite {
     checkLogin: boolean = true
   ): Promise<AxiosResponse<T>> {
     // 获取请求的 URL 用于判断处理逻辑
-    const isApiRequest = axiosConfig.url?.startsWith("/api/v1/jackett/") ?? false;;
+    const isApiRequest = axiosConfig.url?.startsWith("/api/v1/jackett/") ?? false;
     
     // 为特定的 API 端点设置默认的 HTTP 方法
     if (axiosConfig.url === "/api/v1/jackett/auth" && !axiosConfig.method) {
