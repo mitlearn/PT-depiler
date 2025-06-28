@@ -293,11 +293,11 @@ export default class AvistazNetwork extends PrivateSite {
     return userSeedingTorrent;
   }
 
-  protected override loggedCheck(raw: AxiosResponse<any>): boolean {
-    if (this.isApiRequest(raw.config?.url)) {
+  protected override loggedCheck(raw: AxiosResponse<AvzNetSearchResp<any>>): boolean {
+    // if (this.isApiRequest(raw.config?.url)) {
       return raw.current_page == "1";
-    }
-    return false;
+    // }
+    // return false;
   }
   
   protected isApiRequest(url?: string): boolean {
