@@ -22,7 +22,7 @@ export interface AvzNetAuthResp {
   token?: string;
   expiry?: number;
 }
-
+/*
 export interface AvzNetSearchResp {
   current_page: number;
   data: (IAvzNetRawTorrent)[];
@@ -50,14 +50,14 @@ export interface IAvzNetRawTorrent {
     [key: string]: string;
   };
   type?: string;
-  video_quality?: string;
+  resolution: string;
   created_at: string;
   seed: number;
   leech: number;
   completed: number;
   downloaded: number;
-  download_multiply: number;
   upload_multiply: number;
+  download_multiply: number;
   audio?: Array<{
     language: string;
   }>;
@@ -73,7 +73,7 @@ export interface IAvzNetRawTorrent {
   description: string;
   [key: string]: any;
 }
-
+*/
 export const SchemaMetadata: Pick<
   ISiteMetadata,
   "version" | "schema" | "type" | "timezoneOffset" | "search" | "userInfo" | "userInputSettingMeta"
@@ -82,7 +82,7 @@ export const SchemaMetadata: Pick<
   version: 0,
   schema: "AvistazNetwork",
   type: "private",
-  // @refs: https://github.com/Jackett/Jackett/blob/ebf518a51d161b014be2718860d128363819e8b7/src/Jackett.Common/Indexers/Definitions/Abstract/AvistazTracker.cs#L28C9-L28C122
+  // @refs: https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/Abstract/AvistazTracker.cs#L28C9-L28C122
   timezoneOffset: "-0400", 
 
   search: {
@@ -95,31 +95,31 @@ export const SchemaMetadata: Pick<
     advanceKeywordParams: {
       imdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          set(config!, "data.imdb", config!.data.search.replace("tt", ""));
+          set(config!, "params.imdb", config!.data.search.replace("tt", ""));
           delete config!.params.search;
           return config!;
         }
       },
       tvdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          set(config!, "data.tvdb", config!.data.search);
-          delete config!.data.search;
+          set(config!, "params.tvdb", config!.params.search);
+          delete config!.params.search;
           return config!;
         }
       },
       tmdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          set(config!, "data.tmdb", config!.data.search);
-          delete config!.data.search;
+          set(config!, "params.tmdb", config!.params.search);
+          delete config!.params.search;
           return config!;
         }
       },
     },
     selectors: {
       rows: { selector: "data" },
-      id: { selector: "id" },
-      // title: { selector: "file_name" },
-      // subTitle: { text: "" }, // Avz不提供subTitle
+      // id: { selector: "id" },
+      title: { selector: "file_hash" },
+      // subTitle: { text: "" }, // AvzNet不提供subTitle
       // url: { selector: "url" },
       // link: { selector: "download" },
       // category: { 
@@ -137,7 +137,7 @@ export const SchemaMetadata: Pick<
       // leechers: { selector: "leech" },
       // completed: { selector: "completed" },
       // tags 交由 parseTorrentRowForTags 处理
-      // Avz不提供progress, status
+      // AvzNet不提供progress, status
       // progress: { text: 0 },
       // status: { text: ETorrentStatus.unknown },
 
@@ -185,19 +185,21 @@ export const SchemaMetadata: Pick<
     {
       name: "username",
       label: "Username",
-      hint: "Fill with your username", 
+      hint: "Fill with your username." +
+      "Please confirm your RANK >= Member",
       required: true,
     },
     {
       name: "password",
       label: "Password",
-      hint: "Fill with your password", 
+      hint: "Fill with your password" +
+      "Please confirm enable ‘Enable RSS Feed’ in acconut settings",
       required: true,
     },
     {
       name: "pid",
       label: "PID",
-      hint: "Find in Profile Site, reset in Account Setting Site if you want to reset" +
+      hint: "Find in Profile Site, reset in Account Setting Site if you want to reset." +
       "PID is like your password, you must keep it safe!",
       required: true,
     },
@@ -270,7 +272,7 @@ export default class AvistazNetwork extends PrivateSite {
     return this.getFieldsData(
       pageDocument,
       this.metadata.userInfo?.selectors!,
-      ["joinTime", "uploads", "snatches", "hnrUnsatisfied"]
+      ["joinTime", "uploads", "snatches", "seeding", "hnrUnsatisfied"]
     ) as Partial<IUserInfo>;
   }
 
