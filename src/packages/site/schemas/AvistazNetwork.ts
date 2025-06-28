@@ -18,6 +18,21 @@ import {
   parseSizeString
 } from "../utils";
 
+export interface AvzNetSearchResp {
+  current_page": number;
+  data: (IAvzNetRawTorrent)[];
+  first_page_url: string;
+  from: number,
+  last_page: number,
+  last_page_url: string;
+  next_page_url: string;
+  path: string;
+  per_page: number;
+  prev_page_url: null,
+  to: number;
+  total: number;
+}
+
 export interface AvzNetAuthResp {
   token?: string;
   expiry?: number;
