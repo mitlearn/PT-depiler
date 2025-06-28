@@ -294,9 +294,12 @@ export default class AvistazNetwork extends PrivateSite {
   }
 
   protected override loggedCheck(raw: AxiosResponse<any>): boolean {
-    return raw.status == 200;
+    if (this.isApiResponse(raw.config?.url)) {
+      return raw.status == 200;
+    }
+    return super.loggedCheck(raw);
   }
-
+  
   protected isApiRequest(url?: string): boolean {
     return url?.startsWith("/api/") ?? false;
   }
