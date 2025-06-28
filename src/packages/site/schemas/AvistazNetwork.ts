@@ -143,7 +143,7 @@ export const SchemaMetadata: Pick<
       // progress: { text: 0 },
       // status: { text: ETorrentStatus.unknown },
 
-      ext_imdb: { selector: "movie_tv.imdb", filters: [{ name: "extImdbId" }] },
+      // ext_imdb: { selector: "movie_tv.imdb", filters: [{ name: "extImdbId" }] },
     },
   },
 
