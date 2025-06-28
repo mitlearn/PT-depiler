@@ -306,7 +306,7 @@ export default class AvistazNetwork extends PrivateSite {
   
   public override async request<T>(
     axiosConfig: AxiosRequestConfig, 
-    checkLogin: boolean = false
+    checkLogin: boolean = true,
   ): Promise<AxiosResponse<T>> {
     // 获取请求的 URL 用于判断处理逻辑
     const isApi = axiosConfig.url?.startsWith("/api/v1") ?? false;
