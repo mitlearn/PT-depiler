@@ -131,7 +131,6 @@ export const siteMetadata: ISiteMetadata = {
       // tags 交由 parseTorrentRowForTags 处理
       // AvzNet不提供progress, status
       progress: { text: 0 },
-      status: { text: ETorrentStatus.unknown },
     }
   },
 
