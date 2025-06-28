@@ -50,7 +50,9 @@ export interface IAvzNetRawTorrent {
     [key: string]: string;
   };
   type?: string;
-  resolution: string;
+  resolution: {
+    [key: string]: string;
+  };
   created_at: string;
   seed: number;
   leech: number;
