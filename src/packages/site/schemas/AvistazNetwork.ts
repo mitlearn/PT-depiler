@@ -295,7 +295,7 @@ export default class AvistazNetwork extends PrivateSite {
 
   protected override loggedCheck(raw: AxiosResponse<any>): boolean {
     if (this.isApiRequest(raw.config?.url)) {
-      return raw.status == 200;
+      return raw.current_page == "1";
     }
     return false;
   }
@@ -306,7 +306,7 @@ export default class AvistazNetwork extends PrivateSite {
   
   public override async request<T>(
     axiosConfig: AxiosRequestConfig, 
-    checkLogin: boolean = false,
+    checkLogin: boolean = true,
   ): Promise<AxiosResponse<T>> {
     // 获取请求的 URL 用于判断处理逻辑
     const isApi = axiosConfig.url?.startsWith("/api/v1") ?? false;
