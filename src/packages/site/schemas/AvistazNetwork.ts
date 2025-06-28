@@ -295,7 +295,7 @@ export default class AvistazNetwork extends PrivateSite {
 
   protected override loggedCheck(raw: AxiosResponse<AvzNetSearchResp>): boolean {
     // if (this.isApiRequest(raw.config?.url)) {
-      return raw.current_page == 1;
+      return raw.data?.current_page == 1;
     // }
     // return false;
   }
