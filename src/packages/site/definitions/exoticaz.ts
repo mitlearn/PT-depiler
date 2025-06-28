@@ -114,9 +114,6 @@ export const siteMetadata: ISiteMetadata = {
       tvdb: { enabled: false },
       tmdb: { enabled: false },
     },
-    selectors: {
-      ...SchemaMetadata.search!.selectors!,
-    },
   },
 
   // searchEntry: {
