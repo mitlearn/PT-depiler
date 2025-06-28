@@ -45,8 +45,8 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "exoticaz",
   name: "ExoticaZ",
-  aka: ["Exo"],
-  description: "A porn-content tracker of AvistaZ Network",
+  aka: ["Exo", "YourExotic"],
+  description: "ExoticaZ (YourExotic) is a Private Torrent Tracker of AvistaZ Network for porn",
   tags: ["成人"],
   timezoneOffset: "+0100",
 
