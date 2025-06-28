@@ -305,9 +305,8 @@ export default class AvistazNetwork extends PrivateSite {
     checkLogin: boolean = true
   ): Promise<AxiosResponse<T>> {
     // 获取请求的 URL 用于判断处理逻辑
-    const isApiRequest = axiosConfig.url?.startsWith("/api/v1/jackett/") ?? false;
+    const isApiRequest = axiosConfig.url?.startsWith("/api/v1") ?? false;
     
-    // 为特定的 API 端点设置默认的 HTTP 方法
     if (axiosConfig.url === "/api/v1/jackett/auth" && !axiosConfig.method) {
       axiosConfig.method = "POST";
       axiosConfig.data = {
@@ -330,7 +329,7 @@ export default class AvistazNetwork extends PrivateSite {
     
     // try {
       // 对于 API 请求，跳过登录检查
-      return await super.request<T>(axiosConfig, isApiRequest ? false : checkLogin);
+      return await super.request<T>(axiosConfig, isApiRequest ? true : checkLogin);
     // } catch (error) {
       /*// 如果是 API 请求且是网络错误，重新抛出 API Error
       if (isApiRequest && error instanceof Error && error.message.startsWith('Network Error:')) {
