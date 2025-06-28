@@ -132,6 +132,7 @@ export const siteMetadata: ISiteMetadata = {
       // AvzNet不提供progress, status
       progress: { text: 0 },
       status: { text: ETorrentStatus.unknown },
+    }
   },
 
   // searchEntry: {
