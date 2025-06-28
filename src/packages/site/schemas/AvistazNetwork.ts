@@ -299,13 +299,17 @@ export default class AvistazNetwork extends PrivateSite {
     }
     return super.loggedCheck(raw);
   }
+
+  protected isApiRequest(url?: string): boolean {
+    return url?.startsWith("/api/") ?? false;
+  }
   
   public override async request<T>(
     axiosConfig: AxiosRequestConfig, 
     checkLogin: boolean = true
   ): Promise<AxiosResponse<T>> {
     // 获取请求的 URL 用于判断处理逻辑
-    const isApiRequest = axiosConfig.url?.startsWith("/api/v1") ?? false;
+    // const isApiRequest = axiosConfig.url?.startsWith("/api/v1") ?? false;
     
     if (axiosConfig.url === "/api/v1/jackett/auth" && !axiosConfig.method) {
       axiosConfig.method = "POST";
