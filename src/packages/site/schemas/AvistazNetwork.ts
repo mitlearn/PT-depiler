@@ -37,7 +37,7 @@ export interface AvzNetSearchResp {
   to: number;
   total: number;
 }
-/*
+
 export interface IAvzNetRawTorrent {
   id: number;
   file_name: string;
@@ -75,7 +75,7 @@ export interface IAvzNetRawTorrent {
   description: string;
   [key: string]: any;
 }
-*/
+
 export const SchemaMetadata: Pick<
   ISiteMetadata,
   "version" | "schema" | "type" | "timezoneOffset" | "search" | "userInfo" | "userInputSettingMeta"
@@ -293,7 +293,7 @@ export default class AvistazNetwork extends PrivateSite {
     return userSeedingTorrent;
   }
 
-  protected override loggedCheck(raw: AxiosResponse<AvzNetSearchResp<any>>): boolean {
+  protected override loggedCheck(raw: AxiosResponse<AvzNetSearchResp>): boolean {
     // if (this.isApiRequest(raw.config?.url)) {
       return raw.current_page == "1";
     // }
