@@ -294,7 +294,6 @@ export default class AvistazNetwork extends PrivateSite {
   }
 
   protected override loggedCheck(raw: AxiosResponse<any>): boolean {
-    let isApiRequest = axiosConfig.url?.startsWith("/api/") ?? false;
     if (this.isApiRequest(raw.config?.url) && raw.status == 200) {
       return true;
     }
