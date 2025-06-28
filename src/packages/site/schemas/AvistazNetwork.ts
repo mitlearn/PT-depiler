@@ -306,7 +306,7 @@ export default class AvistazNetwork extends PrivateSite {
   
   public override async request<T>(
     axiosConfig: AxiosRequestConfig, 
-    checkLogin: boolean = true
+    checkLogin: boolean = false
   ): Promise<AxiosResponse<T>> {
     // 获取请求的 URL 用于判断处理逻辑
     const isApi = axiosConfig.url?.startsWith("/api/v1") ?? false;
@@ -326,14 +326,15 @@ export default class AvistazNetwork extends PrivateSite {
     } else if (axiosConfig.url === "/api/v1/jackett/torrents" && !axiosConfig.method) {
       axiosConfig.method = "GET";
       axiosConfig.headers = {
-      ...(axiosConfig.headers ?? {}),
-      "Authorization": `Bearer ${(await this.getAuthToken()) ?? ""}`,
+        ...(axiosConfig.headers ?? {}),
+        "Authorization": `Bearer ${(await this.getAuthToken()) ?? ""}`,
       };
     }
     
     // try {
       // 对于 API 请求，跳过登录检查
-      return await super.request<T>(axiosConfig, isApi ? false : checkLogin);
+      // return await super.request<T>(axiosConfig, isApi ? false : checkLogin);
+    return super.request<T>(axiosConfig, checkLogin);
     // } catch (error) {
       /*// 如果是 API 请求且是网络错误，重新抛出 API Error
       if (this.isApiRequest && error instanceof Error && error.message.startsWith('Network Error:')) {
