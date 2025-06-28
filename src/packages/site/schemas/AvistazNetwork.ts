@@ -293,6 +293,13 @@ export default class AvistazNetwork extends PrivateSite {
     return userSeedingTorrent;
   }
 
+  protected override loggedCheck(raw: AxiosResponse<any>): boolean {
+    if (this.isApiRequest(raw.config?.url) && raw.status == 200) {
+      return true;
+    }
+    return super.loggedCheck(raw);
+  }
+  
   public override async request<T>(
     axiosConfig: AxiosRequestConfig, 
     checkLogin: boolean = true
