@@ -173,18 +173,18 @@ export const siteMetadata: ISiteMetadata = {
   ],
 };
 
-export interface IExoRawTorrent extends IAvzNetRawTorrent {
-  asian: boolean;
-  softcore: boolean;
-  censored: boolean;
-  gay: boolean;
-  transexual: boolean;
-  studios: string[];
-  performers: {
-    [key: string]: string;
-  };
-  tags: string[];
-}
+// export interface IExoRawTorrent extends IAvzNetRawTorrent {
+//   asian: boolean;
+//   softcore: boolean;
+//   censored: boolean;
+//   gay: boolean;
+//   transexual: boolean;
+//   studios: string[];
+//   performers: {
+//     [key: string]: string;
+//   };
+//   tags: string[];
+// }
 
 export default class Exoticaz extends AvistazNetwork {
 
