@@ -22,7 +22,7 @@ export interface AvzNetAuthResp {
   token?: string;
   expiry?: number;
 }
-/*
+
 export interface AvzNetSearchResp {
   current_page: number;
   data: (IAvzNetRawTorrent)[];
@@ -37,7 +37,7 @@ export interface AvzNetSearchResp {
   to: number;
   total: number;
 }
-
+/*
 export interface IAvzNetRawTorrent {
   id: number;
   file_name: string;
