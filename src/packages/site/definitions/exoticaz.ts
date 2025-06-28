@@ -5,7 +5,8 @@ import {
   ITorrent,
   ITorrentTag,
 } from "../types";
-import AvistazNetwork, { SchemaMetadata, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
+// import AvistazNetwork, { SchemaMetadata, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
+import AvistazNetwork, { SchemaMetadata } from "../schemas/AvistazNetwork.ts";
 
 import { sendMessage } from "@/messages.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts";
