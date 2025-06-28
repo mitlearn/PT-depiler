@@ -65,9 +65,9 @@ export interface IAvzNetRawTorrent {
     language: string;
   }>;
   movie_tv?: {
-    imdb?: string;
-    tmdb?: string;
-    tvdb?: string;
+    imdb: string;
+    tmdb: string;
+    tvdb: string;
   };
   images: string[];
   description: string;
@@ -154,11 +154,6 @@ export const SchemaMetadata: Pick<
     pickLast: ["name"],
     selectors: {
       name: { selector: ["span.user-group.group-member"] },
-      // levelName: { selector: ["div.ratio-bar div:has(i.fa-users) span.user-group.group-member"] },
-      // uploaded: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Upload']"], filters: [{ name: "parseSize" }] },
-      // downloaded: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Download']"], filters: [{ name: "parseSize" }] },
-      // ratio: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Ratio']"], filters: [{ name: "parseNumber" }] },
-      // bonus: { selector: ["div.ratio-bar div[data-toggle='tooltip'][title='Bonus']"], filters: [{ name: "parseNumber" }] },
       levelName: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(2)"] },
       uploaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(3)"], filters: [{ name: "parseSize" }] },
       downloaded: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(4)"], filters: [{ name: "parseSize" }] },
@@ -170,10 +165,14 @@ export const SchemaMetadata: Pick<
           { "name": "parseTime", "args": ["dd MMMM YYYY hh:mm a"] }
         ]
       },
-      uploads: { selector: [".tag-green:contains('Uploads:')"], filters: [{ name: "parseNumber" }] },
-      snatches: { selector: [".tag-yellow:contains('Downloads:')"], filters: [{ name: "parseNumber" }] },
-      seeding: { selector: [".tag-indigo:contains('Seeds:')"], filters: [{ name: "parseNumber" }] },
-      hnrUnsatisfied: { selector: [".tag-red:contains('Hit & Run:')"], filters: [{ name: "parseNumber" }] },
+      uploads: { selector: [".card .tag-green"], filters: [{ name: "parseNumber" }] },
+      snatches: { selector: [".card .tag-yellow"], filters: [{ name: "parseNumber" }] },
+      seeding: { selector: [".card .tag-indigo"], filters: [{ name: "parseNumber" }] },
+      hnrUnsatisfied: { selector: [".card .tag-red"], filters: [{ name: "parseNumber" }] },
+      // uploads: { selector: ["#content-area > div.card > div.card-body > div.card.mb-2.p-2 > ul > li:nth-child(1) > a"], filters: [{ name: "parseNumber" }] },
+      // snatches: { selector: ["#content-area > div.card > div.card-body > div.card.mb-2.p-2 > ul > li:nth-child(2) > a"], filters: [{ name: "parseNumber" }] },
+      // seeding: { selector: ["#content-area > div.card > div.card-body > div.card.mb-2.p-2 > ul > li:nth-child(3) > a"], filters: [{ name: "parseNumber" }] },
+      // hnrUnsatisfied: { selector: ["#content-area > div.card > div.card-body > div.card.mb-2.p-2 > ul > li:nth-child(6) > a"], filters: [{ name: "parseNumber" }] },
     },
     // TODO：为减少token获取次数，预留存储位
     /*
@@ -282,7 +281,7 @@ export default class AvistazNetwork extends PrivateSite {
       url: urlJoin("/profile", userName) + "/active",
       responseType: "document",
     });
-    const rows = Sizzle("table.table-striped tbody tr span[title='File Size']", seedPage);
+    const rows = Sizzle("table .text-yellow", seedPage);
     rows.forEach((element) => {
       userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim());
     });
