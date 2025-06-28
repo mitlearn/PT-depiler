@@ -95,22 +95,22 @@ export const SchemaMetadata: Pick<
     advanceKeywordParams: {
       imdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          set(config!, "params.imdb", config!.params.search.replace("tt", ""));
+          set(config!, "data.imdb", config!.data.search.replace("tt", ""));
           delete config!.params.search;
           return config!;
         }
       },
       tvdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          set(config!, "params.tvdb", config!.params.search);
-          delete config!.params.search;
+          set(config!, "data.tvdb", config!.data.search);
+          delete config!.data.search;
           return config!;
         }
       },
       tmdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          set(config!, "params.tmdb", config!.params.search);
-          delete config!.params.search;
+          set(config!, "data.tmdb", config!.data.search);
+          delete config!.data.search;
           return config!;
         }
       },
@@ -138,8 +138,8 @@ export const SchemaMetadata: Pick<
       completed: { selector: "completed" },
       // tags 交由 parseTorrentRowForTags 处理
       // Avz不提供progress, status
-      progress: { text: 0 },
-      status: { text: ETorrentStatus.unknown },
+      // progress: { text: 0 },
+      // status: { text: ETorrentStatus.unknown },
 
       ext_imdb: { selector: "movie_tv.imdb", filters: [{ name: "extImdbId" }] },
     },
@@ -162,7 +162,7 @@ export const SchemaMetadata: Pick<
       joinTime: {
         selector: ["table.table-striped tr:contains('Joined') td:last-child"],
         filters: [
-          { "name": "parseTime", "args": ["dd MMMM YYYY hh:mm a"] }
+          { "name": "parseTime", "args": ["dd MMMM yyyy hh:mm a"] }
         ]
       },
       uploads: { selector: [".card .tag-green"], filters: [{ name: "parseNumber" }] },
