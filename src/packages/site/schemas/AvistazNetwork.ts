@@ -333,7 +333,7 @@ export default class AvistazNetwork extends PrivateSite {
     
     // try {
       // 对于 API 请求，跳过登录检查
-      return await super.request<T>(axiosConfig, this.isApiRequest ? true : checkLogin);
+      return await super.request<T>(axiosConfig, this.isApiRequest ? false : checkLogin);
     // } catch (error) {
       /*// 如果是 API 请求且是网络错误，重新抛出 API Error
       if (this.isApiRequest && error instanceof Error && error.message.startsWith('Network Error:')) {
