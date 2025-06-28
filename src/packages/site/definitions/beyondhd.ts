@@ -567,22 +567,18 @@ export default class BeyondHD extends PrivateSite {
       this.metadata.userInfo?.selectors?.bonusPerHour!);
   }
 
-  protected override loggedCheck(raw: AxiosResponse<any>): boolean {
-    if (this.isApiResponse(raw.config?.url)) {
-      return raw.data?.success === true && raw.data?.status_code === 1;
-    }
-    return super.loggedCheck(raw);
-  }
-
-  protected isApiResponse(url?: string): boolean {
-    return url?.startsWith("/api/") ?? false;
-  }
+  // protected override loggedCheck(raw: AxiosResponse<any>): boolean {
+  //   if (this.isApiResponse(raw.config?.url)) {
+  //     return raw.data?.success === true && raw.data?.status_code === 1;
+  //   }
+  //   return super.loggedCheck(raw);
+  // }
 
   public override async request<T>(
     axiosConfig: AxiosRequestConfig,
     checkLogin = true,
   ): Promise<AxiosResponse<T>> {
-    const isApi = axiosConfig.url?.startsWith("/api/") ?? false;
+    const isApiRequest = axiosConfig.url?.startsWith("/api/") ?? false;
 
     if (axiosConfig.url === "/api/torrents") {
       const apikey = this.userConfig.inputSetting?.apikey ?? "";
@@ -595,8 +591,7 @@ export default class BeyondHD extends PrivateSite {
         };
       }
     }
-    const response = await super.request<T>(axiosConfig, isApi ? false : checkLogin);
-    return response;
+    return await super.request<T>(axiosConfig, isApiRequest ? false : checkLogin);
   }
 
   protected override parseTorrentRowForTags(
