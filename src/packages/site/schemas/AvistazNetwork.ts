@@ -86,7 +86,7 @@ export const SchemaMetadata: Pick<
   timezoneOffset: "-0400", 
 
   search: {
-    keywordPath: "data.search",
+    keywordPath: "params.search",
     requestConfig: {
       url: "/api/v1/jackett/torrents",
       responseType: "json",
@@ -118,24 +118,24 @@ export const SchemaMetadata: Pick<
     selectors: {
       rows: { selector: "data" },
       id: { selector: "id" },
-      title: { selector: "file_name" },
-      subTitle: { text: "" }, // Avz不提供subTitle
-      url: { selector: "url" },
-      link: { selector: "download" },
-      category: { 
-        selector: "category",
-        filters: [(category: Record<string, string> | undefined) => {
-          if (!category) return '';
-          const values = Object.values(category);
-          return values.length > 0 ? values[0] : '';
-        }]
-      },
+      // title: { selector: "file_name" },
+      // subTitle: { text: "" }, // Avz不提供subTitle
+      // url: { selector: "url" },
+      // link: { selector: "download" },
+      // category: { 
+      //   selector: "category",
+      //   filters: [(category: Record<string, string> | undefined) => {
+      //     if (!category) return '';
+      //     const values = Object.values(category);
+      //     return values.length > 0 ? values[0] : '';
+      //   }]
+      // },
       // time: { selector: "created_at", filters: [{ name: "parseTime" }] },
       // size: { selector: "file_size", filters: [{ name: "parseSize" }] },
-      author: { text: "" },
-      seeders: { selector: "seed" },
-      leechers: { selector: "leech" },
-      completed: { selector: "completed" },
+      // author: { text: "" },
+      // seeders: { selector: "seed" },
+      // leechers: { selector: "leech" },
+      // completed: { selector: "completed" },
       // tags 交由 parseTorrentRowForTags 处理
       // Avz不提供progress, status
       // progress: { text: 0 },
