@@ -120,9 +120,9 @@ export const SchemaMetadata: Pick<
     selectors: {
       rows: { 
         selector: ":self", 
-        filter: ((jsonResponse: AvzNetSearchResp) => {
-          return jsonResponse.data;
-        }) as <T>(rows: T) => T },
+        filter: (items: IAvzNetRawTorrent[]) => { // 这里的 `items` 就是 `IAvzNetRawTorrent[]`
+          return items.filter(item => item.seed > 0);
+        } },
       id: { selector: "id" },
       title: { selector: "file_hash" },
       subTitle: { text: "" }, // AvzNet不提供subTitle
@@ -293,10 +293,10 @@ export default class AvistazNetwork extends PrivateSite {
     return userSeedingTorrent;
   }
 
-  protected override loggedCheck(raw: AxiosResponse<AvzNetSearchResp<any>>): boolean {
+  protected override loggedCheck(raw: AxiosResponse<AvzNetSearchResp>): boolean {
     const isApiResp = raw.config.url?.startsWith("/api/v1") ?? false;
     if(isApiResp) {
-      // return raw.data?.current_page === 1;
+      // return raw.current_page === 1;
       return true;
     }
     return super.loggedCheck(raw);
@@ -307,7 +307,7 @@ export default class AvistazNetwork extends PrivateSite {
     checkLogin: boolean = false
   ): Promise<AxiosResponse<T>> {
     // 获取请求的 URL 用于判断处理逻辑
-    const isApiRequest = axiosConfig.url?.startsWith("/api/v1/jackett/");
+    const isApiRequest = axiosConfig.url?.startsWith("/api/v1");
 
       // 为特定的 API 端点设置默认的 HTTP 方法
       if (axiosConfig.url === "/api/v1/jackett/auth") {
