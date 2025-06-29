@@ -60,7 +60,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: [""],
 
   category: [
-    {
+    /*{
       name: "搜索入口",
       key: "in",
       notes: "请选中成人以开启搜索",
@@ -69,7 +69,7 @@ export const siteMetadata: ISiteMetadata = {
       generateRequestConfig: (selectedCategories) => {
         return { params: {} } as IAdvancedSearchRequestConfig;
       },
-    },
+    },*/
     {
       name: "分类",
       key: "category",
@@ -120,9 +120,9 @@ export const siteMetadata: ISiteMetadata = {
     }
   },
 
-  searchEntry: {
+  /*searchEntry: {
     area_adult: { name: "成人", enabled: false },
-  },
+  },*/
 
   levelRequirements: [
     {
