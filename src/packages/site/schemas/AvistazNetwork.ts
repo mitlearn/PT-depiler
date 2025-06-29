@@ -364,13 +364,10 @@ export default class AvistazNetwork extends PrivateSite {
       expiry: this.metadata.userInfo!.selectors!.authExpiry!
     };
   }
-  /*
-  axiosConfig.headers = {
-  ...(axiosConfig.headers ?? {}),
-  "Authorization": `Bearer ${(await this.getAuthToken()).token}`,
-};
-  */
-  }
+//   axiosConfig.headers = {
+//   ...(axiosConfig.headers ?? {}),
+//   "Authorization": `Bearer ${(await this.getAuthToken()).token}`,
+// };
   */
   public async getAuthToken(): Promise<string> {
     const { data: apiAuth } = await this.request<AvzNetAuthResp>(
