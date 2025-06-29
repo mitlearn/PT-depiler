@@ -23,7 +23,7 @@ export interface AvzNetAuthResp {
   expiry?: number;
 }
 
-export interface AvzNetSearchResp<T> {
+export interface AvzNetSearchResp {
   current_page: number;
   data: (IAvzNetRawTorrent)[];
   first_page_url: string;
@@ -118,7 +118,11 @@ export const SchemaMetadata: Pick<
       },
     },
     selectors: {
-      rows: { selector: ":self", filter: (jsonResponse: any) => { return jsonResponse.data as IAvzNetRawTorrent[]; } },
+      rows: { 
+        selector: ":self", 
+        filter: ((jsonResponse: AvzNetSearchResp) => {
+          return jsonResponse.data;
+        }) as <T>(rows: T) => T },
       id: { selector: "id" },
       title: { selector: "file_hash" },
       subTitle: { text: "" }, // AvzNet不提供subTitle
