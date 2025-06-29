@@ -464,27 +464,36 @@ protected async parseWholeTorrentFromRow(
     "status",
   ];
 
-  console.log(`[DEBUG] Parsing row...`);
-  console.log(`[DEBUG] Row raw:`, row);
+  // 日志：row 原始数据，避免 Element 类型引起的输出错误
+  try {
+    console.log(`[DEBUG] Parsing row...`);
+    if (row instanceof Element) {
+      console.log(`[DEBUG] Row outerHTML:`, row.outerHTML);
+    } else {
+      console.log(`[DEBUG] Row JSON:`, JSON.stringify(row));
+    }
+  } catch (e) {
+    console.warn(`[DEBUG] Failed to stringify row`, e);
+  }
 
   for (const key of union(definedTorrentSelectorKey, defaultTorrentSelectorKey) as (keyof Omit<ITorrent, "site">)[]) {
-    // 如果已有值，跳过
     if (Object.hasOwn(torrent, key)) continue;
 
     const dynamicParseFuncKey = `parseTorrentRowFor${pascalCase(key as string)}` as keyof this;
+
     try {
       if (dynamicParseFuncKey in this && typeof this[dynamicParseFuncKey] === "function") {
-        torrent = await this[dynamicParseFuncKey](torrent, row, searchConfig);
-        console.log(`[DEBUG] [${key}] parsed by custom method:`, torrent[key]);
-      } else if (searchEntry!.selectors![key]) {
-        const value = this.getFieldData(row, searchEntry!.selectors![key] as IElementQuery);
+        torrent = await (this[dynamicParseFuncKey] as any)(torrent, row, searchConfig);
+        console.log(`[DEBUG] [${key}] parsed by method:`, torrent[key]);
+      } else if (searchEntry?.selectors?.[key]) {
+        const value = this.getFieldData(row, searchEntry.selectors[key] as IElementQuery);
         torrent[key] = value;
-        console.log(`[DEBUG] [${key}] extracted via selector:`, value);
+        console.log(`[DEBUG] [${key}] extracted:`, value);
       } else {
-        console.log(`[DEBUG] [${key}] no selector or method, skipped.`);
+        console.log(`[DEBUG] [${key}] no selector or parser.`);
       }
     } catch (e) {
-      console.error(`[ERROR] Failed to parse field: ${key}`, e);
+      console.error(`[ERROR] Failed to parse key=${key}`, e);
     }
   }
 
@@ -493,9 +502,10 @@ protected async parseWholeTorrentFromRow(
   torrent.url && (torrent.url = this.fixLink(torrent.url as string, requestConfig!));
   torrent.link && (torrent.link = this.fixLink(torrent.link as string, requestConfig!));
 
-  if (typeof (torrent.size as unknown) === "string") {
-    torrent.size = parseSizeString(torrent.size as string);
+  if (typeof torrent.size === "string") {
+    torrent.size = parseSizeString(torrent.size);
   }
+
   torrent.size = tryToNumber(torrent.size);
   torrent.seeders = tryToNumber(torrent.seeders);
   torrent.leechers = tryToNumber(torrent.leechers);
@@ -508,12 +518,10 @@ protected async parseWholeTorrentFromRow(
     torrent.time = parseTimeWithZone(torrent.time as string, this.metadata.timezoneOffset);
   }
 
-  torrent = this.fixParsedTorrent(torrent as ITorrent, row, searchConfig);
-  console.log(`[DEBUG] Final parsed torrent:`, torrent);
-
-  return torrent;
+  const finalTorrent = this.fixParsedTorrent(torrent as ITorrent, row, searchConfig);
+  console.log(`[DEBUG] Final torrent:`, finalTorrent);
+  return finalTorrent;
 }
-
 
   protected parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
