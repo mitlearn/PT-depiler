@@ -5,8 +5,8 @@ import {
   ITorrent,
   ITorrentTag,
 } from "../types";
-// import AvistazNetwork, { SchemaMetadata, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
-import AvistazNetwork, { SchemaMetadata } from "../schemas/AvistazNetwork.ts";
+import AvistazNetwork, { SchemaMetadata, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
+// import AvistazNetwork, { SchemaMetadata } from "../schemas/AvistazNetwork.ts";
 
 import { sendMessage } from "@/messages.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts";
@@ -60,16 +60,16 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: [""],
 
   category: [
-    // {
-    //   name: "搜索入口",
-    //   key: "in",
-    //   notes: "请选中成人以开启搜索",
-    //   options: [{ name: "成人", value: "1" }],
-    //   cross: false,
-    //   generateRequestConfig: (selectedCategories) => {
-    //     return { params: {} } as IAdvancedSearchRequestConfig;
-    //   },
-    // },
+    {
+      name: "搜索入口",
+      key: "in",
+      notes: "请选中成人以开启搜索",
+      options: [{ name: "成人", value: "1" }],
+      cross: false,
+      generateRequestConfig: (selectedCategories) => {
+        return { params: {} } as IAdvancedSearchRequestConfig;
+      },
+    },
     {
       name: "分类",
       key: "category",
@@ -116,26 +116,12 @@ export const siteMetadata: ISiteMetadata = {
       tmdb: { enabled: false },
     },
     selectors: {
-      id: { selector: "data.id" },
-      title: { selector: "data.file_hash" },
-      subTitle: { text: "" }, // AvzNet不提供subTitle
-      url: { selector: "data.url" },
-      link: { selector: "data.download" },
-      time: { selector: "data.created_at", filters: [{ name: "parseTime" }] },
-      size: { selector: "data.file_size", filters: [{ name: "parseSize" }] },
-      author: { text: "" },
-      seeders: { selector: "data.seed" },
-      leechers: { selector: "data.leech" },
-      completed: { selector: "data.completed" },
-      // tags 交由 parseTorrentRowForTags 处理
-      // AvzNet不提供progress, status
-      progress: { text: 0 },
-    }
+    ...SchemaMetadata.search!.selectors,
   },
 
-  // searchEntry: {
-  //   area_all: { name: "成人", enabled: false },
-  // },
+  searchEntry: {
+    area_adult: { name: "成人", enabled: false },
+  },
 
   levelRequirements: [
     {
@@ -189,18 +175,18 @@ export const siteMetadata: ISiteMetadata = {
   ],
 };
 
-// export interface IExoRawTorrent extends IAvzNetRawTorrent {
-//   asian: boolean;
-//   softcore: boolean;
-//   censored: boolean;
-//   gay: boolean;
-//   transexual: boolean;
-//   studios: string[];
-//   performers: {
-//     [key: string]: string;
-//   };
-//   tags: string[];
-// }
+export interface IExoRawTorrent extends IAvzNetRawTorrent {
+  asian: boolean;
+  softcore: boolean;
+  censored: boolean;
+  gay: boolean;
+  transexual: boolean;
+  studios: string[];
+  performers: {
+    [key: string]: string;
+  };
+  tags: string[];
+}
 
 export default class Exoticaz extends AvistazNetwork {
 
