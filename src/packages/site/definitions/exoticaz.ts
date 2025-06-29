@@ -116,18 +116,17 @@ export const siteMetadata: ISiteMetadata = {
       tmdb: { enabled: false },
     },
     selectors: {
-      rows: { selector: "data" },
-      id: { selector: "id" },
-      title: { selector: "file_hash" },
+      id: { selector: "data.id" },
+      title: { selector: "data.file_hash" },
       subTitle: { text: "" }, // AvzNet不提供subTitle
-      url: { selector: "url" },
-      link: { selector: "download" },
-      time: { selector: "created_at", filters: [{ name: "parseTime" }] },
-      size: { selector: "file_size", filters: [{ name: "parseSize" }] },
+      url: { selector: "data.url" },
+      link: { selector: "data.download" },
+      time: { selector: "data.created_at", filters: [{ name: "parseTime" }] },
+      size: { selector: "data.file_size", filters: [{ name: "parseSize" }] },
       author: { text: "" },
-      seeders: { selector: "seed" },
-      leechers: { selector: "leech" },
-      completed: { selector: "completed" },
+      seeders: { selector: "data.seed" },
+      leechers: { selector: "data.leech" },
+      completed: { selector: "data.completed" },
       // tags 交由 parseTorrentRowForTags 处理
       // AvzNet不提供progress, status
       progress: { text: 0 },
