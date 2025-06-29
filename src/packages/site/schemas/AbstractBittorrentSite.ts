@@ -215,6 +215,8 @@ export default class BittorrentSite {
     try {
       const req = await this.request(requestConfig);
       console.log(`[Site] ${this.name} response data:`, req);
+      console.log(`[Site] ${this.name} response data:`, req.data);
+      console.log(`[Site] ${this.name} response status:`, req.status);
       result.data = await this.transformSearchPage(req.data, { keywords, searchEntry, requestConfig });
       result.status = EResultParseStatus.success;
     } catch (e) {
