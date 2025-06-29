@@ -124,8 +124,8 @@ export const SchemaMetadata: Pick<
         filter: ((jsonResponse: AvzNetSearchResp) => {
           return jsonResponse.data;
         }) as <T>(rows: T) => T },*/
-      id: { selector: "data.id" },
-      title: { selector: "data.file_hash" },
+      id: { selector: "id" },
+      title: { selector: "file_hash" },
       subTitle: { text: "" }, // AvzNet不提供subTitle
       url: { selector: "url" },
       link: { selector: "download" },
@@ -138,7 +138,7 @@ export const SchemaMetadata: Pick<
         }]
       },
       time: { selector: "created_at", filters: [{ name: "parseTime" }] },
-      size: { selector: "file_size", filters: [{ name: "parseSize" }] },
+      size: { selector: "file_size" },
       author: { text: "" },
       seeders: { selector: "seed" },
       leechers: { selector: "leech" },
