@@ -214,6 +214,7 @@ export default class BittorrentSite {
     // 7. 请求页面并转化为document
     try {
       const req = await this.request(requestConfig);
+      console.log(`[Site] ${this.name} response data:`, req);
       result.data = await this.transformSearchPage(req.data, { keywords, searchEntry, requestConfig });
       result.status = EResultParseStatus.success;
     } catch (e) {
