@@ -483,7 +483,7 @@ export default class BittorrentSite {
         torrent[key] = this.getFieldData(row, searchEntry!.selectors![key] as IElementQuery);
       }
     }
-
+console.log(`[DEBUG] Torrent after full field parsing:`, torrent);
     // 对获取到的种子进行一些通用的处理
     torrent.site ??= this.metadata.id; // 补全种子的 site 属性
     torrent.id ??= tryToNumber(torrent.url || torrent.link); // 补全种子的 id 属性，如果不存在，则由 url, link 属性替代
