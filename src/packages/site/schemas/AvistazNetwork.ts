@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { type AxiosError,type AxiosRequestConfig,type AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import Sizzle from "sizzle";
 import { set } from "es-toolkit/compat";
@@ -23,7 +23,7 @@ export interface AvzNetAuthResp {
   expiry?: number;
 }
 
-export interface AvzNetSearchResp<D> {
+export interface AvzNetSearchResp<T> {
   current_page: number;
   data: (IAvzNetRawTorrent)[];
   first_page_url: string;
