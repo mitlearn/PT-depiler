@@ -118,7 +118,7 @@ export const SchemaMetadata: Pick<
       },
     },
     selectors: {
-      rows: { selector: "data" },
+      rows: { selector: :self, filter: "data" },
       id: { selector: "id" },
       title: { selector: "file_hash" },
       subTitle: { text: "" }, // AvzNet不提供subTitle
@@ -300,7 +300,7 @@ export default class AvistazNetwork extends PrivateSite {
   
   public override async request<T>(
     axiosConfig: AxiosRequestConfig, 
-    checkLogin: boolean = true
+    checkLogin: boolean = false
   ): Promise<AxiosResponse<T>> {
     // 获取请求的 URL 用于判断处理逻辑
     const isApiRequest = axiosConfig.url?.startsWith("/api/v1/jackett/");
