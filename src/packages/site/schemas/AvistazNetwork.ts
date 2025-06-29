@@ -118,11 +118,12 @@ export const SchemaMetadata: Pick<
       },
     },
     selectors: {
-      rows: { 
+      rows: { selector: "data" },
+        /*
         selector: ":self", 
         filter: ((jsonResponse: AvzNetSearchResp) => {
           return jsonResponse.data;
-        }) as <T>(rows: T) => T },
+        }) as <T>(rows: T) => T },*/
       id: { selector: "id" },
       title: { selector: "file_hash" },
       subTitle: { text: "" }, // AvzNet不提供subTitle
