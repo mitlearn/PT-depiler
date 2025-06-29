@@ -385,11 +385,13 @@ export default class BittorrentSite {
     const torrents: ITorrent[] = [];
 
     let trs: any;
-
+    console.log(`[DEBUG] Begin extracting rows using selector:`, rowsSelector.selector);
     if (doc instanceof Document) {
       trs = Sizzle(rowsSelector.selector as string, doc);
+      console.log(`[DEBUG] Extracted HTML rows count:`, trs.length);
       if (rowsSelector.filter) {
         trs = rowsSelector.filter(trs);
+        console.log(`[DEBUG] After filter() rows:`, trs);
       } else {
         /**
          * 应对某些站点连用多个tr表示一个种子的情况，将多个tr使用 <div> 包裹成一个 Element，
@@ -413,18 +415,22 @@ export default class BittorrentSite {
     } else {
       // 同样定义一个 :self 以防止对于JSON返回的情况下，所有items在顶层字典（实际是 Object[] ）下
       trs = rowsSelector.selector === ":self" ? doc : get(doc, rowsSelector.selector as string);
-
+      console.log(`[DEBUG] Extracted JSON rows:`, trs);
       if (rowsSelector.filter) {
         trs = rowsSelector.filter(trs);
+        console.log(`[DEBUG] After filter() rows:`, trs);
       }
     }
 
     // 如果没有搜索到种子，则抛出 NoTorrentsError
     if (trs.length === 0) {
+      console.log(`[DEBUG] No torrents found, throwing NoTorrentsError`);
       throw new NoTorrentsError();
     }
 
     for (const tr of trs) {
+       const parsed = await this.parseWholeTorrentFromRow({}, tr, searchConfig!);
+      console.log(`[DEBUG] Parsed torrent row:`, parsed);
       torrents.push((await this.parseWholeTorrentFromRow({}, tr, searchConfig!)) as ITorrent);
     }
 
