@@ -290,7 +290,11 @@ export default class AvistazNetwork extends PrivateSite {
   }
 
   protected override loggedCheck(raw: AxiosResponse<AvzNetSearchResp<any>>): boolean {
-    return raw.data?.current_page === 1;
+    const isApiResp = raw.config.url?.startsWith("/api/v1") ?? false;
+    if(isApiResp) {
+      return raw.data?.current_page === 1;
+    }
+    return super.loggedCheck(raw);
   }
   
   public override async request<T>(
@@ -320,12 +324,23 @@ export default class AvistazNetwork extends PrivateSite {
         "Authorization": `Bearer ${(await this.getAuthToken()) ?? ""}`,
         };
       }
-      return super.request<T>(axiosConfig, isApiRequest ? false : checkLogin);
+      return super.request<T>(axiosConfig, checkLogin);
   }
 
   // TODO：为减少token获取次数，预留函数
   /*
   public async getAuthToken(): Promise<{ token: string; expiry: number }> {
+  // 检查当前token是否存在且未过期
+    if (this.metadata.userInfo?.selectors?.authToken && 
+        this.metadata.userInfo?.selectors?.authExpiry && 
+        this.metadata.userInfo.selectors.authExpiry > Math.floor(Date.now() / 1000)) {
+      return {
+        token: this.metadata.userInfo.selectors.authToken,
+        expiry: this.metadata.userInfo.selectors.authExpiry
+      };
+    }
+  
+  // 请求新token
     const { data: apiAuth } = await this.request<AvzNetAuthResp>(
       {
         url: "/api/v1/jackett/auth",
@@ -334,12 +349,27 @@ export default class AvistazNetwork extends PrivateSite {
       true,
     );
 
-    apiAuth.authExpiry 
-    return this.getFieldData(
+  // 计算并覆写过期时间戳
+    apiAuth.expiry = Math.floor(Date.now() / 1000) + apiAuth.expiry;
+
+    // 获取并写入metadata
+    this.getFieldData(
       apiAuth,
       this.metadata.userInfo?.selectors!,
       ["authToken", "authExpiry"]
-      as Partial<IUserInfo>;
+    );
+
+    return {
+      token: this.metadata.userInfo!.selectors!.authToken!,
+      expiry: this.metadata.userInfo!.selectors!.authExpiry!
+    };
+  }
+  /*
+  axiosConfig.headers = {
+  ...(axiosConfig.headers ?? {}),
+  "Authorization": `Bearer ${(await this.getAuthToken()).token}`,
+};
+  */
   }
   */
   public async getAuthToken(): Promise<string> {
@@ -353,7 +383,6 @@ export default class AvistazNetwork extends PrivateSite {
     return apiAuth.token ?? "";
   }
   
-
   // protected override parseTorrentRowForTags(
   //   torrent: Partial<ITorrent>,
   //   row: IAvzNetRawTorrent,
