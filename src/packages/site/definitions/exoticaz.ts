@@ -117,6 +117,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     selectors: {
     ...SchemaMetadata.search!.selectors,
+    }
   },
 
   searchEntry: {
