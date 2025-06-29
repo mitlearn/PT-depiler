@@ -23,7 +23,7 @@ export interface AvzNetAuthResp {
   expiry?: number;
 }
 
-export interface AvzNetSearchResp {
+export interface AvzNetSearchResp<D> {
   current_page: number;
   data: (IAvzNetRawTorrent)[];
   first_page_url: string;
@@ -330,8 +330,8 @@ export default class AvistazNetwork extends PrivateSite {
       }
 
       // 如果需要检查登录并且是 API 请求，使用重写的 loggedCheck 方法
-      if (checkLogin && !this.loggedCheck(req as AxiosResponse<IMTeamRawResp<any>>)) {
-        throw new NeedLoginError("API Login Required");
+      if (checkLogin && !this.loggedCheck(req as AxiosResponse<AvzNetSearchResp<any>>)) {
+       throw Error("API Login Required");
       }
 
       // 如果非需要登录的情况，但还是返回了 4xx 或者 5xx ，则抛出错误
