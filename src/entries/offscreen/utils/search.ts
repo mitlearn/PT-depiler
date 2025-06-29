@@ -32,7 +32,7 @@ onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEn
 
   let searchResult = await site.getSearchResult(keyword, searchEntry);
 logger({
-    msg: `SiteSearchResult: ${searchResult}`,
+    msg: `SiteSearchResult: ${searchResult.data}`,
   });
   if (searchResult.data.length > 0) {
     // 将 tags 中的基础 tag 名称转换为对应的颜色
