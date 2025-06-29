@@ -120,9 +120,9 @@ export const SchemaMetadata: Pick<
     selectors: {
       rows: { 
         selector: ":self", 
-        filter: (items: IAvzNetRawTorrent[]) => { // 这里的 `items` 就是 `IAvzNetRawTorrent[]`
-          return items.filter(item => item.seed > 0);
-        } as <T>(rows: T) => T },
+        filter: ((jsonResponse: AvzNetSearchResp) => {
+          return jsonResponse.data;
+        }) as <T>(rows: T) => T },
       id: { selector: "id" },
       title: { selector: "file_hash" },
       subTitle: { text: "" }, // AvzNet不提供subTitle
