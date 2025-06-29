@@ -92,9 +92,9 @@ export const SchemaMetadata: Pick<
     requestConfig: {
       url: "/api/v1/jackett/torrents",
       responseType: "json",
-      data: { in: 1, limit: 50 }, // 最大50个结果
+      params: { in: 1, limit: 50 }, // 最大50个结果
     },
-    advanceKeywordParams: {
+    /*advanceKeywordParams: {
       imdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
           set(config!, "params.imdb", config!.data.search.replace("tt", ""));
@@ -116,7 +116,7 @@ export const SchemaMetadata: Pick<
           return config!;
         }
       },
-    },
+    },*/
     selectors: {
       rows: { selector: "data" },
         /*
@@ -323,11 +323,12 @@ export default class AvistazNetwork extends PrivateSite {
           ...(axiosConfig.headers ?? {}),
           "Content-Type": "application/x-www-form-urlencoded",
         };
-      } else if (axiosConfig.url?.startsWith("/api/v1/jackett/torrents")) {
+      }
+      if (axiosConfig.url?.startsWith("/api/v1/jackett/torrents")) {
         axiosConfig.method = "GET";
         axiosConfig.headers = {
-        ...(axiosConfig.headers ?? {}),
-        "Authorization": `Bearer ${(await this.getAuthToken()) ?? ""}`,
+          ...(axiosConfig.headers ?? {}),
+          "Authorization": `Bearer ${(await this.getAuthToken()) ?? ""}`,
         };
       }
       return super.request<T>(axiosConfig, checkLogin);
