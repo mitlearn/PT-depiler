@@ -124,8 +124,8 @@ export const SchemaMetadata: Pick<
         filter: ((jsonResponse: AvzNetSearchResp) => {
           return jsonResponse.data;
         }) as <T>(rows: T) => T },*/
-      id: { selector: "id" },
-      title: { selector: "file_hash" },
+      id: { selector: "data.id" },
+      title: { selector: "data.file_hash" },
       subTitle: { text: "" }, // AvzNet不提供subTitle
       url: { selector: "url" },
       link: { selector: "download" },
