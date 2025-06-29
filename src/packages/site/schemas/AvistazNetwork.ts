@@ -304,7 +304,7 @@ export default class AvistazNetwork extends PrivateSite {
   
   public override async request<T>(
     axiosConfig: AxiosRequestConfig, 
-    checkLogin: boolean = false
+    checkLogin: boolean = true
   ): Promise<AxiosResponse<T>> {
     // 获取请求的 URL 用于判断处理逻辑
     const isApiRequest = axiosConfig.url?.startsWith("/api/v1");
@@ -322,7 +322,7 @@ export default class AvistazNetwork extends PrivateSite {
           ...(axiosConfig.headers ?? {}),
           "Content-Type": "application/x-www-form-urlencoded",
         };
-      } else if (axiosConfig.url === "/api/v1/jackett/torrents") {
+      } else if (axiosConfig.url?.startsWith("/api/v1/jackett/torrents")) {
         axiosConfig.method = "GET";
         axiosConfig.headers = {
         ...(axiosConfig.headers ?? {}),
