@@ -118,7 +118,7 @@ export const SchemaMetadata: Pick<
       },
     },
     selectors: {
-      rows: { selector: :self, filter: "data" },
+      rows: { selector: ":self", filter: "data" },
       id: { selector: "id" },
       title: { selector: "file_hash" },
       subTitle: { text: "" }, // AvzNet不提供subTitle
