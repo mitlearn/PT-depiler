@@ -300,7 +300,6 @@ export default class AvistazNetwork extends PrivateSite {
     // 获取请求的 URL 用于判断处理逻辑
     const isApiRequest = axiosConfig.url?.startsWith("/api/v1/jackett/");
 
-    if (isApiRequest) {
       // 为特定的 API 端点设置默认的 HTTP 方法
       if (axiosConfig.url === "/api/v1/jackett/auth") {
         axiosConfig.method = "POST";
@@ -321,31 +320,7 @@ export default class AvistazNetwork extends PrivateSite {
         "Authorization": `Bearer ${(await this.getAuthToken()) ?? ""}`,
         };
       }
-    
-      let req: AxiosResponse<T>;
-      try {
-        req = await axios.request<T>(axiosConfig);
-      } catch (e: any) { // 捕获 AxiosError 并获取其 response
-        req = e.response!;
-      }
-
-      // 如果需要检查登录并且是 API 请求，使用重写的 loggedCheck 方法
-      if (checkLogin && !this.loggedCheck(req as AxiosResponse<AvzNetSearchResp<any>>)) {
-       throw Error("API Login Required");
-      }
-
-      // 如果非需要登录的情况，但还是返回了 4xx 或者 5xx ，则抛出错误
-      if (req.status >= 400) {
-        throw Error(`Network Error: ${req.status} ${req.statusText || ""}`.trim());
-      }
-      return req;
-
-    } else {
-      // --- 非 API 请求，调用父类方法进行处理 ---
-      // 父类的 request 方法会负责其自身的默认设置、错误处理和登录检查
-      // （父类的 loggedCheck 会被调用）
-      return super.request<T>(axiosConfig, checkLogin);
-    }
+      return super.request<T>(axiosConfig, isApiRequest ? false : checkLogin);
   }
 
   // TODO：为减少token获取次数，预留函数
