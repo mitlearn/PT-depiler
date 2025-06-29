@@ -437,78 +437,83 @@ export default class BittorrentSite {
     return torrents;
   }
 
-  protected async parseWholeTorrentFromRow(
-    torrent: Partial<ITorrent> = {},
-    row: Element | Document | object,
-    searchConfig: ISearchInput,
-  ): Promise<Partial<ITorrent>> {
-    const { searchEntry, requestConfig } = searchConfig;
+protected async parseWholeTorrentFromRow(
+  torrent: Partial<ITorrent> = {},
+  row: Element | Document | object,
+  searchConfig: ISearchInput,
+): Promise<Partial<ITorrent>> {
+  const { searchEntry, requestConfig } = searchConfig;
 
-    // FIXME 对于每个 searchEntry，其需要获取的 torrentKey 应该都是一样的，但是目前会导致在每个loop中都重复生成相同的 key，不过没太大关系
-    const definedTorrentSelectorKey = Object.keys(searchEntry!.selectors!).filter((key) => key !== "rows");
-    const defaultTorrentSelectorKey = [
-      "id",
-      "title",
-      "subTitle",
-      "url",
-      "link",
-      "time",
-      "size",
-      "author",
-      "seeders",
-      "leechers",
-      "completed",
-      "comments",
-      "category",
-      "tags",
-      "progress",
-      "status",
-    ];
+  const definedTorrentSelectorKey = Object.keys(searchEntry!.selectors!).filter((key) => key !== "rows");
+  const defaultTorrentSelectorKey = [
+    "id",
+    "title",
+    "subTitle",
+    "url",
+    "link",
+    "time",
+    "size",
+    "author",
+    "seeders",
+    "leechers",
+    "completed",
+    "comments",
+    "category",
+    "tags",
+    "progress",
+    "status",
+  ];
 
-    /**
-     * 对种子文件的任意非rows属性进行处理，例如 "id" 属性：
-     * - 如果对应的实例中有 parseTorrentRowForId 方法，则调用该方法，注意该方法会需要返回更新后的 torrent 对象
-     * - 不然则使用 selectors.id 的定义来获取，此时只更新 torrent 的id属性
-     */
-    for (const key of union(definedTorrentSelectorKey, defaultTorrentSelectorKey) as (keyof Omit<ITorrent, "site">)[]) {
-      // 如果已经有值，则跳过
-      if (Object.hasOwn(torrent, key)) {
-        continue;
-      }
+  console.log(`[DEBUG] Parsing row...`);
+  console.log(`[DEBUG] Row raw:`, row);
 
-      const dynamicParseFuncKey = `parseTorrentRowFor${pascalCase(key as string)}` as keyof this;
+  for (const key of union(definedTorrentSelectorKey, defaultTorrentSelectorKey) as (keyof Omit<ITorrent, "site">)[]) {
+    // 如果已有值，跳过
+    if (Object.hasOwn(torrent, key)) continue;
+
+    const dynamicParseFuncKey = `parseTorrentRowFor${pascalCase(key as string)}` as keyof this;
+    try {
       if (dynamicParseFuncKey in this && typeof this[dynamicParseFuncKey] === "function") {
         torrent = await this[dynamicParseFuncKey](torrent, row, searchConfig);
+        console.log(`[DEBUG] [${key}] parsed by custom method:`, torrent[key]);
       } else if (searchEntry!.selectors![key]) {
-        torrent[key] = this.getFieldData(row, searchEntry!.selectors![key] as IElementQuery);
+        const value = this.getFieldData(row, searchEntry!.selectors![key] as IElementQuery);
+        torrent[key] = value;
+        console.log(`[DEBUG] [${key}] extracted via selector:`, value);
+      } else {
+        console.log(`[DEBUG] [${key}] no selector or method, skipped.`);
       }
+    } catch (e) {
+      console.error(`[ERROR] Failed to parse field: ${key}`, e);
     }
-console.log(`[DEBUG] Torrent after full field parsing:`, torrent);
-    // 对获取到的种子进行一些通用的处理
-    torrent.site ??= this.metadata.id; // 补全种子的 site 属性
-    torrent.id ??= tryToNumber(torrent.url || torrent.link); // 补全种子的 id 属性，如果不存在，则由 url, link 属性替代
-    torrent.url && (torrent.url = this.fixLink(torrent.url as string, requestConfig!));
-    torrent.link && (torrent.link = this.fixLink(torrent.link as string, requestConfig!));
-    if (typeof (torrent.size as unknown) === "string") {
-      torrent.size = parseSizeString(torrent.size as unknown as string);
-    }
-    torrent.size = tryToNumber(torrent.size);
-    torrent.seeders = tryToNumber(torrent.seeders);
-    torrent.leechers = tryToNumber(torrent.leechers);
-    torrent.completed = tryToNumber(torrent.completed);
-    torrent.comments = tryToNumber(torrent.comments);
-    torrent.category = tryToNumber(torrent.category);
-    torrent.status = tryToNumber(torrent.status);
-
-    // 仅当设置了时区偏移时，才进行转换
-    if (this.metadata.timezoneOffset) {
-      torrent.time = parseTimeWithZone(torrent.time as unknown as string, this.metadata.timezoneOffset);
-    }
-
-    // 在此基础上，不同 schema 可以复写处理过程
-    torrent = this.fixParsedTorrent(torrent as ITorrent, row, searchConfig);
-    return torrent;
   }
+
+  torrent.site ??= this.metadata.id;
+  torrent.id ??= tryToNumber(torrent.url || torrent.link);
+  torrent.url && (torrent.url = this.fixLink(torrent.url as string, requestConfig!));
+  torrent.link && (torrent.link = this.fixLink(torrent.link as string, requestConfig!));
+
+  if (typeof (torrent.size as unknown) === "string") {
+    torrent.size = parseSizeString(torrent.size as string);
+  }
+  torrent.size = tryToNumber(torrent.size);
+  torrent.seeders = tryToNumber(torrent.seeders);
+  torrent.leechers = tryToNumber(torrent.leechers);
+  torrent.completed = tryToNumber(torrent.completed);
+  torrent.comments = tryToNumber(torrent.comments);
+  torrent.category = tryToNumber(torrent.category);
+  torrent.status = tryToNumber(torrent.status);
+
+  if (this.metadata.timezoneOffset) {
+    torrent.time = parseTimeWithZone(torrent.time as string, this.metadata.timezoneOffset);
+  }
+
+  torrent = this.fixParsedTorrent(torrent as ITorrent, row, searchConfig);
+  console.log(`[DEBUG] Final parsed torrent:`, torrent);
+
+  return torrent;
+}
+
 
   protected parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
