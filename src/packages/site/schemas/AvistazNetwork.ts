@@ -290,7 +290,7 @@ export default class AvistazNetwork extends PrivateSite {
   }
 
   protected override loggedCheck(raw: AxiosResponse<AvzNetSearchResp<any>>): boolean {
-    return raw?.current_page === 1;
+    return raw.data?.current_page === 1;
   }
   
   public override async request<T>(
