@@ -171,10 +171,6 @@ export const SchemaMetadata: Pick<
       snatches: { selector: [".card .tag-yellow"], filters: [{ name: "parseNumber" }] },
       seeding: { selector: [".card .tag-indigo"], filters: [{ name: "parseNumber" }] },
       hnrUnsatisfied: { selector: [".card .tag-red"], filters: [{ name: "parseNumber" }] },
-      // uploads: { selector: ["#content-area > div.card > div.card-body > div.card.mb-2.p-2 > ul > li:nth-child(1) > a"], filters: [{ name: "parseNumber" }] },
-      // snatches: { selector: ["#content-area > div.card > div.card-body > div.card.mb-2.p-2 > ul > li:nth-child(2) > a"], filters: [{ name: "parseNumber" }] },
-      // seeding: { selector: ["#content-area > div.card > div.card-body > div.card.mb-2.p-2 > ul > li:nth-child(3) > a"], filters: [{ name: "parseNumber" }] },
-      // hnrUnsatisfied: { selector: ["#content-area > div.card > div.card-body > div.card.mb-2.p-2 > ul > li:nth-child(6) > a"], filters: [{ name: "parseNumber" }] },
     },
     // TODO：为减少token获取次数，预留存储位
     /*
@@ -188,7 +184,7 @@ export const SchemaMetadata: Pick<
       name: "username",
       label: "Username",
       hint: "Fill with your username." +
-      "Please confirm your RANK >= Member",
+      "Please Make Sure your RANK >= Member",
       required: true,
     },
     {
@@ -293,60 +289,63 @@ export default class AvistazNetwork extends PrivateSite {
     return userSeedingTorrent;
   }
 
-  protected override loggedCheck(raw: AxiosResponse<AvzNetSearchResp>): boolean {
-    // if (this.isApiRequest(raw.config?.url)) {
-      return raw.data?.current_page == 1;
-    // }
-    // return false;
-  }
-  
-  protected isApiRequest(url?: string): boolean {
-    return url?.startsWith("/api/") ?? false;
+  protected override loggedCheck(raw: AxiosResponse<AvzNetSearchResp<any>>): boolean {
+    return raw?.current_page === 1;
   }
   
   public override async request<T>(
     axiosConfig: AxiosRequestConfig, 
-    checkLogin: boolean = true,
+    checkLogin: boolean = true
   ): Promise<AxiosResponse<T>> {
     // 获取请求的 URL 用于判断处理逻辑
-    const isApi = axiosConfig.url?.startsWith("/api/v1") ?? false;
-    
-    if (axiosConfig.url === "/api/v1/jackett/auth" && !axiosConfig.method) {
-      axiosConfig.method = "POST";
-      axiosConfig.data = {
-        ...axiosConfig.data,
-        username: this.userConfig.inputSetting?.username ?? "",
-        password: this.userConfig.inputSetting?.password ?? "",
-        pid: this.userConfig.inputSetting?.pid ?? "",
-      };
-      axiosConfig.headers = {
-        ...(axiosConfig.headers ?? {}),
-        "Content-Type": "application/x-www-form-urlencoded",
-      };
-    } else if (axiosConfig.url === "/api/v1/jackett/torrents" && !axiosConfig.method) {
-      axiosConfig.method = "GET";
-      axiosConfig.headers = {
+    const isApiRequest = axiosConfig.url?.startsWith("/api/v1/jackett/");
+
+    if (isApiRequest) {
+      // 为特定的 API 端点设置默认的 HTTP 方法
+      if (axiosConfig.url === "/api/v1/jackett/auth") {
+        axiosConfig.method = "POST";
+        axiosConfig.data = {
+          ...axiosConfig.data,
+          username: this.userConfig.inputSetting?.username ?? "",
+          password: this.userConfig.inputSetting?.password ?? "",
+          pid: this.userConfig.inputSetting?.pid ?? "",
+        };
+        axiosConfig.headers = {
+          ...(axiosConfig.headers ?? {}),
+          "Content-Type": "application/x-www-form-urlencoded",
+        };
+      } else if (axiosConfig.url === "/api/v1/jackett/torrents") {
+        axiosConfig.method = "GET";
+        axiosConfig.headers = {
         ...(axiosConfig.headers ?? {}),
         "Authorization": `Bearer ${(await this.getAuthToken()) ?? ""}`,
-      };
-    }
+        };
+      }
     
-    // try {
-      // 对于 API 请求，跳过登录检查
-      // return await super.request<T>(axiosConfig, isApi ? false : checkLogin);
-    return super.request<T>(axiosConfig, checkLogin);
-    // } catch (error) {
-      /*// 如果是 API 请求且是网络错误，重新抛出 API Error
-      if (this.isApiRequest && error instanceof Error && error.message.startsWith('Network Error:')) {
-        // 从原错误消息中提取状态码和状态文本
-        const match = error.message.match(/Network Error: (\d+)\s*(.*)/);
-        if (match) {
-          const [, status, statusText] = match;
-          throw new Error(`API Error ${status} ${statusText}`.trim());
-        }
-      }*/
-      // throw error;
-    // }
+      let req: AxiosResponse<T>;
+      try {
+        req = await axios.request<T>(axiosConfig);
+      } catch (e: any) { // 捕获 AxiosError 并获取其 response
+        req = e.response!;
+      }
+
+      // 如果需要检查登录并且是 API 请求，使用重写的 loggedCheck 方法
+      if (checkLogin && !this.loggedCheck(req as AxiosResponse<IMTeamRawResp<any>>)) {
+        throw new NeedLoginError("API Login Required");
+      }
+
+      // 如果非需要登录的情况，但还是返回了 4xx 或者 5xx ，则抛出错误
+      if (req.status >= 400) {
+        throw Error(`Network Error: ${req.status} ${req.statusText || ""}`.trim());
+      }
+      return req;
+
+    } else {
+      // --- 非 API 请求，调用父类方法进行处理 ---
+      // 父类的 request 方法会负责其自身的默认设置、错误处理和登录检查
+      // （父类的 loggedCheck 会被调用）
+      return super.request<T>(axiosConfig, checkLogin);
+    }
   }
 
   // TODO：为减少token获取次数，预留函数
