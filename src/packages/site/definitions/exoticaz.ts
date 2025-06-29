@@ -110,19 +110,11 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search!,
-    requestConfig: {
-      url: "/api/v1/jackett/torrents",
-      responseType: "json",
-      data: { in: 1, limit: 50 }, // 最大50个结果
-    },
-    /*advanceKeywordParams: {
+    advanceKeywordParams: {
       imdb: { enabled: false },
       tvdb: { enabled: false },
       tmdb: { enabled: false },
-    },*/
-    selectors: {
-      rows: { selector: "data" },
-    }
+    },
   },
 
   /*searchEntry: {
