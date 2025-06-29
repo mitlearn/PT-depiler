@@ -110,14 +110,14 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search!,
-    advanceKeywordParams: {
+    /*advanceKeywordParams: {
       imdb: { enabled: false },
       tvdb: { enabled: false },
       tmdb: { enabled: false },
-    },
-    selectors: {
+    },*/
+    /*selectors: {
     ...SchemaMetadata.search!.selectors,
-    }
+    }*/
   },
 
   /*searchEntry: {
