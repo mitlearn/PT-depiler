@@ -31,7 +31,9 @@ onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEn
   const site = await getSiteInstance<"public">(siteId);
 
   let searchResult = await site.getSearchResult(keyword, searchEntry);
-
+logger({
+    msg: `SiteSearchResult: ${searchResult}`,
+  });
   if (searchResult.data.length > 0) {
     // 将 tags 中的基础 tag 名称转换为对应的颜色
     searchResult.data.forEach((item) => {
