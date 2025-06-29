@@ -145,7 +145,7 @@ export const SchemaMetadata: Pick<
       completed: { selector: "completed" },
       // tags 交由 parseTorrentRowForTags 处理
       // AvzNet不提供progress, status
-      comment: { text: 0 },
+      comments: { text: "N/A" },
       progress: { text: 0 },
       status: { text: ETorrentStatus.unknown },
 
