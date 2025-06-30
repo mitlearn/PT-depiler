@@ -186,7 +186,7 @@ export default class Exoticaz extends AvistazNetwork {
     const extendTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
 
     // 处理副标题相关逻辑
-    const performersArray = Array.isArray(row.performers) ? row.performers : [];
+    const performersObject = Array.isArray(row.performers) ? row.performers : [];
     const performersNames = performersObject ? Object.values(performersObject) : [];
     const performersStr = performersNames.join(" / ");
     extendTorrent.subTitle = performersStr
