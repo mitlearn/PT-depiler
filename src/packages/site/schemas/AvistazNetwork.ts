@@ -301,8 +301,8 @@ export default class AvistazNetwork extends PrivateSite {
   protected override loggedCheck(raw: AxiosResponse<AvzNetSearchResp>): boolean {
     const isApiResp = raw.config.url?.startsWith("/api/v1") ?? false;
     if(isApiResp) {
-      // return raw.current_page === 1;
-      return true;
+      return raw.current_page === 1;
+      // return true;
     }
     return super.loggedCheck(raw);
   }
@@ -327,10 +327,11 @@ export default class AvistazNetwork extends PrivateSite {
 			};
     }
 		if (axiosConfig.url?.startsWith("/api/v1/jackett/torrents")) {
+      const { data: apiAuth } = await this.getAuthToken();
 			axiosConfig.method = "GET";
 			axiosConfig.headers = {
 				...(axiosConfig.headers ?? {}),
-				"Authorization": `Bearer ${(await this.getAuthToken().token) ?? ""}`,
+				"Authorization": `Bearer ${apiAuth.token ?? ""}`,
 			};
 		}
 		return super.request<T>(axiosConfig, checkLogin);
