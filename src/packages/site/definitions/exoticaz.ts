@@ -178,35 +178,35 @@ export interface IExoRawTorrent extends IAvzNetRawTorrent {
 
 export default class Exoticaz extends AvistazNetwork {
 
-  // protected override parseTorrentRowForTags(
-  //   torrent: Partial<ITorrent>,
-  //   row: IExoRawTorrent,
-  //   searchConfig: ISearchInput,
-  // ): Partial<ITorrent> {
-  //   const extendTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
+  protected override parseTorrentRowForTags(
+    torrent: Partial<ITorrent>,
+    row: IExoRawTorrent,
+    searchConfig: ISearchInput,
+  ): Partial<ITorrent> {
+    const extendTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
 
-  //   // 处理副标题相关逻辑
-  //   const performersArray = Array.isArray(row.performers) ? row.performers : [];
-  //   const performersNames = performersArray.map((a: any) => a.name).filter(Boolean);
-  //   const performersStr = performersNames.join(" / ");
-  //   extendTorrent.subTitle = performersStr
+    // 处理副标题相关逻辑
+    const performersArray = Array.isArray(row.performers) ? row.performers : [];
+    const performersNames = performersObject ? Object.values(performersObject) : [];
+    const performersStr = performersNames.join(" / ");
+    extendTorrent.subTitle = performersStr
 
-  //   const tags: ITorrentTag[] = [];
-  //   const statusTags: Record<string, { name: string }> = {
-  //     asian: { name: "亚洲" },
-  //     softcore: { name: "擦边" },
-  //     censored: { name: "有码" },
-  //     gay: { name: "gay" },
-  //     transexual: { name: "trans" },
-  //   };
-  //   for (const key of Object.keys(statusTags)) {
-  //     if (key in row && (row as Record<string, any>)[key] === true) {
-  //       tags.push(statusTags[key as keyof typeof statusTags]);
-  //     }
-  //   }
-  //   extendTorrent.tags = tags;
+    const tags: ITorrentTag[] = [];
+    const statusTags: Record<string, { name: string }> = {
+      asian: { name: "亚洲" },
+      softcore: { name: "擦边" },
+      censored: { name: "有码" },
+      gay: { name: "gay" },
+      transexual: { name: "trans" },
+    };
+    for (const key of Object.keys(statusTags)) {
+      if (key in row && (row as Record<string, any>)[key] === true) {
+        tags.push(statusTags[key as keyof typeof statusTags]);
+      }
+    }
+    extendTorrent.tags = tags;
     
-  //   return extendTorrent;
-  // }
+    return extendTorrent;
+  }
 
 }
