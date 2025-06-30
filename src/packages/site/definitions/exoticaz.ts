@@ -6,10 +6,6 @@ import {
   ITorrentTag,
 } from "../types";
 import AvistazNetwork, { SchemaMetadata, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
-// import AvistazNetwork, { SchemaMetadata } from "../schemas/AvistazNetwork.ts";
-
-import { sendMessage } from "@/messages.ts";
-import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts";
 
 const categoryMap: Record<number, string> = {
   1: "Video Clips",
@@ -60,7 +56,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: [""],
 
   category: [
-    /*{
+    {
       name: "搜索入口",
       key: "in",
       notes: "请选中成人以开启搜索",
@@ -69,7 +65,7 @@ export const siteMetadata: ISiteMetadata = {
       generateRequestConfig: (selectedCategories) => {
         return { params: {} } as IAdvancedSearchRequestConfig;
       },
-    },*/
+    },
     {
       name: "分类",
       key: "category",
@@ -117,9 +113,9 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
-  /*searchEntry: {
+  searchEntry: {
     area_adult: { name: "成人", enabled: false },
-  },*/
+  },
 
   levelRequirements: [
     {
@@ -164,12 +160,6 @@ export const siteMetadata: ISiteMetadata = {
 
   userInputSettingMeta: [
     ...SchemaMetadata.userInputSettingMeta!,
-    /*{
-    name: "confirm",
-    label: "If u confirm hint below, please enter CONFIRM",
-    hint: "Only Member Rank and above can use search and must enable RSS for search",
-    required: true,
-  }*/
   ],
 };
 
