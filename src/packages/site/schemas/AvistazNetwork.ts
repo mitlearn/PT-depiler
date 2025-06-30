@@ -1,4 +1,4 @@
-import axios, { type AxiosError,type AxiosRequestConfig,type AxiosResponse } from "axios";
+import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import Sizzle from "sizzle";
 import { set } from "es-toolkit/compat";
@@ -18,10 +18,16 @@ import {
   parseSizeString
 } from "../utils";
 
-export interface AvzNetAuthResp {
-  token?: string;
-  expiry?: number;
+interface AuthSuccessResp {
+  token: string;
+  expiry: number;
 }
+
+interface AuthErrorResp {
+  message: string;
+}
+
+type AvzNetAuthResp = AuthSuccessResp | AuthErrorResp;
 
 export interface AvzNetSearchResp {
   current_page: number;
@@ -84,7 +90,7 @@ export const SchemaMetadata: Pick<
   version: 0,
   schema: "AvistazNetwork",
   type: "private",
-  // @refs: https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/Abstract/AvistazTracker.cs#L28C9-L28C122
+  // tzOffset@refs: https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/Abstract/AvistazTracker.cs#L28C9-L28C122
   timezoneOffset: "-0400", 
 
   search: {
@@ -94,7 +100,7 @@ export const SchemaMetadata: Pick<
       responseType: "json",
       params: { in: 1, limit: 50 }, // 最大50个结果
     },
-    /*advanceKeywordParams: {
+    advanceKeywordParams: {
       imdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
           set(config!, "params.imdb", config!.data.search.replace("tt", ""));
@@ -116,14 +122,9 @@ export const SchemaMetadata: Pick<
           return config!;
         }
       },
-    },*/
+    },
     selectors: {
       rows: { selector: "data" },
-        /*
-        selector: ":self", 
-        filter: ((jsonResponse: AvzNetSearchResp) => {
-          return jsonResponse.data;
-        }) as <T>(rows: T) => T },*/
       id: { selector: "id" },
       title: { selector: "file_hash" },
       subTitle: { text: "" }, // AvzNet不提供subTitle
@@ -143,9 +144,9 @@ export const SchemaMetadata: Pick<
       seeders: { selector: "seed" },
       leechers: { selector: "leech" },
       completed: { selector: "completed" },
+      comments: { text: "N/A" },
       // tags 交由 parseTorrentRowForTags 处理
       // AvzNet不提供progress, status
-      comments: { text: "N/A" },
       progress: { text: 0 },
       status: { text: ETorrentStatus.unknown },
 
@@ -153,11 +154,6 @@ export const SchemaMetadata: Pick<
     },
   },
 
-  /*
-    预留获取用户信息
-    > User information will never be available in any form or API, as we respect the privacy and confidentiality of user information.
-    @refs: https://github.com/pt-plugins/PT-Plugin-Plus/issues/996#issuecomment-1057856310
-  */
   userInfo: {
     pickLast: ["name"],
     selectors: {
@@ -218,13 +214,17 @@ export default class AvistazNetwork extends PrivateSite {
       updateAt: +new Date(),
       site: this.metadata.id,
     };
-
-    if (!this.allowQueryUserInfo) {
+  /*
+    预留获取用户信息，但实际直接跳出
+    > User information will never be available in any form or API, as we respect the privacy and confidentiality of user information.
+    @refs: https://github.com/pt-plugins/PT-Plugin-Plus/issues/996#issuecomment-1057856310
+  */
+    if (this.allowQueryUserInfo != null) {
       flushUserInfo.status = EResultParseStatus.passParse;
       return flushUserInfo;
     }
 
-    try {
+    /*try {
       flushUserInfo = { ...flushUserInfo, ...(await this.getBaseInfoFromSite()) };
       if (flushUserInfo.name) {
         flushUserInfo = {
@@ -251,7 +251,7 @@ export default class AvistazNetwork extends PrivateSite {
       flushUserInfo.status = EResultParseStatus.parseError;
     }
 
-    return flushUserInfo;
+    return flushUserInfo; */
   }
 
   protected async getBaseInfoFromSite(): Promise<Partial<IUserInfo>> {
@@ -308,31 +308,29 @@ export default class AvistazNetwork extends PrivateSite {
     axiosConfig: AxiosRequestConfig, 
     checkLogin: boolean = true
   ): Promise<AxiosResponse<T>> {
-    // 获取请求的 URL 用于判断处理逻辑
     const isApiRequest = axiosConfig.url?.startsWith("/api/v1");
 
-      // 为特定的 API 端点设置默认的 HTTP 方法
-      if (axiosConfig.url === "/api/v1/jackett/auth") {
-        axiosConfig.method = "POST";
-        axiosConfig.data = {
-          ...axiosConfig.data,
-          username: this.userConfig.inputSetting?.username ?? "",
-          password: this.userConfig.inputSetting?.password ?? "",
-          pid: this.userConfig.inputSetting?.pid ?? "",
-        };
-        axiosConfig.headers = {
-          ...(axiosConfig.headers ?? {}),
-          "Content-Type": "application/x-www-form-urlencoded",
-        };
-      }
-      if (axiosConfig.url?.startsWith("/api/v1/jackett/torrents")) {
-        axiosConfig.method = "GET";
-        axiosConfig.headers = {
-          ...(axiosConfig.headers ?? {}),
-          "Authorization": `Bearer ${(await this.getAuthToken()) ?? ""}`,
-        };
-      }
-      return super.request<T>(axiosConfig, checkLogin);
+		if (axiosConfig.url === "/api/v1/jackett/auth") {
+			axiosConfig.method = "POST";
+      axiosConfig.data = {
+        ...axiosConfig.data,
+        username: this.userConfig.inputSetting?.username ?? "",
+				password: this.userConfig.inputSetting?.password ?? "",
+				pid: this.userConfig.inputSetting?.pid ?? "",
+			};
+      axiosConfig.headers = {
+				...(axiosConfig.headers ?? {}),
+        "Content-Type": "application/x-www-form-urlencoded",
+			};
+    }
+		if (axiosConfig.url?.startsWith("/api/v1/jackett/torrents")) {
+			axiosConfig.method = "GET";
+			axiosConfig.headers = {
+				...(axiosConfig.headers ?? {}),
+				"Authorization": `Bearer ${(await this.getAuthToken().token) ?? ""}`,
+			};
+		}
+		return super.request<T>(axiosConfig, checkLogin);
   }
 
   // TODO：为减少token获取次数，预留函数
@@ -372,12 +370,8 @@ export default class AvistazNetwork extends PrivateSite {
       expiry: this.metadata.userInfo!.selectors!.authExpiry!
     };
   }
-//   axiosConfig.headers = {
-//   ...(axiosConfig.headers ?? {}),
-//   "Authorization": `Bearer ${(await this.getAuthToken()).token}`,
-// };
   */
-  public async getAuthToken(): Promise<string> {
+  public async getAuthToken(): Promise<string[]> {
     const { data: apiAuth } = await this.request<AvzNetAuthResp>(
       {
         url: "/api/v1/jackett/auth",
@@ -385,28 +379,33 @@ export default class AvistazNetwork extends PrivateSite {
       },
       true,
     );
-    return apiAuth.token ?? "";
+		if ('message' in apiAuth && typeof apiAuth.message === 'string') {
+			throw new Error(`Authentication failed: ${apiAuth.message}`);
+		}
+    return apiAuth ?? [];
   }
   
-  // protected override parseTorrentRowForTags(
-  //   torrent: Partial<ITorrent>,
-  //   row: IAvzNetRawTorrent,
-  //   searchConfig: ISearchInput,
-  // ): Partial<ITorrent> {
-  //   const tags: ITorrentTag[] = [];
+  protected override parseTorrentRowForTags(
+		torrent: Partial<ITorrent>,
+		row: IAvzNetRawTorrent,
+		searchConfig: ISearchInput,
+	): Partial<ITorrent> {
+		const tags: ITorrentTag[] = [];
 
-  //   const { upload_multiply, download_multiply } = row as { upload_multiply?: number; download_multiply?: number };
-  //   if (upload_multiply === 2) {
-  //     tags.push({ name: `${upload_multiply}xUp`, color: "lime" });
-  //   }
-  //   if (download_multiply === 0) {
-  //     tags.push({ name: "Free", color: "blue" });
-  //   }
-  //   if (download_multiply === 0.5) {
-  //     tags.push({ name: "50%", color: "deep-orange-darken-1" });
-  //   }
+		const { upload_multiply, download_multiply } = row as { upload_multiply?: number; download_multiply?: number };
+		if (upload_multiply === 2) {
+			tags.push({ name: `${upload_multiply}xUp`, color: "lime" });
+		}
+		switch (download_multiply) {
+			case 0:
+				tags.push({ name: "Free", color: "blue" });
+				break;
+			case 0.5:
+				tags.push({ name: "50%", color: "deep-orange-darken-1" });
+				break;
+		}
 
-  //   torrent.tags = tags;
-  //   return torrent;
-  // }
+		torrent.tags = tags;
+		return torrent;
+	}
 }
