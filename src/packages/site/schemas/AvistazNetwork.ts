@@ -29,21 +29,6 @@ interface AuthErrorResp {
 
 type AvzNetAuthResp = AuthSuccessResp | AuthErrorResp;
 
-export interface AvzNetSearchResp {
-  current_page: number;
-  data: (IAvzNetRawTorrent)[];
-  first_page_url: string;
-  from: number;
-  last_page: number;
-  last_page_url: string;
-  next_page_url: string;
-  path: string;
-  per_page: number;
-  prev_page_url: null;
-  to: number;
-  total: number;
-}
-
 export interface IAvzNetRawTorrent {
   id: number;
   file_name: string;
@@ -297,15 +282,6 @@ export default class AvistazNetwork extends PrivateSite {
 
     return userSeedingTorrent;
   }
-
-  protected override loggedCheck(raw: AxiosResponse<AvzNetSearchResp>): boolean {
-    const isApiResp = raw.config.url?.startsWith("/api/v1") ?? false;
-    if(isApiResp) {
-      return raw.current_page === 1;
-      // return true;
-    }
-    return super.loggedCheck(raw);
-  }
   
   public override async request<T>(
     axiosConfig: AxiosRequestConfig, 
@@ -327,7 +303,7 @@ export default class AvistazNetwork extends PrivateSite {
 			};
     }
 		if (axiosConfig.url?.startsWith("/api/v1/jackett/torrents")) {
-      const { data: apiAuth } = await this.getAuthToken();
+      const apiAuth = await this.getAuthToken();
 			axiosConfig.method = "GET";
 			axiosConfig.headers = {
 				...(axiosConfig.headers ?? {}),
