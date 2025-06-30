@@ -305,10 +305,16 @@ export default class AvistazNetwork extends PrivateSite {
 		if (axiosConfig.url?.startsWith("/api/v1/jackett/torrents")) {
       const apiAuth = await this.getAuthToken();
 			axiosConfig.method = "GET";
-			axiosConfig.headers = {
-				...(axiosConfig.headers ?? {}),
-				"Authorization": `Bearer ${apiAuth.token ?? ""}`,
-			};
+      const apiAuth = await this.getAuthToken(); // This returns AvzNetAuthResp
+      if ('token' in apiAuth) {
+        // If 'token' exists, TypeScript now knows authResponse is AuthSuccessResp
+        axiosConfig.headers = {
+          ...(axiosConfig.headers ?? {}),
+          "Authorization": `Bearer ${apiAuth.token ?? ""}`,
+        };
+      } else {
+        throw new Error(`Authentication failed: ${authResponse.message || "Unknown error"}`);
+      }
 		}
 		return super.request<T>(axiosConfig, checkLogin);
   }
@@ -359,9 +365,7 @@ export default class AvistazNetwork extends PrivateSite {
       },
       true,
     );
-		if ('message' in apiAuth && typeof apiAuth.message === 'string') {
-			throw new Error(`Authentication failed: ${apiAuth.message}`);
-		}
+
     return apiAuth ?? [];
   }
   
