@@ -219,7 +219,10 @@ export default class AvistazNetwork extends PrivateSite {
     > User information will never be available in any form or API, as we respect the privacy and confidentiality of user information.
     @refs: https://github.com/pt-plugins/PT-Plugin-Plus/issues/996#issuecomment-1057856310
   */
-    if (this.allowQueryUserInfo != null) {
+    if (!this.allowQueryUserInfo) {
+      flushUserInfo.status = EResultParseStatus.passParse;
+      return flushUserInfo;
+    } else {
       flushUserInfo.status = EResultParseStatus.passParse;
       return flushUserInfo;
     }
@@ -371,7 +374,7 @@ export default class AvistazNetwork extends PrivateSite {
     };
   }
   */
-  public async getAuthToken(): Promise<string[]> {
+  public async getAuthToken(): Promise<AvzNetAuthResp> {
     const { data: apiAuth } = await this.request<AvzNetAuthResp>(
       {
         url: "/api/v1/jackett/auth",
