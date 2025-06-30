@@ -111,7 +111,7 @@ export const SchemaMetadata: Pick<
     selectors: {
       rows: { selector: "data" },
       id: { selector: "id" },
-      title: { selector: "file_hash" },
+      title: { selector: "file_name" },
       subTitle: { text: "" }, // AvzNet不提供subTitle
       url: { selector: "url" },
       link: { selector: "download" },
