@@ -91,7 +91,7 @@ export async function fetchInformation(
     // 发送 HTTP GET 请求到 TMDb API
     const { data } = await axios.get<ITMDBApiResp>(apiUrl, {
       params: {
-        language: config.language ?? "zh-CN", // 默认请求中文数据，可通过 config 覆盖
+        language: "zh-CN", // 默认请求中文数据，可通过 config 覆盖
       },
       headers: {
         Authorization: `Bearer ${config.socialSite.themoviedb.apikey}`, // 使用 Bearer Token 认证
@@ -102,13 +102,13 @@ export async function fetchInformation(
 
     // 根据影片类型解析并填充数据
     if (itemType === 'movie') {
-      const movieData = data as ITMDBMovieApiResponse;
+      const movieData = data as ITMDBMovieApiResp;
       resDict.title = movieData.title || movieData.original_title || ""; // 优先使用本地化标题，否则使用原始标题
       resDict.poster = movieData.poster_path ? `${TMDB_IMAGE_BASE_URL}${movieData.poster_path}` : ""; // 拼接完整海报 URL
       resDict.ratingScore = movieData.vote_average ?? 0;
       resDict.ratingCount = movieData.vote_count ?? 0;
     } else { // 电视节目
-        const tvData = data as ITMDBTvApiResponse;
+        const tvData = data as ITMDBTvApiResp;
         resDict.title = tvData.name || tvData.original_name || "";
         resDict.poster = tvData.poster_path ? `${TMDB_IMAGE_BASE_URL}${tvData.poster_path}` : "";
         resDict.ratingScore = tvData.vote_average ?? 0;
