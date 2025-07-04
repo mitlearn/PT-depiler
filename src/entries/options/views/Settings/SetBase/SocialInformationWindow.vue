@@ -75,8 +75,8 @@ const configStore = useConfigStore();
       </v-text-field>
 
       <v-text-field
-        v-model="configStore.socialSiteInformation.socialSite!.themoivedb.apikey"
-        :label="t('socialConfig.themoivedbApikey')"
+        v-model="configStore.socialSiteInformation.socialSite!.themoviedb.apikey"
+        :label="t('socialConfig.themoviedbApikey')"
         clearable
         :messages="themoviedb"
       >
