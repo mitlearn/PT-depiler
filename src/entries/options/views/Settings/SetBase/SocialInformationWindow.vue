@@ -73,6 +73,17 @@ const configStore = useConfigStore();
           <v-avatar image="/icons/social/bangumi.png" />
         </template>
       </v-text-field>
+
+      <v-text-field
+        v-model="configStore.socialSiteInformation.socialSite!.themoivedb.apikey"
+        :label="t('socialConfig.themoivedbApikey')"
+        clearable
+        :messages="themoviedb"
+      >
+        <template #prepend>
+          <v-avatar image="/icons/social/anidb.png" />
+        </template>
+      </v-text-field>
     </v-col>
   </v-row>
 </template>
