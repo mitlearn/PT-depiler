@@ -200,7 +200,7 @@ export const useConfigStore = defineStore("config", {
         bangumi: {},
         douban: {},
         imdb: {},
-        themovidedb: {},
+        themoivdedb: {},
       },
     },
   }),
