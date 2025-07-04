@@ -78,7 +78,7 @@ const configStore = useConfigStore();
         v-model="configStore.socialSiteInformation.socialSite!.themoviedb.apikey"
         :label="t('socialConfig.themoviedbApikey')"
         clearable
-        :messages="themoviedb"
+        :messages="themoviedb msg"
       >
         <template #prepend>
           <v-avatar image="/icons/social/anidb.png" />
