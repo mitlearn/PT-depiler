@@ -94,7 +94,7 @@ export async function fetchInformation(
         language: "zh-CN", // 默认请求中文数据，可通过 config 覆盖
       },
       headers: {
-        Authorization: `Bearer ${config.socialSite.themoviedb.apikey}`, // 使用 Bearer Token 认证
+        Authorization: `Bearer ${config?.socialSite?.themoviedb?.apikey}`, // 使用 Bearer Token 认证
       },
       timeout: config.timeout ?? 10e3, // 默认超时时间 10 秒
       responseType: "json",
