@@ -1,5 +1,10 @@
-import { ETorrentStatus, type IElementQuery, type ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
+import { ETorrentStatus, type IElementQuery, type ITorrent, type ISiteMetadata } from "../types";
+import NexusPHP, {
+  CategoryInclbookmarked,
+  CategoryIncldead,
+  CategorySpstate,
+  SchemaMetadata,
+} from "../schemas/NexusPHP.ts";
 
 // OpenCD 中的部分选择器和处理方法被其他站公用
 export const selectorSearchProgress: IElementQuery = {
@@ -322,3 +327,14 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class OpenCD extends NexusPHP {
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    // 对 OpenCD 站点，种子详情页为 /plugin_details.php?id=123 的形式
+    if (torrent.link && torrent.link.includes("/plugin_details.php")) {
+      return torrent.link.replace(/plugin_details\.php\?id=(\d+)/, "download.php?id=$1").replace(/&hit=1/, ""); // hit=1 是为了统计下载次数
+    }
+
+    return super.getTorrentDownloadLink(torrent);
+  }
+}
