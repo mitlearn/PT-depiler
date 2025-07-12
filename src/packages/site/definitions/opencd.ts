@@ -271,6 +271,10 @@ export const siteMetadata: ISiteMetadata = {
         selector: 'td.rowtitle:contains("專輯名稱：") + td',
         attr: "title",
       },
+      link: {
+        selector: ['a[href*="download.php?id="][href*="&passkey="]'],
+        attr: "href"
+      },
     },
   },
 
