@@ -35,6 +35,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "opencd",
   name: "OpenCD",
+  aka: ["皇后"],
   description: "皇后，专一的音乐类PT站，是目前国内最大的无损音乐PT",
   tags: ["音乐"],
 
@@ -247,6 +248,43 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  detail: {
+    // 该站详情页为 /plugin_details.php?id=数字
+    urlPattern: ["/plugin_details.php"],
+      
+    selectors: {
+      ...SchemaMetadata.detail!.selectors!,
+      id: {
+        selector: ":self",
+        elementProcess: (element: Document) => {
+          // 从 URL 中获取 ID，例如 /plugin_details.php?id=179082
+          const url = element.URL;
+          const idMatch = url.match(/id=(\d+)/);
+          if (idMatch && idMatch.length >= 2) {
+            return idMatch[1];
+          }
+          return undefined;
+        },
+      },
+      title: {
+        selector: ["html > body > title"], // 标题在页面的 <title> 标签中
+        switchFilters: {
+          "html > body > title": [
+            (title: string) => {
+              // OpenCD :: 種子詳情 "{torrentName}"
+              // 目标是提取 "..." 之间的内容
+              const titleMatch = title.match(/種子詳情 "(.+)"/);
+              if (titleMatch && titleMatch.length >= 2) {
+                return titleMatch[1].trim();
+              }
+              return title;
+            },
+          ],
+        },
+      },
+    },
+  },
+
   levelRequirements: [
     {
       id: 1,
@@ -320,11 +358,15 @@ export const siteMetadata: ISiteMetadata = {
       alternative: [{ downloaded: "3TB" }, { uploads: 600 }],
       privilege: "得到十个邀请名额。",
     },
-    {
-      id: 100,
-      name: "貴賓(VIP)",
-      groupType: "vip",
-    },
+    { id: 100, name: "貴賓(VIP)", groupType: "vip" },
+    { id: 101, name: "養老族", groupType: "vip" },
+    { id: 201, name: "保種員", groupType: "manager" },
+    { id: 202, name: "發布員", groupType: "manager" },
+    { id: 203, name: "工作人員", groupType: "manager" },
+    { id: 204, name: "管理员", groupType: "manager" },
+    { id: 205, name: "論壇版主", groupType: "manager" },
+    { id: 206, name: "總版主", groupType: "manager" },
+    { id: 207, name: "維護開发員", groupType: "manager" },
   ],
 };
 
