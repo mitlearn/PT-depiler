@@ -267,20 +267,9 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
       title: {
-        selector: ["html > body > title"], // 标题在页面的 <title> 标签中
-        switchFilters: {
-          "html > body > title": [
-            (title: string) => {
-              // OpenCD :: 種子詳情 "{torrentName}"
-              // 目标是提取 "..." 之间的内容
-              const titleMatch = title.match(/種子詳情 "(.+)"/);
-              if (titleMatch && titleMatch.length >= 2) {
-                return titleMatch[1].trim();
-              }
-              return title;
-            },
-          ],
-        },
+        // 音乐站title不适合作为搜索词
+        selector: 'td.rowtitle:contains("專輯名稱：") + td',
+        attr: "title",
       },
     },
   },
