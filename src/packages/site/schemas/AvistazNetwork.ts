@@ -174,17 +174,17 @@ export const SchemaMetadata: Pick<
       },
       title: {
         selector: [
-          "tr:has(td:first-child:contains('Title')) > td:last-child",
+          "div.card-header h1.h4",
           "script:contains(TorrentFileList)",
         ],
         switchFilters: {
-          "tr:has(td:first-child:contains('Title')) > td:last-child": [
+          "div.card-header h1.h4": [
             (element: HTMLElement) => {
-              // 确保 element 存在
               if (!element) {
                 return undefined;
               }
-              const bracketMatch = element.innerText.match(/^\[([^\]]+)\]/);
+              let text = element.innerText.trim();
+              const bracketMatch = text.match(/^\[([^\]]+)\]/);
               if (bracketMatch && bracketMatch[1]) {
                 return bracketMatch[1];
               }
@@ -193,8 +193,9 @@ export const SchemaMetadata: Pick<
           ],
           "script:contains(TorrentFileList)": [
             (element: HTMLElement) => {
+              // --- 关键修改：在这里添加空值检查 ---
               if (!element) {
-                return undefined;
+                return undefined; // 如果元素不存在，直接返回 undefined
               }
 
               const scriptContent = element.innerHTML;
@@ -202,16 +203,14 @@ export const SchemaMetadata: Pick<
               if (jsonMatch && jsonMatch[1]) {
                 try {
                   const torrentFileList = JSON.parse(jsonMatch[1]);
-                  // Ensure torrentFileList exists and contains a 'text' property
                   if (torrentFileList && torrentFileList.text) {
-                    // Match the content within the first <span class="file-name">...</span>
                     const spanMatch = torrentFileList.text.match(/<span class="file-name">([^<]+)<\/span>/);
                     if (spanMatch && spanMatch[1]) {
-                      return spanMatch[1]; // Return the first matched file/folder name
+                      return spanMatch[1];
                     }
                   }
                 } catch (e) {
-                  console.error("Failed to parse TorrentFileList JSON:", e);
+                  console.error("解析 TorrentFileList JSON 失败:", e);
                 }
               }
               return undefined;
