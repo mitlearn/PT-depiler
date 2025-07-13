@@ -68,7 +68,7 @@ export interface IAvzNetRawTorrent {
 
 export const SchemaMetadata: Pick<
   ISiteMetadata,
-  "version" | "schema" | "type" | "timezoneOffset" | "search" | "userInfo" | "userInputSettingMeta"
+  "version" | "schema" | "type" | "timezoneOffset" | "search" | "userInfo" | "userInputSettingMeta" | "list" | "detail"
 > = {
   version: 0,
   schema: "AvistazNetwork",
@@ -172,47 +172,48 @@ export const SchemaMetadata: Pick<
           return undefined;
         },
       },
-  title: {
-    selector: [
-      "div.card-header h1.h4",
-      "script:contains(TorrentFileList)",
-    ],
-    switchFilters: {
-      "div.card-header h1.h4": [
-        (element: HTMLElement) => {
-          let text = element.innerText.trim();
+      title: {
+        selector: [
+          "div.card-header h1.h4",
+          "script:contains(TorrentFileList)",
+        ],
+        switchFilters: {
+          "div.card-header h1.h4": [
+            (element: HTMLElement) => {
+              let text = element.innerText.trim();
 
-          const bracketMatch = text.match(/^\[([^\]]+)\]/);
-          if (bracketMatch && bracketMatch[1]) {
-            return bracketMatch[1];
-          }
-        }
-      ],
+              const bracketMatch = text.match(/^\[([^\]]+)\]/);
+              if (bracketMatch && bracketMatch[1]) {
+                return bracketMatch[1];
+              }
+              return undefined;
+            }
+          ],
       // 处理 script:contains(TorrentFileList) 的情况
-      "script:contains(TorrentFileList)": [
-        (element: HTMLElement) => {
-          const scriptContent = element.innerHTML;
-          const jsonMatch = scriptContent.match(/var TorrentFileList = (\{.*\});/);
-          if (jsonMatch && jsonMatch[1]) {
-            try {
-              const torrentFileList = JSON.parse(jsonMatch[1]);
-              // 确保 torrentFileList 存在且包含 text 属性
-              if (torrentFileList && torrentFileList.text) {
-                // 匹配第一个 <span class="file-name">...</span> 中的内容
-                const spanMatch = torrentFileList.text.match(/<span class="file-name">([^<]+)<\/span>/);
-                if (spanMatch && spanMatch[1]) {
-                  return spanMatch[1]; // 返回第一个匹配到的文件/文件夹名
+          "script:contains(TorrentFileList)": [
+            (element: HTMLElement) => {
+              const scriptContent = element.innerHTML;
+              const jsonMatch = scriptContent.match(/var TorrentFileList = (\{.*\});/);
+              if (jsonMatch && jsonMatch[1]) {
+                try {
+                  const torrentFileList = JSON.parse(jsonMatch[1]);
+                  // 确保 torrentFileList 存在且包含 text 属性
+                  if (torrentFileList && torrentFileList.text) {
+                    // 匹配第一个 <span class="file-name">...</span> 中的内容
+                    const spanMatch = torrentFileList.text.match(/<span class="file-name">([^<]+)<\/span>/);
+                    if (spanMatch && spanMatch[1]) {
+                      return spanMatch[1]; // 返回第一个匹配到的文件/文件夹名
+                    }
+                  }
+                } catch (e) {
+                  console.error("解析 TorrentFileList JSON 失败:", e);
                 }
               }
-            } catch (e) {
-                console.error("解析 TorrentFileList JSON 失败:", e);
-            }
-          }
-          return undefined;
+              return undefined;
+            },
+          ],
         },
-      ],
-    },
-  },
+      },
       link: {
         selector: ["a[href*='/download/torrent/']"],
         attr: "href",
