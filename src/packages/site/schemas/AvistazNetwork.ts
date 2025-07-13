@@ -178,19 +178,24 @@ export const SchemaMetadata: Pick<
           "script:contains(TorrentFileList)",
         ],
         switchFilters: {
-          "div.card-header h1.h4": [
-            (element: HTMLElement) => {
-              if (!element) {
-                return undefined;
-              }
-              let text = element.innerText.trim();
-              const bracketMatch = text.match(/^\[([^\]]+)\]/);
-              if (bracketMatch && bracketMatch[1]) {
-                return bracketMatch[1];
-              }
-              return undefined;
-            }
-          ],
+"div.card-header h1.h4": [
+  (element: HTMLElement) => {
+    // === THIS IS THE CRUCIAL CHECK ===
+    if (!element) {
+      return undefined; // If element is null/undefined, stop here for this selector.
+    }
+    // ===============================
+
+    // Now, safely access innerText, using nullish coalescing for extra robustness
+    let text = (element.innerText ?? '').trim();
+
+    const bracketMatch = text.match(/^\[([^\]]+)\]/);
+    if (bracketMatch && bracketMatch[1]) {
+      return bracketMatch[1];
+    }
+    return undefined; // If no bracketed content, return undefined to try the next selector.
+  }
+],
           "script:contains(TorrentFileList)": [
             (element: HTMLElement) => {
               // --- 关键修改：在这里添加空值检查 ---
