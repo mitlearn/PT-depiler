@@ -139,6 +139,87 @@ export const SchemaMetadata: Pick<
     },
   },
 
+  list: [
+    {
+      urlPattern: ["/profile/(.+)/history"],
+    },
+  ],
+
+  detail: {
+    urlPattern: ["/torrent/\\d+"],
+    selectors: {
+      id: {
+        selector: ":self", // 表示对整个文档（Document）进行操作
+        elementProcess: (element: Document) => {
+          // 尝试从页面 URL 中获取 ID，例如 /torrent/158672
+          const url = element.URL;
+          const urlIdMatch = url.match(/\/torrent\/(\d+)/);
+          if (urlIdMatch && urlIdMatch[1]) {
+            return urlIdMatch[1];
+          }
+
+          // 如果 URL 中没有 ID，则尝试从下载链接中获取 ID，例如 https://avz.net/download/torrent/158672.abcdefghijklmn.torrent
+          const torrentLink = element.querySelector("a[href*='/download/torrent/']");
+          if (torrentLink) {
+            const href = torrentLink.getAttribute("href");
+            const hrefIdMatch = href?.match(/\/torrent\/(\d+)\./);
+            if (hrefIdMatch && hrefIdMatch[1]) {
+              return hrefIdMatch[1];
+            }
+          }
+
+          // 如果两种方式都找不到 ID，则返回 undefined
+          return undefined;
+        },
+      },
+  title: {
+    selector: [
+      "div.card-header h1.h4",
+      "script:contains(TorrentFileList)",
+    ],
+    switchFilters: {
+      "div.card-header h1.h4": [
+        (element: HTMLElement) => {
+          let text = element.innerText.trim();
+
+          const bracketMatch = text.match(/^\[([^\]]+)\]/);
+          if (bracketMatch && bracketMatch[1]) {
+            return bracketMatch[1];
+          }
+        }
+      ],
+      // 处理 script:contains(TorrentFileList) 的情况
+      "script:contains(TorrentFileList)": [
+        (element: HTMLElement) => {
+          const scriptContent = element.innerHTML;
+          const jsonMatch = scriptContent.match(/var TorrentFileList = (\{.*\});/);
+          if (jsonMatch && jsonMatch[1]) {
+            try {
+              const torrentFileList = JSON.parse(jsonMatch[1]);
+              // 确保 torrentFileList 存在且包含 text 属性
+              if (torrentFileList && torrentFileList.text) {
+                // 匹配第一个 <span class="file-name">...</span> 中的内容
+                const spanMatch = torrentFileList.text.match(/<span class="file-name">([^<]+)<\/span>/);
+                if (spanMatch && spanMatch[1]) {
+                  return spanMatch[1]; // 返回第一个匹配到的文件/文件夹名
+                }
+              }
+            } catch (e) {
+                console.error("解析 TorrentFileList JSON 失败:", e);
+            }
+          }
+          return undefined;
+        },
+      ],
+    },
+  },
+      link: {
+        selector: ["a[href*='/download/torrent/']"],
+        attr: "href",
+      },
+    },
+  },
+
   userInfo: {
     pickLast: ["name"],
     selectors: {
