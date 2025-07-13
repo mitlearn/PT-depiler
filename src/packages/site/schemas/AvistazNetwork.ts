@@ -185,7 +185,7 @@ export const SchemaMetadata: Pick<
               }
 
               const bracketMatch = element.match(/^\[([^\]]+)\]/);
-              if (bracketMatch && titleMatch.length >= 2) {
+              if (bracketMatch && bracketMatch.length >= 2) {
                 return bracketMatch[1];
               }
               return undefined; // If no bracketed content, return undefined to try the next selector.
