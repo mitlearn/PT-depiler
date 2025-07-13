@@ -178,44 +178,38 @@ export const SchemaMetadata: Pick<
           "script:contains(TorrentFileList)",
         ],
         switchFilters: {
-"div.card-header h1.h4": [
-  (element: HTMLElement) => {
-    // === THIS IS THE CRUCIAL CHECK ===
-    if (!element) {
-      return undefined; // If element is null/undefined, stop here for this selector.
-    }
-    // ===============================
-
-    // Now, safely access innerText, using nullish coalescing for extra robustness
-    let text = (element.innerText ?? '').trim();
-
-    const bracketMatch = text.match(/^\[([^\]]+)\]/);
-    if (bracketMatch && bracketMatch[1]) {
-      return bracketMatch[1];
-    }
-    return undefined; // If no bracketed content, return undefined to try the next selector.
-  }
-],
-          "script:contains(TorrentFileList)": [
-            (element: HTMLElement) => {
-              // --- 关键修改：在这里添加空值检查 ---
+          "div.card-header h1.h4": [
+            (element: string) => {
               if (!element) {
-                return undefined; // 如果元素不存在，直接返回 undefined
+                return undefined;
               }
 
-              const scriptContent = element.innerHTML;
+              const bracketMatch = element.match(/^\[([^\]]+)\]/);
+              if (bracketMatch && titleMatch.length >= 2) {
+                return bracketMatch[1];
+              }
+              return undefined; // If no bracketed content, return undefined to try the next selector.
+            }
+          ],
+          "tr:has(td:first-child:contains('Files')) script:contains(TorrentFileList)": [
+            (element: HTMLElement) => {
+              if (!element) {
+                return undefined;
+              }
+              const scriptContent = element.innerHTML ?? '';
               const jsonMatch = scriptContent.match(/var TorrentFileList = (\{.*\});/);
               if (jsonMatch && jsonMatch[1]) {
                 try {
                   const torrentFileList = JSON.parse(jsonMatch[1]);
-                  if (torrentFileList && torrentFileList.text) {
+                  if (torrentFileList && typeof torrentFileList.text === 'string') {
+                    // This regex specifically extracts the content within the first <span class="file-name">
                     const spanMatch = torrentFileList.text.match(/<span class="file-name">([^<]+)<\/span>/);
                     if (spanMatch && spanMatch[1]) {
                       return spanMatch[1];
                     }
                   }
                 } catch (e) {
-                  console.error("解析 TorrentFileList JSON 失败:", e);
+                  console.error("Failed to parse TorrentFileList JSON:", e);
                 }
               }
               return undefined;
