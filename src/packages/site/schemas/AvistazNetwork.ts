@@ -174,7 +174,7 @@ export const SchemaMetadata: Pick<
       },
       title: {
         selector: [
-          "div.card-header h1.h4",
+          "tr:has(td:first-child:contains('Title')) > td:last-child",
           "script:contains(TorrentFileList)",
         ],
         switchFilters: {
@@ -189,7 +189,7 @@ export const SchemaMetadata: Pick<
               if (bracketMatch && bracketMatch[1]) {
                 return bracketMatch[1];
               }
-              return text;
+              return undefined;
             }
           ],
           "script:contains(TorrentFileList)": [
@@ -215,7 +215,7 @@ export const SchemaMetadata: Pick<
                   console.error("Failed to parse TorrentFileList JSON:", e);
                 }
               }
-              return undefined; // If extraction or parsing fails, return undefined
+              return undefined;
             },
           ],
         },
