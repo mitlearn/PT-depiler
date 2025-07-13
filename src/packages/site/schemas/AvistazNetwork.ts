@@ -178,18 +178,18 @@ export const SchemaMetadata: Pick<
           "script:contains(TorrentFileList)",
         ],
         switchFilters: {
-          "div.card-header h1.h4": [
+          "tr:has(td:first-child:contains('Title')) > td:last-child": [
             (element: HTMLElement) => {
+              // 确保 element 存在
               if (!element) {
                 return undefined;
               }
-
               let text = element.innerText.trim();
               const bracketMatch = text.match(/^\[([^\]]+)\]/);
               if (bracketMatch && bracketMatch[1]) {
-                return bracketMatch[1]; // If bracketed content is found, return it directly
+                return bracketMatch[1];
               }
-              return undefined;
+              return text;
             }
           ],
           "script:contains(TorrentFileList)": [
