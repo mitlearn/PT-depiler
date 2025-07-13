@@ -184,8 +184,7 @@ export const SchemaMetadata: Pick<
               if (!element) {
                 return undefined;
               }
-              let text = element.innerText.trim();
-              const bracketMatch = text.match(/^\[([^\]]+)\]/);
+              const bracketMatch = element.innerText.match(/^\[([^\]]+)\]/);
               if (bracketMatch && bracketMatch[1]) {
                 return bracketMatch[1];
               }
