@@ -174,46 +174,17 @@ export const SchemaMetadata: Pick<
       },
       title: {
         selector: [
-          "div.card-header h1.h4",
-          "script:contains(TorrentFileList)",
+          "tr:has(td:first-child:contains('Title')) > td:last-child",
         ],
         switchFilters: {
-          "div.card-header h1.h4": [
+          "tr:has(td:first-child:contains('Title')) > td:last-child": [
             (element: string) => {
               if (!element) {
                 return undefined;
               }
-
-              const bracketMatch = element.match(/^\[([^\]]+)\]/);
-              if (bracketMatch && bracketMatch.length >= 2) {
-                return bracketMatch[1];
-              }
-              return undefined; // If no bracketed content, return undefined to try the next selector.
+              
+              return element;
             }
-          ],
-          "tr:has(td:first-child:contains('Files')) script:contains(TorrentFileList)": [
-            (element: HTMLElement) => {
-              if (!element) {
-                return undefined;
-              }
-              const scriptContent = element.innerHTML ?? '';
-              const jsonMatch = scriptContent.match(/var TorrentFileList = (\{.*\});/);
-              if (jsonMatch && jsonMatch[1]) {
-                try {
-                  const torrentFileList = JSON.parse(jsonMatch[1]);
-                  if (torrentFileList && typeof torrentFileList.text === 'string') {
-                    // This regex specifically extracts the content within the first <span class="file-name">
-                    const spanMatch = torrentFileList.text.match(/<span class="file-name">([^<]+)<\/span>/);
-                    if (spanMatch && spanMatch[1]) {
-                      return spanMatch[1];
-                    }
-                  }
-                } catch (e) {
-                  console.error("Failed to parse TorrentFileList JSON:", e);
-                }
-              }
-              return undefined;
-            },
           ],
         },
       },
