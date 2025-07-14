@@ -4,7 +4,6 @@ import Sizzle from "sizzle";
 import { set } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
-import { retrieveStore } from "@ptd/site/utils/adapter.ts";
 
 import {
   EResultParseStatus,
@@ -15,7 +14,23 @@ import {
   type ITorrentTag,
   type ISearchInput,
 } from "../types";
-import { parseTimeWithZone, parseSizeString } from "../utils";
+import { parseTimeWithZone, parseSizeString, retrieveStore } from "../utils";
+
+const commonListSelectors: TSchemaMetadataListSelectors = {
+  id: {
+    selector: "a[href*='/torrent/']",
+    attr: "href",
+    elementProcess: (href: string) => {
+      const match = href.match(/(\d+)(.+)/);
+      return match ? parseInt(match[1]) : 0;
+      }
+  },
+  title: { selector: "a[href*='/torrent/']", attr: "title" },
+  url: { selector: "a[href*='/torrent/']", attr: "href" },
+  link: { selector: "a[href*='/download/torrent/']", attr: "href" },
+  comments: { text: "N/A" },
+  category: { selector: "td:nth-last-child(2) i", attr: "data-original-title" },
+};
 
 interface AuthSuccessResp {
   token: string;
@@ -140,8 +155,45 @@ export const SchemaMetadata: Pick<
   },
 
   list: [
+    // 种子列表页
+    {
+      urlPattern: [/torrents],
+      mergeSearchSelectors: false,
+      selectors: {
+        rows: { selector: "table.table table-sm table-bordered table-hover > tbody > tr" },
+
+        time: {
+          selector: "tr:nth-child(4)",
+          elementProcess: (el: HTMLInputElement) => {
+            return el.getAttribute("title") || el.textContent;
+          },
+          filters: [{ name: "parseTime" }],
+        },
+        size: { selector: "tr:nth-child(5)", filters: [{ name: "parseSize" }] },
+
+        seeders: { selector: "tr:nth-child(6)" },
+        leechers: { selector: "tr:nth-child(7)" },
+        completed: { selector: "tr:nth-child(8)" },
+
+        // ext_imdb: {
+        //   selector: "a[href^='/mdb/title'][href*='imdb=']",
+        //   filters: [{ name: "querystring", args: ["imdb"] }, { name: "extImdbId" }],
+        // },
+      },
+    },
+    // 下载历史页和HR页
     {
       urlPattern: ["/profile/(.+)/history"],
+      mergeSearchSelectors: false,
+      selectors: {
+        rows: { selector: "table table-sm table-bordered table-striped > tbody > tr" },
+
+        size: { "selector": ".text-yellow", "filters": [{ "name": "parseSize" }] },
+
+        seeders: { "selector": ".text-green.mr-2" },
+        leechers: { "selector": ".text-red.mr-2" },
+        completed: { "selector": ".text-blue.mr-2" },
+      },
     },
   ],
 
@@ -400,12 +452,12 @@ export default class AvistazNetwork extends PrivateSite {
     const storedAuthExpiry = await this.retrieveRuntimeSettings<number>("authExpiry");
 
     if (storedAuthToken && storedAuthExpiry && storedAuthExpiry > currentTime) {
-      console.log("Found valid token in runtimeSettings. Returning existing token.");
+      console?.log("[Site] ${this.site} found valid token in runtimeSettings. Returning existing token.");
       return storedAuthToken;
     }
 
     // 2. 如果过期或不存在，发起新的授权请求
-    console.log("Token expired or not found. Requesting new token...");
+    console?.log("[Site] ${this.site} Token expired or not found. Requesting new token...");
     try {
       const { data: apiAuth } = await this.request<AvzNetAuthResp>({
         url: "/api/v1/jackett/auth",
@@ -420,15 +472,15 @@ export default class AvistazNetwork extends PrivateSite {
         await this.storeRuntimeSettings("authToken", apiAuth.token);
         await this.storeRuntimeSettings("authExpiry", newAuthExpiry);
 
-        console.log("Successfully obtained and stored new token.");
+        console?.log(`[Site] ${this.site} successfully obtained and stored new token.`);
         return apiAuth.token;
       } else if ("message" in apiAuth && typeof apiAuth.message === 'string') { // 检查 message 属性是否存在且为字符串
-        console.error(`Failed to get new token: ${apiAuth.message}`);
+        console?.error(`[Site] ${this.site} failed to get new token: ${apiAuth.message}`);
       } else {
-        console.error("Failed to get new token: Unexpected response format or missing required properties.");
+        console?.error(`[Site] ${this.site} failed to get new token: Unexpected response format or missing required properties.`);
       }
     } catch (error) {
-      throw new Error(`Error during authorization request`);
+      throw new Error(`[Site] ${this.site} error during authorization request`);
     }
 
     // 如果所有尝试都失败，则返回空字符串
