@@ -117,6 +117,33 @@ export const siteMetadata: ISiteMetadata = {
     area_adult: { name: "成人", enabled: false },
   },
 
+  detail: {
+    urlPattern: ["/torrent/\\d+"],
+    selectors: {
+      ...SchemaMetadata.detail!.selectors,
+      title: {
+        selector: [
+          "tr:has(td:first-child:contains('Title')) > td:last-child",
+        ],
+        switchFilters: {
+          "tr:has(td:first-child:contains('Title')) > td:last-child": [
+            (element: string) => {
+              if (!element) {
+                return undefined;
+              }
+
+              const bracketMatch = element.match(/^\[([^\]]+)\]/);
+              if (bracketMatch && bracketMatch.length >= 2) {
+                return bracketMatch[1];
+              }
+              return undefined; // If no bracketed content, return undefined to try the next selector.
+            }
+          ],
+        },
+      },
+		},
+	},
+
   levelRequirements: [
     {
       id: 1,
