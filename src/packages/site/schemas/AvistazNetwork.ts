@@ -4,17 +4,19 @@ import Sizzle from "sizzle";
 import { set } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
+import { retrieveStore } from "@ptd/site/utils/adapter.ts";
 
 import {
   EResultParseStatus,
   ETorrentStatus,
+  TSchemaMetadataListSelectors,
   type ISiteMetadata,
   type IUserInfo,
   type ITorrent,
   type ITorrentTag,
   type ISearchInput,
 } from "../types";
-import { parseTimeWithZone, parseSizeString, retrieveStore } from "../utils";
+import { parseTimeWithZone, parseSizeString } from "../utils";
 
 const commonListSelectors: TSchemaMetadataListSelectors = {
   id: {
@@ -160,6 +162,7 @@ export const SchemaMetadata: Pick<
       urlPattern: ["/torrents"],
       mergeSearchSelectors: false,
       selectors: {
+        ...commonListSelectors,
         rows: { selector: "table.table table-sm table-bordered table-hover > tbody > tr" },
 
         time: {
@@ -186,6 +189,7 @@ export const SchemaMetadata: Pick<
       urlPattern: ["/profile/(.+)/history"],
       mergeSearchSelectors: false,
       selectors: {
+        ...commonListSelectors,
         rows: { selector: "table table-sm table-bordered table-striped > tbody > tr" },
 
         size: { "selector": ".text-yellow", "filters": [{ "name": "parseSize" }] },
