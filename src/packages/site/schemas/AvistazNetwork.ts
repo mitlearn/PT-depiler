@@ -157,7 +157,7 @@ export const SchemaMetadata: Pick<
   list: [
     // 种子列表页
     {
-      urlPattern: [/torrents],
+      urlPattern: ["/torrents"],
       mergeSearchSelectors: false,
       selectors: {
         rows: { selector: "table.table table-sm table-bordered table-hover > tbody > tr" },
@@ -452,12 +452,12 @@ export default class AvistazNetwork extends PrivateSite {
     const storedAuthExpiry = await this.retrieveRuntimeSettings<number>("authExpiry");
 
     if (storedAuthToken && storedAuthExpiry && storedAuthExpiry > currentTime) {
-      console?.log("[Site] ${this.site} found valid token in runtimeSettings. Returning existing token.");
+      console.log("Found valid token in runtimeSettings. Returning existing token.");
       return storedAuthToken;
     }
 
     // 2. 如果过期或不存在，发起新的授权请求
-    console?.log("[Site] ${this.site} Token expired or not found. Requesting new token...");
+    console.log("Token expired or not found. Requesting new token...");
     try {
       const { data: apiAuth } = await this.request<AvzNetAuthResp>({
         url: "/api/v1/jackett/auth",
@@ -472,15 +472,15 @@ export default class AvistazNetwork extends PrivateSite {
         await this.storeRuntimeSettings("authToken", apiAuth.token);
         await this.storeRuntimeSettings("authExpiry", newAuthExpiry);
 
-        console?.log(`[Site] ${this.site} successfully obtained and stored new token.`);
+        console.log("Successfully obtained and stored new token.");
         return apiAuth.token;
       } else if ("message" in apiAuth && typeof apiAuth.message === 'string') { // 检查 message 属性是否存在且为字符串
-        console?.error(`[Site] ${this.site} failed to get new token: ${apiAuth.message}`);
+        console.error(`Failed to get new token: ${apiAuth.message}`);
       } else {
-        console?.error(`[Site] ${this.site} failed to get new token: Unexpected response format or missing required properties.`);
+        console.error("Failed to get new token: Unexpected response format or missing required properties.");
       }
     } catch (error) {
-      throw new Error(`[Site] ${this.site} error during authorization request`);
+      throw new Error(`Error during authorization request`);
     }
 
     // 如果所有尝试都失败，则返回空字符串
