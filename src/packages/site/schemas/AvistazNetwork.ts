@@ -27,7 +27,7 @@ const commonListSelectors: TSchemaMetadataListSelectors = {
       return match ? parseInt(match[1]) : 0;
       }
   },
-  title: { selector: "a[href*='/torrent/']", attr: "title" },
+  title: { selector: "a[href*='/torrent/']" },
   url: { selector: "a[href*='/torrent/']", attr: "href" },
   link: { selector: "a[href*='/download/torrent/']", attr: "href" },
   comments: { text: "N/A" },
@@ -165,18 +165,18 @@ export const SchemaMetadata: Pick<
         ...commonListSelectors,
         rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
 
-        time: {
-          selector: "td:nth-child(4)",
-          elementProcess: (el: HTMLInputElement) => {
-            return el.getAttribute("title") || el.textContent;
-          },
-          filters: [{ name: "parseTime" }],
-        },
-        size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
+        // time: {
+        //   selector: "td:nth-child(4)",
+        //   elementProcess: (el: HTMLInputElement) => {
+        //     return el.getAttribute("title") || el.textContent;
+        //   },
+        //   filters: [{ name: "parseTime" }],
+        // },
+        // size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
 
-        seeders: { selector: "td:nth-child(6)" },
-        leechers: { selector: "td:nth-child(7)" },
-        completed: { selector: "td:nth-child(8)" },
+        // seeders: { selector: "td:nth-child(6)" },
+        // leechers: { selector: "td:nth-child(7)" },
+        // completed: { selector: "td:nth-child(8)" },
 
         // ext_imdb: {
         //   selector: "a[href^='/mdb/title'][href*='imdb=']",
