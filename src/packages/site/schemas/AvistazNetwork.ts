@@ -163,20 +163,20 @@ export const SchemaMetadata: Pick<
       mergeSearchSelectors: false,
       selectors: {
         ...commonListSelectors,
-        rows: { selector: "table-responsive.table table-sm table-bordered table-hover > tbody > tr" },
+        rows: { selector: "table.table table-sm table-bordered table-hover > tbody > tr" },
 
         time: {
-          selector: "tr:nth-child(4)",
+          selector: "td:nth-child(4)",
           elementProcess: (el: HTMLInputElement) => {
             return el.getAttribute("title") || el.textContent;
           },
           filters: [{ name: "parseTime" }],
         },
-        size: { selector: "tr:nth-child(5)", filters: [{ name: "parseSize" }] },
+        size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
 
-        seeders: { selector: "tr:nth-child(6)" },
-        leechers: { selector: "tr:nth-child(7)" },
-        completed: { selector: "tr:nth-child(8)" },
+        seeders: { selector: "td:nth-child(6)" },
+        leechers: { selector: "td:nth-child(7)" },
+        completed: { selector: "td:nth-child(8)" },
 
         // ext_imdb: {
         //   selector: "a[href^='/mdb/title'][href*='imdb=']",
@@ -190,7 +190,7 @@ export const SchemaMetadata: Pick<
       mergeSearchSelectors: false,
       selectors: {
         ...commonListSelectors,
-        rows: { selector: "table-responsive > table table-sm table-bordered table-striped > tbody > tr" },
+        rows: { selector: "div.table-responsive > table.table table-sm table-bordered table-striped > tbody > tr" },
 
         size: { "selector": ".text-yellow", "filters": [{ "name": "parseSize" }] },
 
