@@ -31,7 +31,7 @@ const commonListSelectors: TSchemaMetadataListSelectors = {
   url: { selector: "a[href*='/torrent/']", attr: "href" },
   link: { selector: "a[href*='/download/torrent/']", attr: "href" },
   comments: { text: "N/A" },
-  category: { selector: "td:nth-last-child(1) i", attr: "data-original-title" },
+  // category: { selector: "td:nth-last-child(1) i", attr: "data-original-title" },
 };
 
 interface AuthSuccessResp {
