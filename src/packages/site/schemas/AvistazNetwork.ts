@@ -31,7 +31,7 @@ const commonListSelectors: TSchemaMetadataListSelectors = {
   url: { selector: "a[href*='/torrent/']", attr: "href" },
   link: { selector: "a[href*='/download/torrent/']", attr: "href" },
   comments: { text: "N/A" },
-  category: { selector: "td:nth-last-child(2) i", attr: "data-original-title" },
+  category: { selector: "td:nth-last-child(1) i", attr: "data-original-title" },
 };
 
 interface AuthSuccessResp {
@@ -163,7 +163,7 @@ export const SchemaMetadata: Pick<
       mergeSearchSelectors: false,
       selectors: {
         ...commonListSelectors,
-        rows: { selector: "table.table table-sm table-bordered table-hover > tbody > tr" },
+        rows: { selector: "table-responsive.table table-sm table-bordered table-hover > tbody > tr" },
 
         time: {
           selector: "tr:nth-child(4)",
@@ -190,7 +190,7 @@ export const SchemaMetadata: Pick<
       mergeSearchSelectors: false,
       selectors: {
         ...commonListSelectors,
-        rows: { selector: "table table-sm table-bordered table-striped > tbody > tr" },
+        rows: { selector: "table-responsive > table table-sm table-bordered table-striped > tbody > tr" },
 
         size: { "selector": ".text-yellow", "filters": [{ "name": "parseSize" }] },
 
