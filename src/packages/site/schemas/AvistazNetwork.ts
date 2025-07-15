@@ -191,7 +191,7 @@ export const SchemaMetadata: Pick<
       mergeSearchSelectors: false,
       selectors: {
         ...commonListSelectors,
-        rows: { selector: "#content-area > div:nth-child(1) > div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
+        rows: { selector: "div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
 
         size: { "selector": ".text-yellow", "filters": [{ "name": "parseSize" }] },
 
