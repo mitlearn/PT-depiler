@@ -163,7 +163,7 @@ export const SchemaMetadata: Pick<
       mergeSearchSelectors: false,
       selectors: {
         ...commonListSelectors,
-        rows: { selector: "table.table table-sm table-bordered table-hover > tbody > tr" },
+        rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
 
         time: {
           selector: "td:nth-child(4)",
