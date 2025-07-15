@@ -19,17 +19,18 @@ import {
 import { parseTimeWithZone, parseSizeString } from "../utils";
 
 const commonListSelectors: TSchemaMetadataListSelectors = {
-  id: {
-    selector: "a[href*='/torrent/']",
-    attr: "href",
-    elementProcess: (href: string) => {
-      const match = href.match(/(\d+)(.+)/);
-      return match ? parseInt(match[1]) : 0;
-      }
-  },
+  // id: {
+  //   selector: "a[href*='/torrent/']",
+  //   attr: "href",
+  //   elementProcess: (href: string) => {
+  //     const match = href.match(/(\d+)(.+)/);
+  //     return match ? parseInt(match[1]) : 0;
+  //     }
+  // },
   title: { selector: "a[href*='/torrent/']" },
-  url: { selector: "a[href*='/torrent/']", attr: "href" },
-  link: { selector: "a[href*='/download/torrent/']", attr: "href" },
+  subTitle: { text: "" },
+  // url: { selector: "a[href*='/torrent/']", attr: "href" },
+  // link: { selector: "a[href*='/download/torrent/']", attr: "href" },
   comments: { text: "N/A" },
   // category: { selector: "td:nth-last-child(1) i", attr: "data-original-title" },
 };
