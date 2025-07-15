@@ -19,18 +19,18 @@ import {
 import { parseTimeWithZone, parseSizeString } from "../utils";
 
 const commonListSelectors: TSchemaMetadataListSelectors = {
-  // id: {
-  //   selector: "a[href*='/torrent/']",
-  //   attr: "href",
-  //   elementProcess: (href: string) => {
-  //     const match = href.match(/(\d+)(.+)/);
-  //     return match ? parseInt(match[1]) : 0;
-  //     }
-  // },
+  id: {
+    selector: "a[href*='/torrent/']",
+    attr: "href",
+    elementProcess: (href: string) => {
+      const match = href.match(/(\d+)(.+)/);
+      return match ? parseInt(match[1]) : 0;
+      }
+  },
   title: { selector: "a[href*='/torrent/']" },
   subTitle: { text: "" },
-  // url: { selector: "a[href*='/torrent/']", attr: "href" },
-  // link: { selector: "a[href*='/download/torrent/']", attr: "href" },
+  url: { selector: "a[href*='/torrent/']", attr: "href" },
+  link: { selector: "a[href*='/download/torrent/']", attr: "href" },
   comments: { text: "N/A" },
   // category: { selector: "td:nth-last-child(1) i", attr: "data-original-title" },
 };
@@ -164,20 +164,20 @@ export const SchemaMetadata: Pick<
       mergeSearchSelectors: false,
       selectors: {
         ...commonListSelectors,
-        rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
+        rows: { selector: "div.table-responsive > table > tbody > tr" },
 
-        // time: {
-        //   selector: "td:nth-child(4)",
-        //   elementProcess: (el: HTMLInputElement) => {
-        //     return el.getAttribute("title") || el.textContent;
-        //   },
-        //   filters: [{ name: "parseTime" }],
-        // },
-        // size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
+        time: {
+          selector: "td:nth-child(4)",
+          elementProcess: (el: HTMLInputElement) => {
+            return el.getAttribute("title") || el.textContent;
+          },
+          filters: [{ name: "parseTime" }],
+        },
+        size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
 
-        // seeders: { selector: "td:nth-child(6)" },
-        // leechers: { selector: "td:nth-child(7)" },
-        // completed: { selector: "td:nth-child(8)" },
+        seeders: { selector: "td:nth-child(6)" },
+        leechers: { selector: "td:nth-child(7)" },
+        completed: { selector: "td:nth-child(8)" },
 
         // ext_imdb: {
         //   selector: "a[href^='/mdb/title'][href*='imdb=']",
