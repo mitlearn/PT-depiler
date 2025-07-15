@@ -164,7 +164,7 @@ export const SchemaMetadata: Pick<
       mergeSearchSelectors: false,
       selectors: {
         ...commonListSelectors,
-        rows: { selector: "div.table-responsive > table > tbody > tr" },
+        rows: { selector: "div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
 
         time: {
           selector: "td:nth-child(4)",
