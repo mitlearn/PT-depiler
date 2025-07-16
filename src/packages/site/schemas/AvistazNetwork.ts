@@ -27,6 +27,7 @@ const commonListSelectors: TSchemaMetadataListSelectors = {
       if (urlIdMatch && urlIdMatch[1]) {
           return urlIdMatch[1];
       }
+      return undefined;
     }
   },
   title: { selector: "a[href*='/torrent/']" },
