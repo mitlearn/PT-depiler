@@ -20,7 +20,7 @@ import { parseTimeWithZone, parseSizeString } from "../utils";
 
 const commonListSelectors: TSchemaMetadataListSelectors = {
   id: {
-    selector: "torrent-link a[href*='/torrent/']",
+    selector: "div.mb-1 a[href*='/torrent/']",
     attr: "href",
     elementProcess: (href: string) => {
       const urlIdMatch = href.match(/\/torrent\/(\d+)/);
@@ -31,10 +31,12 @@ const commonListSelectors: TSchemaMetadataListSelectors = {
   },
   title: { selector: "a[href*='/torrent/']" },
   subTitle: { text: "" },
-  url: { selector: "torrent-link a[href*='/torrent/']", attr: "href" },
-  link: { selector: "div.float-right a[href*='/download/torrent/']", attr: "href" },
+  // url: { selector: "div.mb-1 a[href*='/torrent/']", attr: "href" },
+  // link: { selector: "div.float-right a[href*='/download/torrent/']", attr: "href" },
+  url: { selector: "a[href*='/torrent/']", attr: "href" },
+  link: { selector: "a[href*='/download/torrent/']", attr: "href" },
   comments: { text: "N/A" },
-  category: { selector: "td:nth-last-child(1) i", attr: "data-original-title" },
+  category: { selector: "td:nth-last-child(1)" },
 };
 
 interface AuthSuccessResp {
@@ -166,7 +168,7 @@ export const SchemaMetadata: Pick<
       mergeSearchSelectors: false,
       selectors: {
         ...commonListSelectors,
-        rows: { selector: "div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
+        rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody" },
 
         time: {
           selector: "td:nth-child(4)",
