@@ -33,7 +33,6 @@ const commonListSelectors: TSchemaMetadataListSelectors = {
   title: { selector: "a[href*='/torrent/']" },
   subTitle: { text: "" },
   url: { selector: "div.mb-1 a[href*='/torrent/']", attr: "href" },
-  link: { selector: "div.float-right a[href*='/download/torrent/']", attr: "href" },
   comments: { text: "N/A" },
   category: { selector: "td:nth-last-child(1)" },
 };
@@ -169,6 +168,7 @@ export const SchemaMetadata: Pick<
         ...commonListSelectors,
         rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody" },
 
+        link: { selector: "td:nth-child(3) a[href*='/download/torrent/']", attr: "href" },
         time: {
           selector: "td:nth-child(4)",
           elementProcess: (el: HTMLInputElement) => {
@@ -196,6 +196,7 @@ export const SchemaMetadata: Pick<
         ...commonListSelectors,
         rows: { selector: "div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
 
+        link: { selector: "div.float-right a[href*='/download/torrent/']", attr: "href" },
         size: { selector: "span.text-yellow[data-original-title='File Size']", filters: [{ "name": "parseSize" }] },
 
         seeders: { selector: "span.text-green.mr-2[data-original-title='Seeders']" },
