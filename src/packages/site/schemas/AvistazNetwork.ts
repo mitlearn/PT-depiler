@@ -169,14 +169,14 @@ export const SchemaMetadata: Pick<
         rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody" },
 
         link: { selector: "div.align-top a[href*='/download/torrent/']", attr: "href" },
-        time: {
-          selector: "td:nth-child(4)",
-          elementProcess: (el: HTMLInputElement) => {
-            return el.getAttribute("title") || el.textContent;
-          },
-          filters: [{ name: "parseTime" }],
-        },
-        size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
+        // time: {
+        //   selector: "td:nth-child(4)",
+        //   elementProcess: (el: HTMLInputElement) => {
+        //     return el.getAttribute("title") || el.textContent;
+        //   },
+        //   filters: [{ name: "parseTime" }],
+        // },
+        // size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
 
         seeders: { selector: "td:nth-child(6)" },
         leechers: { selector: "td:nth-child(7)" },
