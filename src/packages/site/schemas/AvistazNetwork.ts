@@ -32,10 +32,8 @@ const commonListSelectors: TSchemaMetadataListSelectors = {
   },
   title: { selector: "a[href*='/torrent/']" },
   subTitle: { text: "" },
-  // url: { selector: "div.mb-1 a[href*='/torrent/']", attr: "href" },
-  // link: { selector: "div.float-right a[href*='/download/torrent/']", attr: "href" },
-  url: { selector: "a[href*='/torrent/']", attr: "href" },
-  link: { selector: "a[href*='/download/torrent/']", attr: "href" },
+  url: { selector: "div.mb-1 a[href*='/torrent/']", attr: "href" },
+  link: { selector: "div.float-right a[href*='/download/torrent/']", attr: "href" },
   comments: { text: "N/A" },
   category: { selector: "td:nth-last-child(1)" },
 };
