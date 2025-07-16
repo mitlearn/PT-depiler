@@ -20,10 +20,10 @@ import { parseTimeWithZone, parseSizeString } from "../utils";
 
 const commonListSelectors: TSchemaMetadataListSelectors = {
   id: {
-    selector: "a[href*='/torrent/']",
+    selector: "torrent-link a[href*='/torrent/']",
     attr: "href",
     elementProcess: (href: string) => {
-      const url = element.URL;
+      const url = href.URL;
       const urlIdMatch = url.match(/\/torrent\/(\d+)/);
       if (urlIdMatch && urlIdMatch[1]) {
           return urlIdMatch[1];
