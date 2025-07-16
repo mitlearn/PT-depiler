@@ -19,18 +19,21 @@ import {
 import { parseTimeWithZone, parseSizeString } from "../utils";
 
 const commonListSelectors: TSchemaMetadataListSelectors = {
-  // id: {
-  //   selector: "a[href*='/torrent/']",
-  //   attr: "href",
-  //   elementProcess: (href: string) => {
-  //     const match = href.match(/torrent\/(\d+)(.+)/);
-  //     return match ? parseInt(match[1]) : 0;
-  //     }
-  // },
+  id: {
+    selector: "a[href*='/torrent/']",
+    attr: "href",
+    elementProcess: (href: string) => {
+      const url = element.URL;
+      const urlIdMatch = url.match(/\/torrent\/(\d+)/);
+      if (urlIdMatch && urlIdMatch[1]) {
+          return urlIdMatch[1];
+      }
+    }
+  },
   title: { selector: "a[href*='/torrent/']" },
   subTitle: { text: "" },
-  url: { selector: "a[href*='/torrent/']", attr: "href" },
-  link: { selector: "a[href*='/download/torrent/']", attr: "href" },
+  url: { selector: "torrent-link a[href*='/torrent/']", attr: "href" },
+  link: { selector: "div.float-right a[href*='/download/torrent/']", attr: "href" },
   comments: { text: "N/A" },
   category: { selector: "td:nth-last-child(1) i", attr: "data-original-title" },
 };
@@ -164,7 +167,7 @@ export const SchemaMetadata: Pick<
       mergeSearchSelectors: false,
       selectors: {
         ...commonListSelectors,
-        rows: { selector: "div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
+        rows: { selector: "div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
 
         time: {
           selector: "td:nth-child(4)",
@@ -193,11 +196,11 @@ export const SchemaMetadata: Pick<
         ...commonListSelectors,
         rows: { selector: "div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
 
-        size: { "selector": ".text-yellow", "filters": [{ "name": "parseSize" }] },
+        size: { "selector": "span.text-yellow[data-original-title="File Size"]", "filters": [{ "name": "parseSize" }] },
 
-        seeders: { "selector": ".text-green.mr-2" },
-        leechers: { "selector": ".text-red.mr-2" },
-        completed: { "selector": ".text-blue.mr-2" },
+        seeders: { "selector": "span.text-green.mr-2[data-original-title="Seeders"]" },
+        leechers: { "selector": "span.text-red.mr-2[data-original-title="Leechers"]" },
+        completed: { "selector": "span.text-blue.mr-2[data-original-title="Completed"]" },
       },
     },
   ],
