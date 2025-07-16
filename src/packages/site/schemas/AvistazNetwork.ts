@@ -23,8 +23,7 @@ const commonListSelectors: TSchemaMetadataListSelectors = {
     selector: "torrent-link a[href*='/torrent/']",
     attr: "href",
     elementProcess: (href: string) => {
-      const url = href.URL;
-      const urlIdMatch = url.match(/\/torrent\/(\d+)/);
+      const urlIdMatch = href.match(/\/torrent\/(\d+)/);
       if (urlIdMatch && urlIdMatch[1]) {
           return urlIdMatch[1];
       }
