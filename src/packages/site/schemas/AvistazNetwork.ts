@@ -196,11 +196,11 @@ export const SchemaMetadata: Pick<
         ...commonListSelectors,
         rows: { selector: "div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
 
-        size: { "selector": "span.text-yellow[data-original-title="File Size"]", "filters": [{ "name": "parseSize" }] },
+        size: { selector: "span.text-yellow[data-original-title='File Size']", filters: [{ "name": "parseSize" }] },
 
-        seeders: { "selector": "span.text-green.mr-2[data-original-title="Seeders"]" },
-        leechers: { "selector": "span.text-red.mr-2[data-original-title="Leechers"]" },
-        completed: { "selector": "span.text-blue.mr-2[data-original-title="Completed"]" },
+        seeders: { selector: "span.text-green.mr-2[data-original-title='Seeders']" },
+        leechers: { selector: "span.text-red.mr-2[data-original-title='Leechers']" },
+        completed: { selector: "span.text-blue.mr-2[data-original-title='Completed']" },
       },
     },
   ],
