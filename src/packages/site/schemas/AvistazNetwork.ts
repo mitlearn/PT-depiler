@@ -34,7 +34,7 @@ const commonListSelectors: TSchemaMetadataListSelectors = {
   subTitle: { text: "" },
   url: { selector: "div.mb-1 a[href*='/torrent/']", attr: "href" },
   comments: { text: "N/A" },
-  category: { selector: "td:nth-last-child(1) > i" , attr: "data-original-title" },
+  category: { selector: "td:nth-last-child(1) i[data-original-title]", attr: "data-original-title" },
 };
 
 interface AuthSuccessResp {
@@ -169,21 +169,15 @@ export const SchemaMetadata: Pick<
         rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody" },
 
         link: { selector: "div.align-top a[href*='/download/torrent/']", attr: "href" },
-        // time: {
-        //   selector: "td:nth-child(4)",
-        //   elementProcess: (el: HTMLInputElement) => {
-        //     return el.getAttribute("title") || el.textContent;
-        //   },
-        //   filters: [{ name: "parseTime" }],
-        // },
-        // size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
+        time: { selector: "td:nth-child(4)" },
+        size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
 
         seeders: { selector: "td:nth-child(6)" },
         leechers: { selector: "td:nth-child(7)" },
         completed: { selector: "td:nth-child(8)" },
 
         // ext_imdb: {
-        //   selector: "a[href^='/mdb/title'][href*='imdb=']",
+        //   selector: "a[href^='/imdb/title'][href*='imdb=']",
         //   filters: [{ name: "querystring", args: ["imdb"] }, { name: "extImdbId" }],
         // },
       },
