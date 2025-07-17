@@ -218,6 +218,46 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  detail: {
+    urlPattern: ["/torrents/"],
+    selectors: {
+      id: {
+        selector: ":self",
+        elementProcess: (element: Document) => {
+          // 尝试从页面 URL 中获取 ID，例如 /torrent/158672
+          const url = element.URL;
+          const urlIdMatch = url.match(/\/torrent\/(.+)\.(\d+)/);
+          if (urlIdMatch && urlIdMatch[1]) {
+            return urlIdMatch[1];
+          }
+
+          // 如果两种方式都找不到 ID，则返回 undefined
+          return undefined;
+        },
+      },
+      title: {
+        selector: [
+          "tr:has(td:first-child:contains('Name')) > td:last-child",
+        ],
+        switchFilters: {
+          "tr:has(td:first-child:contains('Name')) > td:last-child": [
+            (element: string) => {
+              if (!element) {
+                return undefined;
+              }
+              
+              return element;
+            }
+          ],
+        },
+      },
+      link: {
+        selector: ["a[href*='/download/']"],
+        attr: "href",
+      },
+    },
+  },
+  
   userInfo: {
     pickLast: ["name", "id"],
     selectors: {
