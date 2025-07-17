@@ -315,8 +315,7 @@ export const siteMetadata: ISiteMetadata = {
         // 该站点提供 "1Y 2M 3D 1h 7m 1s"，需转换至秒存储
         elementProcess: (element: HTMLElement) => {
           const raw = element.textContent?.trim() || "";
-          const isoDuration =
-            "P" +
+          const isoDuration = "P" +
             raw
               .replace(/\s+/g, "") // 去除空格: "1Y2M3D1h7m1s"
               .replace(/(\d+[YMD])(\d+[hms])/i, "$1T$2"); // 在时间部分前加T: "P1Y2M3DT1h7m1s"
@@ -336,11 +335,6 @@ export const siteMetadata: ISiteMetadata = {
       specialSeedsize: {
         selector: ["td.bhd-user-left:contains('Special Seed Size') + td span.badge-user"],
         filters: [{ name: "parseSize" }],
-      },
-      messageCount: {
-        text: 0,
-        selector: ["div.bhd-td text-center class-standard"],
-        filters: [{ name: "parseNumber" }], // 该站点不提供未读计数，所以有信置11，无信为0
       },
       // '/bp'
       bonusPerHour: {
