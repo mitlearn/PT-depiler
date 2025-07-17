@@ -168,7 +168,8 @@ export const SchemaMetadata: Pick<
         ...commonListSelectors,
         rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
 
-        link: { selector: "div.align-top a[href*='/download/torrent/']", attr: "href" },
+        // link: { selector: "div.align-top a[href*='/download/torrent/']", attr: "href" },
+        link: { text: "" },
         // time: { selector: "td:nth-child(4)" },
         size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
 
