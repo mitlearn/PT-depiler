@@ -219,7 +219,7 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   detail: {
-    urlPattern: ["/torrents/"],
+    urlPattern: ["/torrents/(.+)\\.(\\d+)"],
     selectors: {
       id: {
         selector: ":self",
