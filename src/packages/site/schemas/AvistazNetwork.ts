@@ -30,11 +30,11 @@ const commonListSelectors: TSchemaMetadataListSelectors = {
   //     return undefined;
   //   }
   // },
-  title: { selector: "a[href*='/torrent/']" },
+  title: { selector: "div.mb-1 a[href*='/torrent/']" },
   subTitle: { text: "" },
   url: { selector: "div.mb-1 a[href*='/torrent/']", attr: "href" },
   comments: { text: "N/A" },
-  category: { selector: "td:nth-last-child(1) i[data-original-title]", attr: "data-original-title" },
+  category: { selector: "td:nth-last-child(1) .category-icon[data-original-title]", attr: "data-original-title" },
 };
 
 interface AuthSuccessResp {
@@ -166,7 +166,7 @@ export const SchemaMetadata: Pick<
       mergeSearchSelectors: false,
       selectors: {
         ...commonListSelectors,
-        rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody" },
+        rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
 
         link: { selector: "div.align-top a[href*='/download/torrent/']", attr: "href" },
         time: { selector: "td:nth-child(4)" },
