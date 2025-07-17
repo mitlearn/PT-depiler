@@ -273,6 +273,11 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["ul#beta-stats li a:has(> i.fas.fa-skull-crossbones)"],
         filters: [{ name: "parseNumber" }],
       },
+      messageCount: {
+        text: 0,
+        selector: ["div.bhd-td text-center class-standard"],
+        filters: [{ name: "parseNumber" }], // 该站点不提供未读计数，所以有信置11，无信为0
+      },
       // '/users/$user.name$.$user.id$'
       levelName: {
         selector: ["div[style*='margin-left'] a.beta-alert"],
