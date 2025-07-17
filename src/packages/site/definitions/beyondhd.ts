@@ -334,8 +334,8 @@ export const siteMetadata: ISiteMetadata = {
       },
       messageCount: {
         text: 0,
-        selector: [".beta-alert[title='Private Messages'] .notify"],
-        elementProcess: () => 11, // 该站点不提供未读计数，所以有信置11，无信为0
+        selector: ["div.bhd-td text-center class-standard"],
+        filters: [{ name: "parseNumber" }], // 该站点不提供未读计数，所以有信置11，无信为0
       },
       // '/bp'
       bonusPerHour: {
