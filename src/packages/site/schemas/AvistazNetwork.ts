@@ -19,22 +19,22 @@ import {
 import { parseTimeWithZone, parseSizeString } from "../utils";
 
 const commonListSelectors: TSchemaMetadataListSelectors = {
-  // id: {
-  //   selector: "div.mb-1 a[href*='/torrent/']",
-  //   attr: "href",
-  //   elementProcess: (href: string) => {
-  //     const urlIdMatch = href.match(/\/torrent\/(\d+)/);
-  //     if (urlIdMatch && urlIdMatch[1]) {
-  //         return urlIdMatch[1];
-  //     }
-  //     return undefined;
-  //   }
-  // },
+  id: {
+    selector: "div.mb-1 a[href*='/torrent/']",
+    attr: "href",
+    elementProcess: (href: string) => {
+      const torrentIdMatch = href.match(/\/torrent\/(\d+)/);
+      if (torrentIdMatch && torrentIdMatch[1]) {
+          return torrentIdMatch[1];
+      }
+      return undefined;
+    }
+  },
   title: { selector: "div.mb-1 a[href*='/torrent/']" },
   subTitle: { text: "" },
   url: { selector: "div.mb-1 a[href*='/torrent/']", attr: "href" },
   comments: { text: "N/A" },
-  category: { selector: "td:nth-last-child(1) .category-icon[data-original-title]", attr: "data-original-title" },
+  category: { selector: ".category-icon[data-original-title]", attr: "data-original-title" },
 };
 
 interface AuthSuccessResp {
