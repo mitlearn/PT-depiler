@@ -174,7 +174,7 @@ export const SchemaMetadata: Pick<
             },
           ],
         },
-        title: { selector: "div.torrent-file a[href*='/torrent/']" },
+        title: { selector: "a.torrent-link" },
         url: { selector: "div.torrent-file a[href*='/torrent/']", attr: "href" },
         link: { selector: "td:nth-child(3) a[href*='/download/torrent/']", attr: "href" },
         // time显示为1 minute/1 hour，放弃获取
