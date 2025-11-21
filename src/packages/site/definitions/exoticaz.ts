@@ -118,7 +118,7 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   list: [
-    ...(SchemaMetadata.list ?? []),
+   // ...(SchemaMetadata.list ?? []),
     // 种子列表页
     {
       urlPattern: ["/torrents"],
@@ -139,7 +139,7 @@ export const siteMetadata: ISiteMetadata = {
             },
           ],
         },
-       // title: { selector: "div.mb-1 a[href*='/torrent/']" },
+        title: { selector: "div.mb-1 a[href*='/torrent/']" },
         category: { selector: ".category-icon[data-original-title]", attr: "data-original-title" },
         url: { selector: "div.mb-1 a[href*='/torrent/']", attr: "href" },
         link: { selector: "div.align-top a[href*='/download/torrent/']", attr: "href" },
@@ -269,4 +269,5 @@ export default class Exoticaz extends AvistazNetwork {
   }
 
 }
+
 
