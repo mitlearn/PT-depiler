@@ -9,7 +9,7 @@ import searchQueryParser, { type SearchParserOptions, SearchParserResult } from 
 import { parseSizeString, parseValidTimeString } from "@ptd/site";
 import { formatDate } from "@/options/utils.ts";
 
-type TAdvanceFilterFormat = "date" | "size" | "boolean";
+type TAdvanceFilterFormat = "date" | "size" | "number" | "boolean";
 
 export interface ITextValue {
   required: string[];
@@ -55,6 +55,11 @@ const advanceFilterFormat: Record<TAdvanceFilterFormat, IValueFormat> = {
       else return parseSizeString(value);
     },
     build: (value: string | number) => filesize(value, { spacer: "" }) as string,
+  },
+  // 对 number 全部转为字符串比较
+  number: {
+    parse: (value: string | number) => value.toString(),
+    build: (value: string | number) => value.toString(),
   },
   boolean: {
     parse: (value: string) => (value ? "1" : "0"),
@@ -128,7 +133,12 @@ export function checkKeywordValue(
   // @ts-ignore
 ): boolean | undefined {
   const itemValue = get(rawItem, keyword); // true    filter[keyword] = ['1']
-  if (filter[keyword] && typeof itemValue !== "undefined") {
+  if (filter[keyword]) {
+    // 如果原始数据中没有该 keyword 字段，则直接返回 false
+    if (typeof itemValue == "undefined") {
+      return false;
+    }
+
     const valueFormat = getValueFormat(keyword as string, format);
     if (Array.isArray(itemValue)) {
       const parsedItemValue = itemValue.map((v: any) => valueFormat.parse(v)) as string[];
