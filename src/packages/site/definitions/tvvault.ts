@@ -8,8 +8,58 @@ import { EResultParseStatus } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import { parseSizeString } from "../utils/filesize.ts";
 
-const SEARCH_INTERVAL_MS = 5 * 60 * 1000; // Conservative limit reported in https://github.com/Jackett/Jackett/issues/16204
-let lastSearchAt = 0;
+const SEARCH_INTERVAL_SECONDS = 5 * 60 + 1; // API searches must be more than five minutes apart.
+let lastSearchAt = 0; // Unix timestamp in seconds, shared by site instances in this runtime.
+
+// Category IDs and form field names come from the user-provided TV-Vault search form.
+const genres = [
+  { name: "Action", value: 1 },
+  { name: "Advertising", value: 2 },
+  { name: "Animation", value: 3 },
+  { name: "Chatshow", value: 4 },
+  { name: "Comedy", value: 5 },
+  { name: "Documentary", value: 6 },
+  { name: "Drama", value: 7 },
+  { name: "Family", value: 8 },
+  { name: "Fantasy", value: 15 },
+  { name: "Gameshow", value: 9 },
+  { name: "Horror", value: 16 },
+  { name: "Instructional", value: 18 },
+  { name: "Music", value: 10 },
+  { name: "Sci-Fi", value: 11 },
+  { name: "Soap", value: 12 },
+  { name: "Thriller", value: 13 },
+  { name: "Western", value: 17 },
+  { name: "Other", value: 14 },
+];
+const allowedGenreIds = new Set(genres.map(({ value }) => value));
+
+const ripFilters = [
+  { key: "container", name: "Container", options: ["AVI", "MPG", "MKV", "MP4", "TS", "VOB/IFO", "m2ts/bdmv", "ISO", "Audio", "CBR", "ePUB", "PDF", "Subtitle", "Multiple", "Other"] },
+  { key: "format", name: "Video format", options: ["XviD", "DivX", "H.264", "AV1", "VC-1", "H.265", "MPEG-2", "MPEG-1", "VP8/9", "Unknown", "Multiple", "Other", ""] },
+  { key: "aformat", name: "Audio format", options: ["AC3", "AAC", "DTS", "E-AC3", "MP3", "MP2", "FLAC", "(L)PCM", "Vorbis", "Opus", "Unknown", "Multiple", "Other", ""] },
+  { key: "media", name: "Media", options: ["DVD", "HDTV", "PDTV", "TV", "VHS", "Blu-ray", "HD-DVD", "LaserDisc", "Master", "Kinescope", "Web", "ScreenCap", "CD", "Scan", "Unknown", "Multiple", "Other"] },
+  { key: "hdrvideo", name: "High Dynamic Range", options: [
+    { name: "No: 8-bit", value: "0" }, { name: "All HDR types", value: "10" },
+    { name: "General 10-bit", value: "1" }, { name: "Dolby Vision", value: "3" },
+    { name: "10-bit (via MediaInfo)", value: "2" }, { name: "DoVi (via MediaInfo)", value: "4" },
+  ] },
+  { key: "subtitles", name: "Subtitles", options: [
+    { name: "No Subs", value: "0" }, { name: "Subs Avail", value: "1" }, { name: "Autoset (MI)", value: "2" },
+  ] },
+  { key: "commentary", name: "Commentary", options: [
+    { name: "No Comm", value: "0" }, { name: "Comm Avail", value: "1" }, { name: "Autoset (MI)", value: "2" },
+  ] },
+  { key: "excludecontainer", name: "Exclude Container", options: ["AVI", "MPG", "MKV", "MP4", "TS", "VOB/IFO", "m2ts/bdmv", "ISO", "Audio", "CBR", "ePUB", "PDF", "Subtitle", "Multiple", "Other"] },
+  { key: "order_by", name: "Order by", options: [
+    { name: "Name", value: "s1" }, { name: "Year", value: "s2" }, { name: "Added", value: "s3" },
+    { name: "Size", value: "s4" }, { name: "Snatched", value: "s5" }, { name: "Seeders", value: "s6" },
+    { name: "Leechers", value: "s7" }, { name: "Comments", value: "s8" },
+  ] },
+  { key: "order_way", name: "Order direction", options: [
+    { name: "Descending", value: "desc" }, { name: "Ascending", value: "asc" },
+  ] },
+] as const;
 
 // XML field names have not been verified: the sample pasted into chat lost its XML tags.
 function field(element: Element | null, ...names: string[]): string {
@@ -87,6 +137,14 @@ function parseXmlSearch(xml: Document, siteUrl: string, authkey: string, torrent
     if (!title) return [];
 
     const rawSize = field(element, "size", "bytes", "filesize", "sizebytes");
+    // Prefer the separate format fields; some responses only provide a slash-separated format string.
+    const format = [
+      field(element, "container"),
+      field(element, "format", "codec", "video", "videocodec"),
+      field(element, "aformat", "audio", "audiocodec"),
+      field(element, "media", "source"),
+    ].filter(Boolean);
+    const subTitle = format.length ? format.join(" ") : field(element, "format", "releaseformat").replace(/\//g, " ");
     const numericSize = Number(rawSize);
     const size = /^\d+$/.test(rawSize) ? numericSize : parseSizeString(rawSize);
     const time = numberField(element, "timestamp", "addedtimestamp", "uploadedtimestamp", "time", "added", "date");
@@ -95,6 +153,7 @@ function parseXmlSearch(xml: Document, siteUrl: string, authkey: string, torrent
       site: "tvvault",
       id,
       title,
+      ...(subTitle ? { subTitle } : {}),
       url: details.toString(),
       category: "TV",
       ...(size > 0 ? { size } : {}),
@@ -136,6 +195,23 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "AbstractPrivateSite",
   urls: ["https://tv-vault.me/"],
+  category: [
+    {
+      name: "题材分类",
+      key: "filter_cat",
+      options: genres,
+      cross: { mode: "appendQuote" },
+    },
+    ...ripFilters.map(({ key, name, options }) => ({
+      name,
+      key,
+      options: options.map((option) =>
+        typeof option === "string"
+          ? { name: option || (key === "format" ? "(no video)" : "(no audio)"), value: option }
+          : { name: option.name, value: option.value },
+      ),
+    })),
+  ],
   userInputSettingMeta: [
     {
       name: "authkey",
@@ -157,7 +233,7 @@ export const siteMetadata: ISiteMetadata = {
 export default class TVVault extends PrivateSite {
   public override async getSearchResult(
     keywords?: string,
-    _searchEntry: ISearchEntryRequestConfig = {},
+    searchEntry: ISearchEntryRequestConfig = {},
   ): Promise<ISearchResult> {
     if (!this.allowSearch || !keywords?.trim()) {
       return { status: EResultParseStatus.passParse, data: [] };
@@ -170,8 +246,10 @@ export default class TVVault extends PrivateSite {
     }
 
     const input = keywords.trim();
-    const imdbSearch = input.startsWith("imdb|");
-    const query = imdbSearch ? input.slice(5).trim() : input;
+    const selected = searchEntry.requestConfig?.params ?? {};
+    const imdbSearch = /^(?:imdb|imdbid)[|=]/i.test(input);
+    const imdbId = imdbSearch ? input.replace(/^(?:imdb|imdbid)[|=]/i, "").trim() : "";
+    const query = imdbSearch ? (imdbId.startsWith("tt") ? imdbId : `tt${imdbId}`) : input;
     if ((imdbSearch && !/^tt\d+$/i.test(query)) || (!imdbSearch && query.length < 3)) {
       return {
         status: EResultParseStatus.passParse,
@@ -180,22 +258,54 @@ export default class TVVault extends PrivateSite {
       };
     }
 
-    const now = Date.now();
-    // Reserve synchronously before the first await: parallel searches in this runtime cannot bypass the interval.
-    if (now - lastSearchAt < SEARCH_INTERVAL_MS) {
-      return { status: EResultParseStatus.passParse, statusMsg: "TV-Vault XML 搜索间隔至少五分钟，请稍后再试", data: [] };
+    const currentTime = Math.floor(Date.now() / 1000);
+    const rateLimitResult = (last: number): ISearchResult => ({
+      status: EResultParseStatus.passParse,
+      statusMsg: `TV-Vault XML 搜索请在 ${Math.max(1, last + SEARCH_INTERVAL_SECONDS - currentTime)} 秒后重试`,
+      data: [],
+    });
+
+    // Reserve synchronously before the first await so searches in this runtime cannot race.
+    if (lastSearchAt > 0 && currentTime < lastSearchAt + SEARCH_INTERVAL_SECONDS) {
+      return rateLimitResult(lastSearchAt);
     }
-    lastSearchAt = now;
+    lastSearchAt = currentTime;
 
     try {
-      const saved = (await this.retrieveRuntimeSettings<number>("xmlSearchLastRequestAt")) ?? 0;
-      if (now - saved < SEARCH_INTERVAL_MS) {
-        return { status: EResultParseStatus.passParse, statusMsg: "TV-Vault XML 搜索间隔至少五分钟，请稍后再试", data: [] };
+      const stored = await this.retrieveRuntimeSettings<number>("xmlSearchLastRequestAt");
+      // Earlier versions stored milliseconds under the same key; migrate without bypassing their cooldown.
+      const saved = typeof stored === "number" && Number.isFinite(stored) && stored > 0
+        ? Math.floor(stored > 1e12 ? stored / 1000 : stored)
+        : 0;
+      if (saved > 0 && currentTime < saved + SEARCH_INTERVAL_SECONDS) {
+        return rateLimitResult(saved);
       }
-      await this.storeRuntimeSettings("xmlSearchLastRequestAt", now);
+      // Save the request timestamp before contacting the API. Failed requests also consume this slot.
+      await this.storeRuntimeSettings("xmlSearchLastRequestAt", currentTime);
       const params: Record<string, string | number> = { query: "get", authkey, enablegrouping: 1 };
-      if (imdbSearch) params.imdbid = query;
-      else params.searchstr = query;
+      const categorySelection = selected.filter_cat;
+      if (categorySelection && typeof categorySelection === "object" && !Array.isArray(categorySelection)) {
+        for (const [id, checked] of Object.entries(categorySelection)) {
+          if (allowedGenreIds.has(Number(id)) && checked == 1) params[`filter_cat[${id}]`] = 1;
+        }
+      }
+      for (const [key, checked] of Object.entries(selected)) {
+        const match = /^filter_cat\[(\d+)\]$/.exec(key);
+        if (match && allowedGenreIds.has(Number(match[1])) && checked == 1) params[key] = 1;
+      }
+      for (const { key, options } of ripFilters) {
+        if (!Object.prototype.hasOwnProperty.call(selected, key)) continue;
+        const value = selected[key];
+        if (typeof value !== "string" && typeof value !== "number") continue;
+        if (options.some((option) => String(typeof option === "string" ? option : option.value) === String(value))) {
+          params[key] = value;
+        }
+      }
+      if (imdbSearch) {
+        params.imdbid = query;
+      } else {
+        params.searchstr = query;
+      }
       const { data } = await this.request<string>({ url: "/xmlsearch.php", params, responseType: "text" }, false);
       const xml = new DOMParser().parseFromString(data, "application/xml");
       const parsed = parseXmlSearch(xml, this.url, authkey, torrentPass);
